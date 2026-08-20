@@ -1,0 +1,20 @@
+# PlatformIO build output and downloaded libraries.
+# This is 26 of the project's 27 MB — build artifacts, third-party library
+# clones, and firmware.map (which embeds absolute local paths).
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Build products
+*.elf
+*.bin
+*.hex
+*.map
+
+# Secrets — nothing here today, but firmware projects grow them
+secrets.h
+secrets.ini
+*.local.ini
+
+.DS_Store
+*.bak
