@@ -658,6 +658,15 @@ Vapor lock: sealed air in a blind bore expands and pushes the tool out during
 the seconds before the steel grips. Moot on vented/through-coolant holders — see
 OQ-1.
 
+**The drilled knob earns its place twice, and the second reason is not about
+venting.** Scott, 2026-08-23: *"the TSC studs are to allow for a welding wire to
+be run up through the holder during heat shrink removal of a tool."* The through
+passage is the only way to push a shank out from behind when it will not release
+from a hot holder. So a solid knob does not merely re-introduce vapor lock and
+re-instate MR-16 — it also removes the recovery path for a stuck tool, with no
+substitute. **Fit drilled knobs to every shrink-fit holder.** Note this is
+unrelated to coolant: the 1100MX has no through-spindle coolant at all.
+
 ### 6.5 Cooling station
 
 | MR-18 | Split finned aluminum contact sleeves, separate station from the coil |
