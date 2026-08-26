@@ -1,0 +1,19 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "8f2a1c40-0000-4000-8000-5f7269746501")
+	(paper "A3")
+	(title_block
+		(title "Shrink-Fit Induction Controller")
+		(date "2026-08-25")
+		(rev "A")
+	)
+	(lib_symbols)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)
