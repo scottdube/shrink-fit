@@ -66,12 +66,21 @@
 #define TC_SETTLE_MS       200     // TR-04: gate sampling to ≥200 ms after field-off
 
 // ---- Bus voltage sense (resistor divider) -----------------------------------
-// 180 k (top, to DC+) / 10 k (bottom, to DC−) = 19:1. 53.5 V → 2.8 V, well under
-// the 3.3 V rail, and draws ~0.3 mA. Put 0.1 µF across the bottom leg — you are
-// sensing next to a kW oscillator (R-11) and that filter is not optional.
+// 220 k (top, to DC+) / 10 k (bottom, to DC−) = 23:1. 53.5 V → 2.33 V and 48 V →
+// 2.09 V, both clear of the 3.3 V rail; draws ~0.24 mA. Put 0.1 µF across the
+// bottom leg — you are sensing next to a kW oscillator (R-11) and that filter is
+// not optional.
+//
+// 220 k, not the 180 k originally specified here: 180 k is not stocked. The EAONE
+// kit steps 100 k → 220 k → 300 k, and nothing else on hand reaches 19:1 in two
+// parts (checked against inventory 2026-08-25). Rejected 100 k + 68 k + 10 k in
+// series = 18.8:1, which hits the number but spends three parts and two extra
+// joints to save a calibration step the `cal` command performs anyway. Source
+// impedance is 9.6 kΩ; the 0.1 µF supplies the ADC sampling charge, so the
+// higher impedance costs nothing.
 // GPIO 1 is ADC1_CH0 on the S3; ADC1 avoids the WiFi conflict that afflicts ADC2.
 #define BUS_SENSE_PIN      1
-#define BUS_DIV_RATIO      19.0f   // CALIBRATE — see the testrig `cal` command
+#define BUS_DIV_RATIO      23.0f   // CALIBRATE — see the testrig `cal` command
 
 // ---- Contactor and interlocks ------------------------------------------------
 // CR-05: the contactor delivers the voltage STEP. CAN sets voltage; it must never

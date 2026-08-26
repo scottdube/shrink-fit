@@ -69,13 +69,23 @@ is cutting" until measured otherwise.
       as floating: controller referenced to DC−, isolated CAN, no USB while
       energised. Grounding and protection sizing move to the phase-2 review.
 
-### Controller — done 2026-08-09
+### Controller — bringup done 2026-08-09, test rig NOT yet flashed
 
 ESP32-S3 Super Mini flashed and verified. **4 MB flash, no PSRAM** (so GPIO 33–37
 are free), TWAI running at 125 kbps listen-only on GPIO 4/5, zero bus errors.
 Toolchain fixed — the stale Python 3.9 PlatformIO is gone and `pio` now resolves
 to the 3.11 venv. The listen-only sniffer is ready for the rectifier the moment
 the SN65HVD230 lands; it cannot transmit or jam the bus.
+
+`testrig.cpp` — the timed-cycle rig that actually runs the coil A/B — is written
+and has compiled clean, but **has never been flashed**. It is waiting on the
+Phase 1 wiring, not on code.
+
+**Toolchain regressed 2026-08-25.** `~/.platformio/penv` and `.pio/build` are
+both gone; `pio` no longer resolves and the `~/.zshrc` line added on 08-09 now
+points at nothing. Only `~/.platformio/python3` survives, which is the newer
+Core layout — so this reads as a PlatformIO reinstall, not a deletion. Reinstall
+Core before the next flash and re-point the PATH line.
 
 ## When the tube arrives
 

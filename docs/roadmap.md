@@ -171,7 +171,24 @@ is **not** what differentiates these options.
 | Lift | Counterbalance / gas spring | Hand or simple carriage |
 | Precedent | **R1 and most published builds** | Less common |
 
-**Leaning A**, on two grounds:
+**DECIDED 2026-08-09 — A, package on the rail.** Both commercial machines and
+every published DIY build move the head, not the work. Independent convergence
+from two very different cost structures is strong evidence, and the reasons are
+concrete: setting a holder onto a flat nest is a natural motion and getting a
+300 °C one *out* is much better that way; coil travel serves both loading
+clearance and gage-length adjustment with one mechanism; the nest stays a simple
+block; and working height stays at bench level.
+
+The flexing-plumbing objection is answered by moving the **board with the coil** —
+copper stays rigid, only hose and DC cable flex, both designed for it.
+
+Two requirements survive regardless:
+- **The coil gets its own mount.** Legs reach with slack; hand-bent copper must
+  never set a ±0.5 mm dimension (MR-24).
+- **Hard stop at the bottom of travel**, so repeatability is a property of the
+  machine rather than of the operator.
+
+Original reasoning, kept for context:
 
 - **Insertion is the moment that matters** — five seconds, one motion. Holder on
   a solid base means the push goes into the bench, not into a latch.

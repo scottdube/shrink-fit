@@ -170,7 +170,7 @@ void setup() {
   while (!Serial && millis() - t0 < 3000) { delay(10); }
 
   Serial.println("\n===== timed test rig =====");
-  Serial.printf("SSR GPIO %d (via 2N7000 from 12 V) | button GPIO %d | bus sense GPIO %d\n",
+  Serial.printf("SSR GPIO %d (via 2N3904 low-side, 12 V) | button GPIO %d | bus sense GPIO %d\n",
                 CONTACTOR_PIN, START_BUTTON_PIN, BUS_SENSE_PIN);
   Serial.printf("duration %lu s | max %lu | cooldown %lu | divider %.2f:1\n",
                 runSeconds, MAX_RUN_S, COOLDOWN_S, divRatio);
