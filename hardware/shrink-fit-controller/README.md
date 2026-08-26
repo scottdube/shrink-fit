@@ -91,14 +91,13 @@ Consequences that bind this layout:
 
 ## Open — blocking layout
 
-1. **Super Mini footprint** — the symbol is done and verified; the *footprint*
-   still needs four caliper numbers (below). Handedness is settled: it was
-   cross-checked against photographs of **both faces** of the physical board, not
-   inferred from one view.
-2. **No 5 V / 12 V source is on the BOM.** The bus is 41.5–53.5 V and nothing
-   steps it down. Either a buck gets specified, or the controller is fed
-   separately — and if separately, that supply's ground reference has to be
-   settled against the floating-bus decision above before layout.
+1. **Super Mini footprint** — symbol done and verified against three sources;
+   the *footprint* needs **one** more number, the row-to-row hole centre
+   distance. See Dimensions below. Handedness is settled.
+2. ~~No 5 V / 12 V source~~ — **resolved.** A 12 V supply already exists for the
+   fans and pump, and there are 15 LM2596 buck modules in stock. This introduced
+   a grounding constraint instead: see Power below, and note **the deciding
+   meter reading has not been taken.**
 3. **Mounting is undecided** because the enclosure is. Holes are free while
    milling and painful to retrofit next to a pour, so the enclosure has to be
    picked — or at least its mounting pattern fixed — before the board outline is.
@@ -133,17 +132,81 @@ Inner pads (not on the headers, need soldering): 14–17, 19, 21, 33–42, 45–
 This confirms the `config.h` comment. The **antenna is at the end opposite the
 USB-C**; BOOT and RESET buttons are at the USB end.
 
-## Measurement list — 4 numbers, then the footprint can be drawn
+## Dimensions
 
-Photographs settle pin order and handedness but **not dimensions** — lens and
-perspective distortion make photo-derived geometry unreliable at the 0.1 mm a
-footprint needs. Calipers, component side up:
+From a dimensioned drawing supplied 2026-08-25. It is a **third independent
+source** and arrives rotated 90 degrees from both photographs, with the pin
+labels still matching — so the pinout above is confirmed by three views in three
+orientations, which is the only way to rule out a mirror.
 
-1. Board **length × width**
-2. **Row-to-row** centre distance
-3. **Pin 1 centre** to the top edge, and to the left edge
-4. **Pin 1 to pin 9** centre distance — confirms the 2.54 mm pitch across the
-   whole row rather than one gap (expect 20.32 mm)
+| | mm |
+|---|---|
+| Board, along the pin rows | **23.50** |
+| Board, across the rows | **18.00** |
+| Pin 1 to pin 9 centres | **20.32** |
 
-Plus, for the enclosure rather than the footprint: how far the **USB-C shell
-overhangs** the board edge.
+**The 20.32 self-validates the pitch:** 8 gaps x 2.54 = 20.32 exactly. Pitch is
+2.54 mm and does not need measuring.
+
+**Derived, not given:** 23.50 - 20.32 = 3.18 mm of board beyond the end pin
+centres. If the row is centred, that is **1.59 mm** from each end pin centre to
+the board edge — and 1.59 mm is 1/16 inch, which is consistent with symmetry.
+Treat it as a prediction to confirm, not a dimension to build on.
+
+### Still needed — one number
+
+**Row-to-row hole centre distance.** The drawing does not dimension it, and it
+cannot be read off a render: the pads are ovals that overhang the board outline,
+so the hole centres sit inboard of the 18.00 mm edge by an amount the drawing
+does not give.
+
+> **Prediction to check, not to assume: 17.78 mm (0.700 in).** These modules are
+> built to straddle a breadboard centre channel, 0.7 in is the standard for that,
+> and it leaves ~0.11 mm of board outside each hole centre — consistent with pads
+> that overhang. If calipers say otherwise, the calipers win.
+
+Also worth a number for the enclosure, though not for the footprint: how far the
+**USB-C shell overhangs** the board edge.
+
+## Power
+
+**Resolved 2026-08-25:** a 12 V supply already exists for the fans and pump.
+
+| Role | Part | Stock |
+|---|---|---|
+| 12 V -> 5 V logic | [#28 LM2596 Buck ADJ](http://192.168.50.10:8001/web/part/28/) | 15 |
+| Isolated fallback | [#491 HLK-5M05B AC-DC 5 V 5 W](http://192.168.50.10:8001/web/part/491/) | 3 |
+| CAN-side isolation | [#27 B0505S-1W](http://192.168.50.10:8001/web/part/27/) | 5 |
+
+### The constraint this creates
+
+The controller **must** sit at DC-. That is forced by the sensing, not chosen:
+the bus divider references DC- and the INA228 has to touch the shunt. Sensing
+dictates the isolation architecture, never the other way round.
+
+An LM2596 is a **non-isolated** buck — output ground is input ground. Feeding the
+controller from the 12 V rail therefore ties **12 V PSU V- to 48 V DC-**. If that
+supply's negative is earthed, or Y-capped to earth as most SMPS bricks are, then
+**DC- is earthed** — which silently re-creates the SR-11 bond that was
+deliberately withdrawn, and re-creates it in the one machine where the operator's
+hand is inside the coil during the cycle.
+
+**One measurement decides it.** With the 12 V PSU unplugged, meter from its V-
+terminal to the earth pin of its own AC cord:
+
+- **Open** -> output floats. LM2596 from 12 V is correct; the LV system floats
+  together as designed.
+- **Continuity, or a few hundred kOhm through Y-caps** -> the 12 V rail is
+  earth-referenced and must not feed the controller. Use the HLK-5M05B instead,
+  **mounted off-board on the chassis** feeding 5 V through a connector, so mains
+  never reaches a single-sided milled PCB.
+
+**STATUS: not yet measured.** The BOM carries the LM2596 pending this reading.
+
+### Independent of that result
+
+The pump and fans must not share the controller's ground return. The pump is
+inductive and its switching transients would ride on the very reference the bus
+divider measures against. **Star the controller's feed at the PSU terminals** —
+never daisy-chained off the pump — plus bulk and ceramic caps at the module
+supply pin.
