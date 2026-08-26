@@ -100,3 +100,57 @@ independent cross-check, not a dependency.
 Nothing in the switching-and-protection group should be cut. MR-22 alone
 protects the IRFP260Ns, which R-2 already flags as the highest-likelihood
 failure in the project.
+
+---
+
+## What the ZVS kit actually shipped
+
+Read off the seller's own **Package Included** list, eBay item `286924140726`
+(WMY-TECH), on 2026-08-25. Ordered 2026-07-29; listed at **$338.36** the day this
+was read. Quantities are vendor-stated and the box was received — not divided,
+not inferred.
+
+The kit was a single InvenTree record at qty 0, so **every core component of this
+machine was invisible to inventory.** Now decomposed the same way the EAONE
+resistor and McIgIcM transistor kits were, with `#100` kept at qty 0 so the
+purchase history survives.
+
+| InvenTree | Item |
+|---|---|
+| [#1099](http://192.168.50.10:8001/web/part/1099/) | WMY-TECH 3000 W induction heater ZVS module |
+| [#1100](http://192.168.50.10:8001/web/part/1100/) | Copper work coil, **ID 60 mm** — the stock coil |
+| [#1101](http://192.168.50.10:8001/web/part/1101/) | Mini water pump |
+| [#1102](http://192.168.50.10:8001/web/part/1102/) | **Power adapter 12 V 3 A**, US plug |
+| [#1103](http://192.168.50.10:8001/web/part/1103/) | Silicone water tubing, 2 m |
+| [#1104](http://192.168.50.10:8001/web/part/1104/) | R48-3000e3 rectifier PSU, 53.5 V 3000 W |
+| [#1105](http://192.168.50.10:8001/web/part/1105/) | DC circuit breaker |
+| [#1106](http://192.168.50.10:8001/web/part/1106/) | DC 100 A ammeter with shunt |
+
+**No fans are in the kit.** They are mounted on the ZVS module itself, which
+settles a question the enclosure provisioning had left open.
+
+### Three things the listing sourced that the docs previously asserted
+
+1. **Foldback is the seller's own spec**, not an inference: *"When the current of
+   the power supply reaches 57 A, the voltage will drop to 45 V to prevent power
+   overload."* This is why the kit's DC breaker is a **disconnect and not
+   protection** — no fault the supply can deliver will ever trip it, and
+   everything downstream has to survive 57 A indefinitely.
+2. **The PSU is sold USED** — seller states 9/10. It is not a new part, which is
+   worth knowing before trusting it to hold a setpoint unattended overnight.
+3. **120 V input halves it.** 100–120 VAC gives 53.5 V at only **25.2 A**; the
+   full 56 A needs 200–240 VAC. The 240 V feed is not a convenience.
+
+### Still not answered by the listing
+
+**The shunt's mV rating.** The kit lists a "DC 100A Ammeter" and the shunt case
+carries no marking. `config.h` uses 0.75 mΩ on the assumption of a common
+100 A / 75 mV part and flags it as a **placeholder**. VR-11 stands: determine it
+by four-wire injection before any energy dose is trusted.
+
+### Locations are not set
+
+All eight records were created without a `default_location` — the components are
+in or around the machine, and per the location policy `default_location` means
+*where a spare goes home*, which does not describe any of them. Set them when the
+enclosure exists.
