@@ -191,17 +191,48 @@ supply's negative is earthed, or Y-capped to earth as most SMPS bricks are, then
 deliberately withdrawn, and re-creates it in the one machine where the operator's
 hand is inside the coil during the cycle.
 
-**One measurement decides it.** With the 12 V PSU unplugged, meter from its V-
-terminal to the earth pin of its own AC cord:
+**The supply's own plug answers most of this, and a 2-prong wall wart answers it
+in the good direction.** Class II means there is no earth conductor, so the
+output *cannot* be earth-bonded through its cord and tying V- to DC- imports no
+earth reference. The SR-11 concern dissolves for that case.
 
-- **Open** -> output floats. LM2596 from 12 V is correct; the LV system floats
-  together as designed.
-- **Continuity, or a few hundred kOhm through Y-caps** -> the 12 V rail is
-  earth-referenced and must not feed the controller. Use the HLK-5M05B instead,
-  **mounted off-board on the chassis** feeding 5 V through a connector, so mains
-  never reaches a single-sided milled PCB.
+An earlier draft of this section proposed metering V- against the earth pin of
+the supply's own AC cord. **That test does not exist on a 2-prong supply** — there
+is no such pin. Corrected test, if one is wanted: meter V- against the
+*machine's* chassis earth, which is earthed through the NEMA 6-20 cord. That is
+where an unwanted bond would actually appear. Expect open.
 
-**STATUS: not yet measured.** The BOM carries the LM2596 pending this reading.
+**The answer flips if the 12 V supply is not a wall wart.** An enclosed or
+open-frame supply (Mean Well LRS and similar) mounted inside the machine has an
+earth terminal, is usually Y-capped to it, and frequently bonds V- to earth by
+default or by jumper. Confirm which type is fitted before trusting the paragraph
+above.
+
+### Residual: the Y-cap, and why it reinforces an existing rule
+
+A switching wall wart typically bridges primary to secondary with a Y-cap. That
+couples the output to **mains, not earth** — so the whole LV system can float at
+roughly half mains AC relative to earth, current-limited to a few hundred uA.
+This is the familiar laptop-brick tingle. It is not the SR-11 hazard: there is no
+DC fault path and the current is capped.
+
+It does give **"no USB while energised"** a second, independent reason. The host
+is earthed, the controller floats, and the USB shield bonds them. The same
+applies to an earthed scope ground clip — which matters, because VR-05 calls for
+scoping Vds. Use a differential probe or a mains-isolated scope, never a bare
+ground clip on this machine. A linear (transformer) wall wart has no Y-cap and
+genuinely floats.
+
+### The concern that survives
+
+With earthing resolved, **noise becomes the dominant issue, not safety.** The
+same rail runs the pump. An inductive motor sharing the controller's ground
+return puts switching transients on the exact reference the bus divider measures
+against, and a wall wart sized for a pump will also sag on pump start — which the
+ADC sees as a bus-voltage change that never happened.
+
+**STATUS: supply type not yet confirmed; nothing measured.** The BOM carries the
+LM2596.
 
 ### Independent of that result
 
