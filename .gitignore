@@ -26,3 +26,8 @@ secrets.ini
 *.kicad_sch-bak
 fp-info-cache
 ~*.lck
+
+# KiCad CLI artifacts
+*.rpt
+*.net
+.history/
