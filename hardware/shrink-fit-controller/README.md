@@ -91,11 +91,10 @@ Consequences that bind this layout:
 
 ## Open — blocking layout
 
-1. **ESP32-S3 Super Mini footprint does not exist.** Nothing in `~/code` or the
-   stock KiCad libraries has it. It must be built from the physical board, and
-   the two failure modes here are the expensive ones: mirrored handedness, and
-   wiring by pin *number* when the symbol is numbered by header position but
-   named by GPIO. See the measurement list below.
+1. **Super Mini footprint** — the symbol is done and verified; the *footprint*
+   still needs four caliper numbers (below). Handedness is settled: it was
+   cross-checked against photographs of **both faces** of the physical board, not
+   inferred from one view.
 2. **No 5 V / 12 V source is on the BOM.** The bus is 41.5–53.5 V and nothing
    steps it down. Either a buck gets specified, or the controller is fed
    separately — and if separately, that supply's ground reference has to be
@@ -104,14 +103,47 @@ Consequences that bind this layout:
    milling and painful to retrofit next to a pour, so the enclosure has to be
    picked — or at least its mounting pattern fixed — before the board outline is.
 
-## Measurement list — Super Mini
+## Super Mini pinout — verified
 
-Component side up, USB connector away from you. Calipers plus reading the silk:
+Read off photographs of both faces of the board (InvenTree part #60, taken
+2026-08-15). **HW-747 V0.0.2.** Component side up, USB-C at the top:
 
-- Board **length × width**, and how far the USB-C shell **overhangs** the edge
-- **Pins per row**, and confirm the **2.54 mm pitch**
-- **Row-to-row centre distance**
-- Distance from **pin 1 centre** to the two nearest board edges
-- The **silk label of every pin, in order, down each row** — left row top to
-  bottom, then right row top to bottom
-- Which end carries the **PCB antenna**
+| Pin # | Name | | Pin # | Name |
+|---|---|---|---|---|
+| 1 | TX | | 18 | 5V |
+| 2 | RX | | 17 | GND |
+| 3 | **GPIO1** | | 16 | 3V3 |
+| 4 | GPIO2 | | 15 | GPIO13 |
+| 5 | GPIO3 | | 14 | GPIO12 |
+| 6 | GPIO4 | | 13 | GPIO11 |
+| 7 | GPIO5 | | 12 | **GPIO10** |
+| 8 | GPIO6 | | 11 | GPIO9 |
+| 9 | GPIO7 | | 10 | GPIO8 |
+
+Left row is pins 1–9 top to bottom; right row is 10–18 bottom to top (DIP order).
+
+> **Wire every net by pin NAME, never by number.** The numbers are header
+> positions and the names are GPIOs, so they collide misleadingly — `GPIO1` is
+> pin number **3**, and `GPIO10`, which drives the SSR, is pin number **12**.
+> Wiring by number lands nets on the wrong GPIO and survives ERC, DRC and visual
+> review. After wiring, confirm which pad each net actually landed on in the
+> `.kicad_pcb`.
+
+Inner pads (not on the headers, need soldering): 14–17, 19, 21, 33–42, 45–48.
+This confirms the `config.h` comment. The **antenna is at the end opposite the
+USB-C**; BOOT and RESET buttons are at the USB end.
+
+## Measurement list — 4 numbers, then the footprint can be drawn
+
+Photographs settle pin order and handedness but **not dimensions** — lens and
+perspective distortion make photo-derived geometry unreliable at the 0.1 mm a
+footprint needs. Calipers, component side up:
+
+1. Board **length × width**
+2. **Row-to-row** centre distance
+3. **Pin 1 centre** to the top edge, and to the left edge
+4. **Pin 1 to pin 9** centre distance — confirms the 2.54 mm pitch across the
+   whole row rather than one gap (expect 20.32 mm)
+
+Plus, for the enclosure rather than the footprint: how far the **USB-C shell
+overhangs** the board edge.

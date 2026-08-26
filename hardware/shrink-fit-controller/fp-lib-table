@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "shrink-fit-controller")(type "KiCad")(uri "${KIPRJMOD}/ESP32-S3-SuperMini-HW747.pretty")(options "")(descr "Project-local footprints"))
+)
