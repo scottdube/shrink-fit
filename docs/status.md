@@ -116,6 +116,19 @@ copper is an afternoon.
 taken ownership of the file. **Do not re-run the generator** — it would destroy
 GUI edits.
 
+## SSR — identified 2026-08-27
+
+**CoG ZGT-100 DD** (XIQI): output **100 A / 220 VDC**, control 3–32 VDC, load on
+the **positive** side. 4× voltage headroom on a 53.5 V bus.
+
+Combined with the six FR307 across the board's DC rails, this **closes MR-22
+entirely** — the freewheel diode is fitted from the factory and the onboard array
+clamps the far end of the SSR cable too. Nothing to buy, nothing to fit; the five
+MBR60100PT go back to being spares.
+
+Still true and unchanged: **an SSR fails short**, so it can never be the isolating
+element. MR-23's series mechanical contactor stands.
+
 ## When the tube arrives
 
 7. Anneal if needed, sleeve the **straight** tube, wind **~30 mm of coil length** on the mandrel — 5–6 turns at 3/16", 20 mm bore.

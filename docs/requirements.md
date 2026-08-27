@@ -689,7 +689,7 @@ installed. Sleeve + air is the default; a nose-only dunk is acceptable practice.
 
 ### 6.6 Switching and protection
 
-| MR-22 | ~~Freewheel diode across the ZVS board's DC input~~ — **the board already has one.** Requirement moves to a **catch diode local to the SSR**. ≥100 V, fast recovery. |
+| MR-22 | ~~Freewheel diode across the ZVS board's DC input~~ — **CLOSED 2026-08-27. Satisfied by the board as shipped.** No part to fit. |
 | MR-23 | Cycle switching by **DC SSR** (≥60 V, ≥80 A); isolation and E-stop by a **series mechanical contactor**. |
 | MR-24 | Coil axial position repeatable to **±0.5 mm** relative to the holder nose. |
 | MR-25 | Coil leads as short as practical; coil terminals close to the tank, board outside the radiant field (SR-06). |
@@ -709,8 +709,29 @@ and the cable between SSR and board is its own inductance — roughly 2 µH over
 becomes SSR-local protection. One of the five MBR60100PT still gets fitted, in a
 different place and for a different reason.
 
-**Open:** the SSR-100DD's actual DC voltage rating. If it is the common 5–60 VDC,
-a 53.5 V bus leaves almost no headroom for a spike.
+**RESOLVED 2026-08-27 — MR-22 closes completely, no part to fit.**
+
+The SSR is a **CoG ZGT-100 DD** (XIQI): output **100 A / 220 VDC**, control
+3–32 VDC, load on the **positive** side. Two things follow.
+
+*It has 4× headroom.* 220 V against a 53.5 V bus, not the 5–60 VDC that would
+have made a transient dangerous.
+
+*And it is already protected, because the onboard diodes clamp the FAR end of the
+cable.* When the SSR opens, the chokes freewheel through the FR307 array, which
+holds the board's input node at about −0.7 V. The cable current then decays into
+those same diodes at 0.7 V / 2 µH = 350 kA/s, clearing 58 A in ~166 µs, with only
+the clamp voltage across the cable. Worst case at the SSR is **bus + 1.4 V ≈
+55 V** — a quarter of its rating. The 3.4 mJ of cable energy lands in the onboard
+array, not in the SSR.
+
+So the five MBR60100PT stay in stock as spares and come **off the BOM**. Nothing
+is fitted.
+
+*Noted in passing:* the supplied wiring drawing shows a "ZERO CROSS CIRCUIT"
+block, which is meaningless on DC — a repurposed AC-SSR drawing. It matters only
+because **CR-05 depends on a hard voltage step**; confirm on the scope during
+bring-up that turn-on is a clean edge and not deliberately delayed.
 
 **Original rationale.** The two DC feed chokes carry up to ~56 A. When the switch
 opens, that current has nowhere to go and the collapsing field produces a large
