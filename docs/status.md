@@ -18,7 +18,7 @@ PCB milling. One-way, tools stay in. Everything else is phase 2.
 
 | | |
 |---|---|
-| Power | R48-3000e3, WMY TECH ZVS (4× **IRFP260N, 200 V**), 12× 0.33 µF/1200 V/150 kHz caps, 2 iron-powder chokes |
+| Power | R48-3000e3, WMY TECH ZVS (4× **IRFP260N, 200 V**), 12× 0.33 µF/1200 V/**50 kHz** caps (marking read 2026-08-27; docs had said 150), 2 iron-powder chokes |
 | Metering | PZEM-025 + 100 A shunt (mV rating unmarked), Sperry DSA-500 clamp (**AC only**) |
 | Instruments | **Rigol DHO914** |
 | Cooling | 2× 80 mm fans, 12 V pump, clear tubing |

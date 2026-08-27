@@ -70,7 +70,7 @@ Ammeter + 53V Power Supply".
 | Coil terminals | — | Two barrel clamps for water-cooled tube | ✅ |
 | Aux connectors | — | `DC 12V`, `Pump`, 3× 2-pin JST; 80 mm fan on standoffs | ✅ |
 | MOSFETs | ≥224 V for VR-05 | **IRFP260N** (IR, TO-247) — **200 V**, 50 A, 40 mΩ | ❌ **VR-05 fails at 53.5 V** |
-| Tank capacitors | 6× 0.33 µF / 1200 V | **0.33 µF, 1200 V, 150 kHz, MKPH self-healing** — count TBC | ✅ type and rating as expected |
+| Tank capacitors | 6× 0.33 µF / 1200 V | **0.33 µF, 630 VAC / 1200 VDC, 50 kHz, MKPH self-healing**, 12 off | ⚠️ 12 not 6, and **50 kHz not the 150 assumed** |
 | Metering | Ammeter + shunt | **PZEM-025** + **100 A shunt** (mV rating TBC) | ✅ shunt present |
 | DC breaker | not expected | **CHCYZO DZ47-63DC, B63, 12–125 V DC** | ⚠️ see below |
 | Cooling | not expected | **2× 80 mm fans on heatsinks, 12 V water pump, clear tubing** | ✅ more complete than expected |
@@ -158,7 +158,12 @@ nothing while halving tank impedance (Z = √(L/C): 0.67 Ω → 0.48 Ω).
 Why ~59 kHz is fine:
 - Skin depth only deepens (~0.06 mm), and it was already irrelevant against a
   4–7 mm nose wall — conduction dominates either way.
-- Far below the capacitors' 150 kHz rating.
+- ~~Far below the capacitors' 150 kHz rating.~~ **WRONG — corrected 2026-08-27.** The
+  part is marked **50 kHz**. Predicted bands (86–130 kHz small coil, 47–71 kHz
+  phase-2) sit at or above it. Reaching 50 kHz against the fixed 3.96 µF needs
+  ~2.56 µH, a far larger coil than the coupling argument wants. Unresolved: the
+  marking may be a ripple-current reference rather than a ceiling. **Measure the
+  real frequency during VR-05 before running hard.**
 - Comfortably inside the range a Royer stage will oscillate over.
 
 ✅ **CONFIRMED PARALLEL 2026-08-09** from the board underside. Two heavy
@@ -684,12 +689,30 @@ installed. Sleeve + air is the default; a nose-only dunk is acceptable practice.
 
 ### 6.6 Switching and protection
 
-| MR-22 | **Freewheel diode across the ZVS board's DC input.** ≥100 V, ≥100 A, fast recovery. |
+| MR-22 | ~~Freewheel diode across the ZVS board's DC input~~ — **the board already has one.** Requirement moves to a **catch diode local to the SSR**. ≥100 V, fast recovery. |
 | MR-23 | Cycle switching by **DC SSR** (≥60 V, ≥80 A); isolation and E-stop by a **series mechanical contactor**. |
 | MR-24 | Coil axial position repeatable to **±0.5 mm** relative to the holder nose. |
 | MR-25 | Coil leads as short as practical; coil terminals close to the tank, board outside the radiant field (SR-06). |
 
-**MR-22 rationale.** The two DC feed chokes carry up to ~56 A. When the switch
+**MR-22 REVISED 2026-08-27 — the board is already protected.** Inspection of the
+underside found **six FR307 (3 A, 1000 V, ~500 ns) in parallel directly across the
+DC+ / DC− rails**, cathodes to DC+. That is a catch-diode array, and it is
+correctly sized: a catch diode never carries running current, only the choke's
+collapsing field. Surge rating is **150 A each = 900 A for 8.3 ms** against a
+~58 A demand lasting a few ms — **16× margin**, and ~1.4 mW average. Six small
+fast diodes beat one large slow one here, and reverse-biased across the rails
+they also crowbar a reversed supply.
+
+**What survives:** the board's diodes clamp the *board*. Our SSR sits **upstream**,
+and the cable between SSR and board is its own inductance — roughly 2 µH over a
+2 m run, ~3.4 mJ at 58 A, appearing as a spike **across the SSR**. So MR-22
+becomes SSR-local protection. One of the five MBR60100PT still gets fitted, in a
+different place and for a different reason.
+
+**Open:** the SSR-100DD's actual DC voltage rating. If it is the common 5–60 VDC,
+a 53.5 V bus leaves almost no headroom for a spike.
+
+**Original rationale.** The two DC feed chokes carry up to ~56 A. When the switch
 opens, that current has nowhere to go and the collapsing field produces a large
 forward spike. The machine terminates on **every dose** — thousands of
 interruptions over its life. Without a freewheel path this erodes the switching
@@ -1115,7 +1138,7 @@ insufficient.
 | R-5 | Interference/clearance estimate (0.008 mm) is unsourced and drives the 1/8" verdict | Wrong scope decision | Medium | Measured as the y-intercept of ΔD vs diameter across the campaign | Open |
 | R-6 | Coil coupling model is crude (d/D)² | §4.3 self-compensation may not hold | Medium | Model check after each size (§8.1); descending order surfaces divergence early | Open |
 | R-7 | Holder material unknown | Ceiling may be wrong in either direction | Medium | OQ-3 email; interim 350/375; stop rules resolve it without a reply | Open |
-| R-8 | Inductive kick on every cycle termination | Switch erosion, spike into FETs | High if unmitigated | MR-22 | **Mitigated** |
+| R-8 | Inductive kick on every cycle termination | Switch erosion, spike into FETs | High if unmitigated | Board carries 6× FR307 across the rails (900 A surge); MR-22 now covers the SSR-local case | **Mitigated at the board 2026-08-27; SSR-local open** |
 | R-9 | B63 breaker nuisance-trips on contactor-close inrush | Commissioning friction | Medium | Accept; swap to C-curve if observed | Accepted |
 | R-10 | EMI into PathPilot / probing | Corrupt probe cycles, mill faults | Low | SR-12 | Open |
 | R-11 | **RF corruption of the current-sense chain.** §8.3 established a thermocouple cannot be read inside a kW-class 60–90 kHz field. The same physics threatens any unshielded sense lead — including the shunt pair that CR-01's dose depends on. Suspected in the first-light PZEM readings (§4.0). | Dose error → wrong holder temperature. Attacks the primary control law directly | **Medium** | INA228 differential input close-coupled to the shunt, twisted/shielded pair, RC filtering, common-mode choke, physical separation from the tank. Cross-check against CAN telemetry (CR-11), which is immune. AC-side clamp on the mains is the RF-immune reference during bring-up | **Open — new 2026-08-09** |

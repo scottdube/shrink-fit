@@ -95,7 +95,10 @@ Restating honestly:
 | 1/8" quick-start (20 mm, 5–6 turns) | 108 kHz | **86–130 kHz** |
 | Phase-2 (35 mm, 8 turns) | 59 kHz | **47–71 kHz** |
 
-Both bands stay under the capacitors' 150 kHz rating, so no decision changes —
+~~Both bands stay under the capacitors' 150 kHz rating~~ — **withdrawn 2026-08-27.**
+The part is marked **50 kHz**, not 150. Both predicted bands are ABOVE it. See
+`TRAPS.md`; resolve by measuring actual frequency on the scope during VR-05.
+No decision changes yet —
 but MR-05's window should be read as a target to *measure toward*, not a
 specification to hit on paper.
 

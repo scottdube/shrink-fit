@@ -32,7 +32,7 @@ kit**. Status as of 2026-08-09.
 |---|---|---|
 | Rectifier | R48-3000e3, 53.5 V / 56.1 A on 240 V | §2 |
 | ZVS board | WMY TECH, 4× **IRFP260N** (200 V) | §2 |
-| Tank caps | 0.33 µF / 1200 V / 150 kHz MKPH — count TBC | §2 |
+| Tank caps | 0.33 µF / 630 VAC / 1200 VDC / **50 kHz** MKPH, 12 off | §2 |
 | DC chokes | 2× iron-powder toroid, heavy gauge | §2 |
 | Metering | PZEM-025 + 100 A shunt | §2 |
 | DC breaker | CHCYZO DZ47-63DC B63 | §2 |

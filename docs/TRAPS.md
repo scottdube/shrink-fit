@@ -107,3 +107,60 @@ sorted(qs, key=lambda p: -float(p.total_stock))
 remains, which is the newer Core layout — so this reads as a reinstall rather
 than a deletion. The `~/.zshrc` PATH line added on 08-09 now points at nothing.
 **Reinstall Core and re-point that line before the next flash.** See `status.md`.
+
+## A continuous rating is not a transient rating
+
+The ZVS board carries **six FR307 in parallel directly across the DC+ / DC− rails**.
+Reading only the 3 A continuous rating, these were dismissed as "far too small to
+be the freewheel diode on a 58 A bus" — twice, in two different sessions of
+reasoning. Scott traced the copper and found them landing on the two big rail
+pads, which is exactly where a catch diode belongs.
+
+**The dismissal compared the wrong two numbers.** A catch diode across a DC bus
+never carries the running current. It conducts only while the choke's field
+collapses:
+
+| | |
+|---|---|
+| Continuous, 6 parallel | 18 A ← the number that produced the wrong answer |
+| **Surge, 6 parallel** | **900 A for 8.3 ms** ← the number that governs |
+| Actual demand | 58 A for a few ms, 9.7 A per device |
+| Average dissipation | ~1.4 mW |
+
+**Rule: before calling a part undersized, work out what duty it actually sees.**
+Continuous, repetitive-peak and non-repetitive-surge ratings differ by one to two
+orders of magnitude on the same device, and a protection component almost always
+lives on the surge line.
+
+Two corollaries worth carrying:
+
+- **Six small fast diodes can beat one large slow one.** What this job needs is
+  surge capacity and fast recovery (~500 ns), not steady current. A 60 A
+  rectifier would be slower and worse at catching the edge.
+- **The 1000 V rating was the clue, not the current rating.** An unclamped
+  inductive kick goes far above the rail; that is what the part is chosen for.
+
+### And a second reading error underneath it
+
+Before the copper was traced, the same six diodes were confidently explained as
+**gate-steering diodes** on the strength of the classic Mazzilli topology. That
+was reasoning from a remembered schematic instead of from the board on the bench.
+The board is the authority. See also the pad-numbering trap above — three of the
+four hardware mistakes in this project came from reading a photograph or a
+recollection where a meter or a caliper was available.
+
+## The tank caps are marked 50 kHz, not 150
+
+Four documents asserted "150 kHz" for the tank capacitors, unsourced. The part is
+marked **`0.33µF J630X (1200V) 50KHz`** — and 12 × 0.33 = **3.96 µF**, matching the
+tank capacitance already measured, so the reading is sound.
+
+This matters because the coil sets frequency against a fixed capacitance. The
+20 mm quickstart coil is predicted at **~108 kHz** (86–130 kHz realistic band) —
+at or above twice the marking. Reaching 50 kHz needs ~2.56 µH, a much larger coil
+than the coupling argument wants. The two pull against each other.
+
+**Not yet a blocker.** On MKP parts that figure is often the frequency at which
+the ripple-current rating is quoted rather than an absolute ceiling. But it is no
+longer safe to repeat "well under the cap rating" — **measure the real operating
+frequency during VR-05**, which is the same scope trace already required for Vds.
