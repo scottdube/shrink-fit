@@ -124,6 +124,9 @@ Taken with the board in hand, superseding assumptions. Ordered as measured.
 |---|---|---|
 | Super Mini row-to-row hole centres | **15.2 mm** | confirms 15.24 (0.600 in). The 17.78 prediction was wrong |
 | ZVS board standoff height | **26.9 mm** | no prior figure |
+| Coil terminal centre-to-centre | **70 mm** | no prior figure |
+| Terminal centreline off the board | **13 mm** | no prior figure |
+| Coil lead exit direction | **out of the board's short end, in the board's plane** | closes the coil-below vs coil-beside question |
 | SSR output rating | **100 A / 220 VDC** (CoG ZGT-100 DD) | feared 5–60 VDC |
 | 12 V supply | **model 1230, 12 V 3 A, Class II, centre-positive** | inferred from plug shape |
 
@@ -133,6 +136,34 @@ found file's 15.24 mm was right, and 17.78 was geometrically impossible on an
 standoff means the carriage needs only a plain flat plate** — the cut-away or
 insulated mounting plate previously specified is unnecessary, since nothing can
 reach the live underside across that gap.
+
+### What the terminal geometry settles
+
+**The coil hangs below the board**, not beside it. Mounted long-edge vertical with
+the terminal end down, the leads run straight out of that end. The 65 mm of column
+height that "coil beside the board" would have saved is **not available** — the
+upright stays at ~520 mm above the base, or ~480 mm with the nest dropped flush.
+
+**The stubs live inside the standoff gap.** 13 mm off the board against 26.9 mm of
+standoff leaves ~11.5 mm under them, so nothing projects past the mounting plane
+and the carriage plate stays plain and flat.
+
+**70 mm apart is generous for the bushings** but imposes a coil-winding spec that
+did not exist before: the legs must converge from **70 mm at the terminals to
+~25 mm at the winding**. Confirmed there is ample leg length on the wound coil to
+do it. Lead inductance from the convergence is ~0.035 µH against a ~0.55 µH coil —
+about 6 %, a ~3 % frequency shift — so MR-25's "leads as short as practical" is
+not violated by the geometry.
+
+**The factory plumbing is what the bulkhead replaces.** As shipped, silicone
+pushes straight onto the board terminals and runs back across the board's face —
+water over the electronics. The dry-stub arrangement exists to delete exactly
+that. Worth noting because photographs of the board as delivered show the
+arrangement being designed *out*, not the target.
+
+Usefully, the water ports face **opposite** the coil exit — up and back over the
+board. The board's own geometry therefore wants coolant routed overhead, which is
+what the drag chain does anyway.
 
 **Still to check with the meter:** continuity from each brass standoff to DC+ and
 DC−. They bridge board to carriage plate, and the plate bolts to the rail and so
