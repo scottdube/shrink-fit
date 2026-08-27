@@ -227,8 +227,9 @@ supply's negative is earthed, or Y-capped to earth as most SMPS bricks are, then
 deliberately withdrawn, and re-creates it in the one machine where the operator's
 hand is inside the coil during the cycle.
 
-**The supply's own plug answers most of this, and a 2-prong wall wart answers it
-in the good direction.** Class II means there is no earth conductor, so the
+**VERIFIED 2026-08-27 from the nameplate.** The supply is a model **1230**, AC 100-240 V in, **12 V 3 A** out, centre-positive, carrying the **Class II double-insulation mark** and a 2-prong plug. Marked *dry location only* — so it belongs on the dry side of the seam, which the layout already puts it on.
+
+**The plug answers the grounding question, and it answers it in the good direction.** Class II means there is no earth conductor, so the
 output *cannot* be earth-bonded through its cord and tying V- to DC- imports no
 earth reference. The SR-11 concern dissolves for that case.
 
