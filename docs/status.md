@@ -165,10 +165,18 @@ Usefully, the water ports face **opposite** the coil exit — up and back over t
 board. The board's own geometry therefore wants coolant routed overhead, which is
 what the drag chain does anyway.
 
-**Still to check with the meter:** continuity from each brass standoff to DC+ and
-DC−. They bridge board to carriage plate, and the plate bolts to the rail and so
-to the earthed column. Expect all eight open; any that beeps forces an insulated
-plate.
+**Standoff isolation — CHECKED 2026-08-27: all eight open to both DC+ and DC−.**
+Nothing carries tank potential to the carriage. The plate can be plain metal
+bolted straight to the rail blocks; no insulating hardware, no cut-away. That is
+the fourth independent confirmation that a flat plate is sufficient.
+
+**What it does not clear is RF.** DC isolation is not 100 kHz isolation. The
+carriage plate, rail and column form a large conductive structure bonded to
+chassis and sitting inches from the tank, so it is capacitively coupled to it
+whatever the meter says. Consequence for layout: **do not run sensor leads along
+the carriage or the rail.** That is R-11's failure mode — the same physics that
+makes a thermocouple unreadable inside the field (§8.3) attacks any unshielded
+sense lead. The column raceway on the far side already exists for this.
 
 **TODO when KiCad releases the project lock:** `hardware/shrink-fit-controller/README.md`
 still describes the row spacing as settled by a found file rather than measured.
