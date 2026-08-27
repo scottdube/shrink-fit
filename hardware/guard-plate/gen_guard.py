@@ -21,8 +21,8 @@ import io, sys
 # eight mounting holes are the union of two 71.5 mm squares offset by one frame.
 #   80 mm fan: 80 x 80 frame, holes 71.5 apart -> (80-71.5)/2 = 4.25 in from each edge
 P = dict(
-    fan_size     = 80.0,    # fan frame, mm
-    fan_pitch    = 71.5,    # 80 mm fan standard. 60->50, 92->82.5, 120->105
+    fan_size     = 120.0,   # fan frame, mm  -- CONFIRMED 120 mm 2026-08-27
+    fan_pitch    = 105.0,   # 120 mm fan standard. 60->50, 80->71.5, 92->82.5
     n_fans       = 2,
     fan_gap      = 0.0,     # frames touching, per Scott: "side by side precisely"
     hole_dia     = 3.4,     # M3 clearance = 3.4; M4 = 4.5.  <-- CONFIRM screw size

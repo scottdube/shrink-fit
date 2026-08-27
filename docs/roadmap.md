@@ -98,7 +98,7 @@ painful to retrofit.
 | Block | Approx. | Notes |
 |---|---|---|
 | PSU R48-3000e3 | 350 × 110 × 45 mm | Long slim brick; needs its own airflow path |
-| ZVS board + heatsinks + 2× 80 mm fans | 200 × 150 × 120 mm | Airflow front-to-back |
+| ZVS board + heatsinks + **2× 120 mm fans** | **~250 × 140 × 150 mm** | Corrected 2026-08-27 — the fans are **120 mm, not 80**. Two stacked are 240 mm on their own, so the old 200 × 150 figure could not have been right. Push-pull, both on the outer face |
 | Pump | 100 × 50 × 50 mm | Wet side |
 | **Reservoir + radiator** *(not yet owned)* | 200 × 150 × 100 mm | Provision it — the loop will grow |
 | Shunt | 100 × 50 × 40 mm | |

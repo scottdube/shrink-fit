@@ -137,6 +137,29 @@ standoff means the carriage needs only a plain flat plate** — the cut-away or
 insulated mounting plate previously specified is unnecessary, since nothing can
 reach the live underside across that gap.
 
+### Fans are 120 mm, not 80 — corrected 2026-08-27
+
+Two stacked touching, **push-pull, both on the outer face**, and they set the
+board's length: 240 mm of fan alone. The roadmap's `200 × 150 × 120` envelope for
+this block was impossible and now reads **~250 × 140 × 150**.
+
+**Costs ~45 mm of column** — upright goes to ~565 mm, or ~525 mm with the nest
+flush.
+
+**But it makes the rail easier.** A longer board lets the two carriage blocks sit
+further apart: 180 mm centres instead of 140 cuts the per-block couple by 22 %
+for nothing. A 450 mm rail still covers it either way (390 mm needed at 180 mm
+centres).
+
+**Flip the fans.** As found, the coil-end fan exhausts *toward* the coil. Reversed,
+exhaust goes up — working with buoyancy, and agreeing with the enclosure's
+"intake low, exhaust high". Flip both to preserve push-pull.
+
+**The bolt pattern is the fan pattern**, which is why it needed no measuring:
+two 120 mm frames touching give X columns 105 mm apart and Y rows at
+7.5 / 112.5 / 127.5 / 232.5. The 15 mm gap between the inner rows is where the
+frames meet.
+
 ### What the terminal geometry settles
 
 **The coil hangs below the board**, not beside it. Mounted long-edge vertical with
