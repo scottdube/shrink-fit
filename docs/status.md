@@ -116,6 +116,33 @@ copper is an afternoon.
 taken ownership of the file. **Do not re-run the generator** — it would destroy
 GUI edits.
 
+## Bench measurements — 2026-08-27
+
+Taken with the board in hand, superseding assumptions. Ordered as measured.
+
+| What | Measured | Supersedes |
+|---|---|---|
+| Super Mini row-to-row hole centres | **15.2 mm** | confirms 15.24 (0.600 in). The 17.78 prediction was wrong |
+| ZVS board standoff height | **26.9 mm** | no prior figure |
+| SSR output rating | **100 A / 220 VDC** (CoG ZGT-100 DD) | feared 5–60 VDC |
+| 12 V supply | **model 1230, 12 V 3 A, Class II, centre-positive** | inferred from plug shape |
+
+**Two requirements deleted by these.** The Super Mini footprint is closed — the
+found file's 15.24 mm was right, and 17.78 was geometrically impossible on an
+18.00 mm board anyway (hole centres 0.11 mm from the edge). And **26.9 mm of
+standoff means the carriage needs only a plain flat plate** — the cut-away or
+insulated mounting plate previously specified is unnecessary, since nothing can
+reach the live underside across that gap.
+
+**Still to check with the meter:** continuity from each brass standoff to DC+ and
+DC−. They bridge board to carriage plate, and the plate bolts to the rail and so
+to the earthed column. Expect all eight open; any that beeps forces an insulated
+plate.
+
+**TODO when KiCad releases the project lock:** `hardware/shrink-fit-controller/README.md`
+still describes the row spacing as settled by a found file rather than measured.
+Not editable while `~*.lck` is present.
+
 ## SSR — identified 2026-08-27
 
 **CoG ZGT-100 DD** (XIQI): output **100 A / 220 VDC**, control 3–32 VDC, load on
