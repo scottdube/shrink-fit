@@ -29,13 +29,24 @@ P = dict(
 
     # --- the one thing still unmeasured: how far the BOARD extends past the
     #     fan block. The plate must cover the live bus rails, not just the studs.
-    margin_x     = 12.0,    # MEASURE: board edge beyond the stud columns, each side
-    margin_y     = 12.0,    # MEASURE: board edge beyond the end stud rows, each end
+    # Plate 270 x 135 per Scott 2026-08-27: ~2 mm clear each end on the long
+    # axis, and the short axis includes the heatsink fins, which stand ~4 mm
+    # proud of the board edge on each side.
+    margin_x     = 15.0,    # -> 105 + 30 = 135 across
+    margin_y     = 22.5,    # -> 225 + 45 = 270 along
 
     corner_r     = 4.0,
     slot_w       = 8.0,
     slot_gap     = 12.0,
+    # Slots were for leak drainage: a solid plate under a HORIZONTAL board turns
+    # the standoff gap into a tray, and that gap holds the coolant terminals.
+    # Void once the board stands long-edge vertical - the gap drains down and out
+    # the open bottom edge by itself. Set True only if the assembly will spend
+    # time lying flat with coolant connected.
+    slots        = False,
     slot_inset   = 14.0,    # keep slots clear of the stud columns
+    slot_segs    = 3,       # break the slots up - a 205 mm slot leaves the
+    slot_rib     = 15.0,    # middle band floppy in 3 mm acrylic
     warn         = "UNDERSIDE AT TANK POTENTIAL - UP TO 168 V",
 )
 
@@ -63,7 +74,15 @@ def build(p):
     for x, y in studs:
         out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{p["hole_dia"]/2:.2f}"/>')
 
-    # drainage slots run the long axis, between the two stud columns
+    # drainage slots - normally off, see the note in P
+    if not p["slots"]:
+        out.append('</g>')
+        out.append(f'<g fill="#FF0000" stroke="none">'
+                   f'<text x="{L/2:.2f}" y="{W - 4.5:.2f}" font-family="Arial" font-size="4.5" '
+                   f'text-anchor="middle">{p["warn"]}</text></g>')
+        out.append('</svg>')
+        return "\n".join(out), studs, 0, L, W
+
     x0 = xs[0]+ox + p["slot_inset"]
     x1 = xs[-1]+ox - p["slot_inset"]
     band = x1 - x0
@@ -72,10 +91,16 @@ def build(p):
     span = n*pitch - p["slot_gap"]
     xstart = x0 + (band - span)/2
     y0 = ys[0]+oy + 10.0
-    sh = (ys[-1]+oy - 10.0) - y0
+    total_h = (ys[-1]+oy - 10.0) - y0
+    segs, rib = p["slot_segs"], p["slot_rib"]
+    seg_h = (total_h - (segs-1)*rib) / segs
     for i in range(n):
-        out.append(f'<rect x="{xstart + i*pitch:.2f}" y="{y0:.2f}" '
-                   f'width="{p["slot_w"]:.2f}" height="{sh:.2f}" rx="{p["slot_w"]/2:.2f}"/>')
+        cx = xstart + i*pitch
+        for j in range(segs):
+            sy = y0 + j*(seg_h + rib)
+            out.append(f'<rect x="{cx:.2f}" y="{sy:.2f}" '
+                       f'width="{p["slot_w"]:.2f}" height="{seg_h:.2f}" '
+                       f'rx="{p["slot_w"]/2:.2f}"/>')
     out.append('</g>')
     out.append(f'<g fill="#FF0000" stroke="none">'
                f'<text x="{L/2:.2f}" y="{W - 4.5:.2f}" font-family="Arial" font-size="4.5" '
@@ -91,8 +116,9 @@ xs, ys = stud_xy(P)
 print(f"  plate outline   {L:.1f} x {W:.1f} mm")
 print(f"  stud columns X  {xs[0]:.2f}, {xs[1]:.2f}   (pitch {P['fan_pitch']})")
 print(f"  stud rows Y     " + ", ".join(f"{y:.2f}" for y in ys))
-print(f"  {len(studs)} holes at dia {P['hole_dia']}, {nslot} drainage slots")
+print(f"  {len(studs)} holes at dia {P['hole_dia']} (M3 clearance)")
+print(f"  {nslot} slot columns x {P['slot_segs']} segments = {nslot*P['slot_segs']} openings")
 print()
 print("  Hole pattern is now EXACT - derived from the fan standard.")
-print("  Only margin_x / margin_y remain guesses: how far the board")
-print("  extends past the studs. Everything else is fixed.")
+print("  Outline 270 x 135 set from the board + heatsink fins.")
+print("  Nothing here is a guess any more.")
