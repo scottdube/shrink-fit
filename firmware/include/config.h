@@ -102,10 +102,11 @@
 // latching, red on yellow. Do not let this button be mistaken for one.
 
 // ---- Status LED --------------------------------------------------------------
-// Onboard LED on GPIO48. MEASURED 2026-08-27: this board has a PLAIN BLUE LED
-// here, not an addressable RGB — driving it with neopixelWrite() produced
-// meaningless constant flicker, because a WS2812 bit stream on a plain LED is
-// just noise. State is therefore carried by BLINK PATTERN only, which never
+// Onboard LED on GPIO48 — CONFIRMED WORKING 2026-08-27, all three patterns read
+// correctly on the bench. It is a PLAIN LED, not an addressable RGB: driving it
+// with neopixelWrite() produced meaningless constant flicker, because a WS2812
+// bit stream on a plain LED is just noise. Note this is the LED that looks like
+// a power indicator — the module has no separate one. State is therefore carried by BLINK PATTERN only, which never
 // depended on colour in the first place and suits the shop's accessibility rule
 // better than an RGB would have.
 #define STATUS_LED_PIN     48

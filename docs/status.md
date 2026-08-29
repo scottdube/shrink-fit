@@ -159,6 +159,34 @@ meter across the 1 k instead: 0 V idle, 12 V while conducting.
 Bench supply current limit was 500 mA against a ~35 mA draw, so that was never a
 factor.
 
+## Test rig runs untethered — 2026-08-27
+
+**Two buttons and a state lamp, no laptop.** This is what removes the USB tether
+that the grounding decision forbids while energised.
+
+| Control | |
+|---|---|
+| **START** (green, GPIO2) | runs the stored duration. Ignored while running or in cooldown |
+| **STOP** (red, GPIO3) | aborts a run. Does nothing when idle |
+| **Lamp** (GPIO48) | idle = one blink / 2 s · **running = solid** · cooldown = double blink |
+
+All three paths verified from the serial log while the buttons were pressed:
+start, abort at 4347 ms of a 10 s run, and `START ignored — already running or in
+cooldown`.
+
+**Two buttons, not one, deliberately.** A single button that both starts and stops
+is mode-dependent — press it without knowing the state and you start a cycle you
+meant to end. **The STOP button is a firmware abort and is NOT the SR-03 E-stop**,
+which is hardware in series with the contactor coil and must look different.
+
+**Duration persists in NVS**, so the rig is set up once with USB attached (`d 20`)
+and then run untethered indefinitely.
+
+**Pattern-only indication proved legible in practice** — the three states were
+distinguished on the bench with no colour involved at all. That is direct support
+for the three-lamp plan in `roadmap.md`, where pattern and position carry the
+signal and colour only reinforces it.
+
 ## Bench measurements — 2026-08-27
 
 Taken with the board in hand, superseding assumptions. Ordered as measured.
