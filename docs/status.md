@@ -116,6 +116,35 @@ copper is an afternoon.
 taken ownership of the file. **Do not re-run the generator** — it would destroy
 GUI edits.
 
+## FIRST CONTROL — 2026-08-27
+
+**The controller actuated something for the first time.** `testrig.cpp` flashed
+(it had compiled clean since 08-15 but was never loaded), `r 5` commanded, GPIO10
+high for exactly **5000 ms**, and **the SSR's control LED lit for the duration**.
+
+That proves the whole Phase 1 control chain: **GPIO10 → R1 (1 k) → Q1 (2N3904)
+→ SSR-100DD control input.** Nothing between the firmware and the relay is
+unverified any more.
+
+Bench arrangement, and it matters: **ESP32 on USB alone, LM2596 output left
+disconnected.** On the Super Mini the USB 5 V and the `5V` pin are the same net,
+so feeding both fights two supplies onto one node — Scott caught that before
+wiring it. The 12 V bench supply feeds only the SSR control side, with its
+negative tied to the breadboard ground rail so Q1 has something to sink to.
+
+**GPIO1 jumpered to ground.** With the bus divider not fitted the ADC floats and
+reported a plausible-looking **10.3 V** of noise; grounded, it reads 0.0. A
+meaningless column is safe, a convincingly wrong one is not.
+
+### Still unproven: the SSR *output*
+
+The LED shows the control side. The output transistor has switched nothing yet.
+**A DMM continuity test will not settle it** — continuity mode pushes microamps,
+and a transistor-output SSR may not read closed even when it is. Test with a real
+circuit instead: bench supply 12 V through a 1 k resistor through the SSR output,
+meter across the SSR. **Open ≈ 12 V, closed < 1 V.** That draws ~12 mA, enough to
+make the output conduct properly, and the resistor is already in RB-25.
+
 ## Bench measurements — 2026-08-27
 
 Taken with the board in hand, superseding assumptions. Ordered as measured.
