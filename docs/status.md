@@ -136,14 +136,28 @@ negative tied to the breadboard ground rail so Q1 has something to sink to.
 reported a plausible-looking **10.3 V** of noise; grounded, it reads 0.0. A
 meaningless column is safe, a convincingly wrong one is not.
 
-### Still unproven: the SSR *output*
+### SSR output — PROVEN, same session
 
-The LED shows the control side. The output transistor has switched nothing yet.
-**A DMM continuity test will not settle it** — continuity mode pushes microamps,
-and a transistor-output SSR may not read closed even when it is. Test with a real
-circuit instead: bench supply 12 V through a 1 k resistor through the SSR output,
-meter across the SSR. **Open ≈ 12 V, closed < 1 V.** That draws ~12 mA, enough to
-make the output conduct properly, and the resistor is already in RB-25.
+Bench supply 12 V through 1 k through the SSR output, meter across the SSR:
+**12 V idle → near zero for the full commanded 10 s → back to 12 V.** The output
+transistor conducts and releases on command.
+
+**Phase 1's control circuit is therefore complete and measured end to end:**
+GPIO10 → R1 → Q1 → SSR control → SSR output. Nothing in that chain is inferred.
+
+Two things that briefly looked like faults and were not:
+
+**A run that "only lasted a second" was my test script**, which wrote a newline
+to the port to "just listen". The firmware treats any incoming byte as an abort —
+correct behaviour, working as written. Do not send anything to the port during a
+run unless you mean to stop it.
+
+**Measuring across the SSR reads inverted from measuring the load.** 12 V across
+the SSR means it is *blocking*, not passing. For a more intuitive watch, put the
+meter across the 1 k instead: 0 V idle, 12 V while conducting.
+
+Bench supply current limit was 500 mA against a ~35 mA draw, so that was never a
+factor.
 
 ## Bench measurements — 2026-08-27
 
