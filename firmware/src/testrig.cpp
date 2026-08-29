@@ -19,14 +19,33 @@
 //   s          status
 //   any key during a run  ->  ABORT
 //
+// BUTTONS (the normal way to drive this — no laptop needed):
+//   START  runs the stored duration. Ignored while running or in cooldown.
+//   STOP   aborts a run. Does nothing when idle.
+// Two buttons, not one, because a single button that both starts and stops is
+// mode-dependent: press it not knowing the state and you start a cycle you meant
+// to end. STOP is a FIRMWARE ABORT and is not the SR-03 E-stop.
+//
+// LED: pattern AND colour, never colour alone.
+//   idle      one short blink every 2 s
+//   RUNNING   solid on
+//   cooldown  double blink every 2 s
+// One plain LED, so PATTERN is the entire signal.
+//
 // Build:  pio run -e testrig -t upload && pio device monitor -e testrig
 #include <Arduino.h>
+#include <Preferences.h>
 #include "config.h"
+
+// Duration survives a power cycle so the rig can be set up once with USB
+// attached and then run untethered on the buttons — which is the point of
+// having buttons at all (and SR: no USB while energised).
+static Preferences prefs;
 
 // ---- limits -----------------------------------------------------------------
 static const uint32_t MAX_RUN_S  = 60;      // hard cap; no test needs more
 static const uint32_t COOLDOWN_S = 30;      // enforced between runs
-static uint32_t       runSeconds = 20;
+static uint32_t       runSeconds = 10;   // overwritten from NVS at boot
 static float          divRatio   = BUS_DIV_RATIO;
 
 // ---- state ------------------------------------------------------------------
@@ -45,6 +64,26 @@ static uint32_t runsAtWhMark  = 0;
 
 // ---- io ---------------------------------------------------------------------
 static void fieldOn(bool on) { digitalWrite(CONTACTOR_PIN, on ? HIGH : LOW); }
+
+// ---- status LED --------------------------------------------------------------
+// ONE plain LED. Pattern is the whole signal - no colour to rely on.
+//   idle      one short blink every 2 s
+//   RUNNING   solid on
+//   cooldown  double blink every 2 s
+static void ledService(int state) {
+#if STATUS_LED_ENABLE
+  uint32_t t = millis() % 2000;
+  bool on;
+  switch (state) {
+    case 1:  on = true;                                   break;  // RUNNING
+    case 2:  on = (t < 90) || (t > 220 && t < 310);       break;  // cooldown
+    default: on = (t < 90);                               break;  // idle
+  }
+  digitalWrite(STATUS_LED_PIN, on ? HIGH : LOW);
+#else
+  (void)state;
+#endif
+}
 
 // analogReadMilliVolts applies the factory ADC calibration — materially better
 // than raw analogRead on the S3, whose ADC is noisy and non-linear.
@@ -113,6 +152,8 @@ static void markWh(float wh) {
 }
 
 // ---- commands ---------------------------------------------------------------
+static void saveDuration() { prefs.putUInt("dur", runSeconds); }
+
 static void handleLine(String s) {
   s.trim();
   if (!s.length()) return;
@@ -138,11 +179,13 @@ static void handleLine(String s) {
       if (v > 0) {
         if (v > MAX_RUN_S) { Serial.printf("capped at %lu s\n", MAX_RUN_S); v = MAX_RUN_S; }
         runSeconds = (uint32_t)v;
+        saveDuration();
       }
       startRun();
       break;
     case 'd':
-      if (v > 0 && v <= MAX_RUN_S) { runSeconds = (uint32_t)v; Serial.printf("duration = %lu s\n", runSeconds); }
+      if (v > 0 && v <= MAX_RUN_S) { runSeconds = (uint32_t)v; saveDuration();
+                                     Serial.printf("duration = %lu s (saved)\n", runSeconds); }
       else Serial.printf("1..%lu\n", MAX_RUN_S);
       break;
     case 'w':
@@ -163,6 +206,15 @@ void setup() {
   pinMode(CONTACTOR_PIN, OUTPUT);
   fieldOn(false);                            // before anything else
   pinMode(START_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(STOP_BUTTON_PIN,  INPUT_PULLUP);
+#if STATUS_LED_ENABLE
+  pinMode(STATUS_LED_PIN, OUTPUT);
+  digitalWrite(STATUS_LED_PIN, LOW);
+#endif
+
+  prefs.begin("testrig", false);
+  runSeconds = prefs.getUInt("dur", 10);
+  if (runSeconds < 1 || runSeconds > MAX_RUN_S) runSeconds = 10;
   analogSetPinAttenuation(BUS_SENSE_PIN, ADC_11db);   // full 0–3.3 V span
 
   Serial.begin(115200);
@@ -176,6 +228,9 @@ void setup() {
                 runSeconds, MAX_RUN_S, COOLDOWN_S, divRatio);
   Serial.println("WATER RUNNING FIRST. Board is marked 'disable output no load'.");
   Serial.println("First time: bus up, then 'cal <volts from PZEM>' to fix the divider.");
+  Serial.printf("BUTTONS: START GPIO %d runs %lu s | STOP GPIO %d aborts\n",
+                START_BUTTON_PIN, runSeconds, STOP_BUTTON_PIN);
+  Serial.println("STOP is a firmware abort, NOT the E-stop (SR-03).");
   Serial.println("r | r <sec> | d <sec> | w <Wh> | cal <V> | s");
 }
 
@@ -185,13 +240,26 @@ void loop() {
     else handleLine(Serial.readStringUntil('\n'));
   }
 
-  static bool prev = HIGH;
-  bool now = digitalRead(START_BUTTON_PIN);
-  if (prev == HIGH && now == LOW) {
-    if (state == St::RUNNING) endRun("button abort"); else startRun();
-    delay(30);                               // debounce
+  // START: only ever starts. Never doubles as a stop - see the header note.
+  static bool prevStart = HIGH;
+  bool nowStart = digitalRead(START_BUTTON_PIN);
+  if (prevStart == HIGH && nowStart == LOW) {
+    if (state == St::IDLE) startRun();
+    else Serial.println("START ignored - already running or in cooldown");
+    delay(30);
   }
-  prev = now;
+  prevStart = nowStart;
+
+  // STOP: only ever stops.
+  static bool prevStop = HIGH;
+  bool nowStop = digitalRead(STOP_BUTTON_PIN);
+  if (prevStop == HIGH && nowStop == LOW) {
+    if (state == St::RUNNING) endRun("STOP button");
+    delay(30);
+  }
+  prevStop = nowStop;
+
+  ledService(state == St::RUNNING ? 1 : (state == St::COOLDOWN ? 2 : 0));
 
   switch (state) {
     case St::RUNNING: {

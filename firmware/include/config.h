@@ -90,8 +90,26 @@
 #define CONTACTOR_PIN      10
 #define FLOW_SWITCH_PIN    6      // CR-06, active high = flow proven
 #define ESTOP_SENSE_PIN    7      // read-only status; the trip itself is hardwired
-#define START_BUTTON_PIN   2      // not GPIO 3 — strapping pin (JTAG source select)
-// Free for the Stage-4 encoder: GPIO 1, 3
+#define START_BUTTON_PIN   2      // momentary to GND, INPUT_PULLUP
+#define STOP_BUTTON_PIN    3      // momentary to GND, INPUT_PULLUP
+// GPIO 3 is an ESP32-S3 strapping pin (JTAG signal source). It is NOT a boot-mode
+// pin like 0/45/46, so a button on it is acceptable — the only consequence of
+// holding STOP through power-up is JTAG source selection, which affects debugging
+// and nothing else. Noted so it is a known cost rather than a surprise.
+//
+// The STOP button is a FIRMWARE ABORT, not an E-stop. SR-03's E-stop is hardware
+// in series with the contactor coil and must look different — mushroom head,
+// latching, red on yellow. Do not let this button be mistaken for one.
+
+// ---- Status LED --------------------------------------------------------------
+// Onboard LED on GPIO48. MEASURED 2026-08-27: this board has a PLAIN BLUE LED
+// here, not an addressable RGB — driving it with neopixelWrite() produced
+// meaningless constant flicker, because a WS2812 bit stream on a plain LED is
+// just noise. State is therefore carried by BLINK PATTERN only, which never
+// depended on colour in the first place and suits the shop's accessibility rule
+// better than an RGB would have.
+#define STATUS_LED_PIN     48
+#define STATUS_LED_ENABLE  1      // set 0 if the pin turns out wrong
 
 // ---- Cycle limits ------------------------------------------------------------
 #define STARTUP_BLOCK_MS   30000  // CR-05: block DC to the ZVS until the PSU settles

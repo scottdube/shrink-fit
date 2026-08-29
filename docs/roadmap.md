@@ -227,3 +227,76 @@ stubs reach the bulkhead. Constraints on that freedom:
   makes seating repeatable. Sloppy fixturing destroys the instrument.
 - **The 35 mm coil is independent** of everything else — build it whenever the
   larger holders matter.
+
+---
+
+## State indication — decided in principle 2026-08-27, hardware open
+
+**The machine must show what mode it is in.** Four states matter, and the reason
+is not convenience: **three of them are about whether it is safe to touch the
+holder.**
+
+| State | Meaning |
+|---|---|
+| **IDLE** | field off, holder cool, safe |
+| **HEATING** | field on — do not approach |
+| **COOLDOWN** | field off but the holder is still hot |
+| **FAULT** | interlock tripped, dose out of window, over-temp lockout |
+
+`FAULT` does not exist in the firmware yet. It will come from CR-02's over-temp
+lockout, CR-03's plausibility window, and CR-06 flow loss.
+
+### Lamps or a round TFT?
+
+Scott raised a 1.28 in round TFT as the richer option. It is, and there is a real
+argument for each — but they are not competing for the same job.
+
+**The deciding argument is how each one FAILS.**
+
+A TFT that freezes **still shows its last frame.** A firmware hang, a locked SPI
+bus, a crash mid-cycle — the display sits there looking authoritative, reading
+HEATING when nothing is heating, or IDLE when the field is on. It fails
+*deceptively*, and it fails toward the reading you least want to trust.
+
+A lamp driven by a live firmware loop **stops blinking when the loop stops.** Its
+failure is visible and honest: the pattern dies, and the absence of the pattern
+is itself the signal.
+
+That is the annunciator-versus-glass-cockpit distinction, and it is why
+annunciator panels survived the arrival of glass. It applies here because the
+question the indicator answers is *"can I put my hand near that holder"*.
+
+### Decision
+
+**Lamps carry state. A TFT, if fitted, carries numbers.**
+
+- **Three 5 mm lamps — green / amber / red** — for IDLE / COOLDOWN / HEATING.
+  All three are in stock, 100 each, at `B3-R2C3`.
+- **FAULT = red flashing, green and amber dark.** Distinguished by pattern, not
+  colour alone, per the shop rule. A fourth lamp is possible if that proves
+  ambiguous in practice.
+- **A round TFT is a Stage-4 addition for DATA** — joules delivered, seconds
+  elapsed, bus volts, holder temperature. Genuinely useful, and it must never be
+  the only thing telling you the field state.
+
+Position also does work here: three lamps in a fixed row mean the *place* that is
+lit identifies the state even when the colour is ambiguous. That matters for this
+operator specifically.
+
+### The constraint it creates
+
+**The Super Mini's 18-pin header is fully allocated** — GPIO 1–13 plus TX/RX are
+all spoken for in `config.h`. Three lamps need three more pins.
+
+| Option | Cost |
+|---|---|
+| **I²C expander (PCF8574)** on the existing SDA/SCL | 8 outputs for **zero** extra MCU pins. Not in stock, ~$1. **Preferred** |
+| Inner pads 33–37 (confirmed free, no PSRAM) | Solder-only — the module stops being socketable |
+| Drop the thermocouple | No: CR-02 wants it |
+
+Decide before the controller PCB is laid out; retrofitting three lamp drivers to a
+milled single-sided board is the kind of change that costs a respin.
+
+Panel lamps in the final build are 12 V ([#722](http://192.168.50.10:8001/web/part/722/),
+[#724](http://192.168.50.10:8001/web/part/724/)), so each needs a transistor —
+the same 2N3904 pattern already proven on the SSR.
