@@ -154,3 +154,57 @@ All eight records were created without a `default_location` — the components a
 in or around the machine, and per the location policy `default_location` means
 *where a spare goes home*, which does not describe any of them. Set them when the
 enclosure exists.
+
+## Phase-2 stock check — 2026-08-30
+
+Checked against InvenTree, searching by function rather than by the part numbers
+already chosen.
+
+### Covered — buy nothing
+
+| Need | On hand | Where |
+|---|---|---|
+| CAN transceiver | SN65HVD230 x3 (1 allocated to BO-0002) | RB-25 + B3-R3C6 |
+| CAN controller | **none needed** — ESP32-S3 TWAI, proven listen-only at 125 kbps | on board |
+| CAN isolation | ADUM1201 x3 | A3-R8C1 |
+| Spare transceiver | MCP2562-E/P DIP-8 | B3-R3C1 |
+
+**The BOM line "MCP2515 + isolated CAN transceiver" is stale.** The S3's internal
+TWAI replaces the MCP2515; ADuM1201 + SN65HVD230 supplies the isolation.
+
+### Missing — all controller-phase, none blocking bench work
+
+| Item | Req | Est. (+40%) |
+|---|---|---|
+| INA228 breakout | CR-01 | $17 |
+| ACS758 Hall current sensor (hedge, see below) | CR-01 / R-11 | $21 |
+| MAX31855 **and its own K-type probe** | CR-02 | $14 + $14 |
+| Coolant flow switch | CR-06 | $21 |
+| E-stop + encoder | CR-09 | $42 |
+
+Nothing in stock does current sensing. The Hall parts on hand (KY-024, A1324LUA-T,
+TLV493D) are magnetic field sensors, not current sensors — usable only with a core
+and a calibration campaign, which is a project, not a part.
+
+### Reconsider the INA228 against today's evidence
+
+The INA228 is **a shunt sensor with sense leads in the field** — precisely the
+architecture that failed today, and R-11 already says assume it is vulnerable.
+The DC clamp, Hall with no sense leads at all, sat in the same field and read
+true. That is the best evidence this bench has produced about what survives here,
+and it points away from shunts.
+
+**Buy both.** The INA228 for its hardware energy accumulator, which integrates in
+silicon so loop jitter cannot corrupt the dose and which no Hall sensor matches;
+the ACS758 as fallback, because this exact failure has already cost a day.
+**Mount the INA228 on the shunt, not at the controller** — R-11's own mitigation,
+and the difference between centimetres of lead and feet.
+
+### The thermocouple gets its own probe
+
+The glass-braid K-type on the bench belongs to Scott's DMM; it is meter kit, not
+stock, and **it must not be wired into the controller.** Every error caught today
+was caught by an instrument sharing no failure mode with the one that lied — the
+DC clamp against the PZEM, temper colour against the thermocouple. Merging the
+handheld reference into the controller destroys exactly that independence, and
+the next controller under-read would have nothing left to catch it.
