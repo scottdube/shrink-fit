@@ -307,3 +307,40 @@ becomes permanent.
 Once tools are cutting, phase 2 is a prioritised roadmap rather than a
 requirements document — safety items first, then conveniences. The material in
 `requirements.md` feeds that, but it needs re-sorting by value, not by category.
+
+## First real holder — the bracketing protocol
+
+**Scott's rule, 2026-08-30: underestimate the time and add to it. Do not try to
+predict it exactly.** The costs are lopsided — under-heating spends a cycle,
+over-heating spends a holder — so there is no case for aiming at the centre.
+Same asymmetry this document already applies to coil fit ("too loose only costs
+cycle time").
+
+Three refinements, two of which bite:
+
+**1. Heat is cumulative, so the increments must shrink.** A second attempt on a
+holder still at 200 °C is not 10 s from ambient; it is 10 s added to 200 °C.
+Constant increments accelerate as you climb the ladder. Either cool to ambient
+between attempts and keep the steps even, or stay hot and make each step
+*smaller* than the last. Adding a fixed 5 s repeatedly is the one option that
+does not work.
+
+**2. The hazard is being *marginally* under, not well under.** A bore that is
+nearly expanded enough lets the tool enter partway and then seizes on it as it
+cools — a tool stuck at the wrong depth, which is a worse position than one that
+would not start. **So make the first attempt clearly short and the steps
+meaningful.** Creeping up in 1 s slices maximises time spent in exactly the
+band that seizes.
+
+**3. Attempt insertion with the holder still in the coil.** If the tool binds,
+the field is right there and it can be backed out immediately. Carry the holder
+to the bench first and that recovery is gone. Have the tool in hand before the
+cycle ends — Haas's guidance is to insert **2 s** after heating stops, which is
+not long enough to go looking for anything.
+
+**If it does not drop under light finger pressure, do not push.** That is the
+signal to re-heat, not to persuade.
+
+Log every rung: coil, holder P/N, seconds, cumulative seconds, whether it went,
+and the temper witness if one is fitted. The ladder converges after a couple of
+holders and then becomes the size preset.
