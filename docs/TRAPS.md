@@ -164,3 +164,27 @@ than the coupling argument wants. The two pull against each other.
 the ripple-current rating is quoted rather than an absolute ceiling. But it is no
 longer safe to repeat "well under the cap rating" — **measure the real operating
 frequency during VR-05**, which is the same scope trace already required for Vds.
+
+## Replacing a slice between two markers deletes what is between them
+
+Twice in one session, a doc or source edit was written as *"replace everything
+from marker A to marker B"* — and both times it silently destroyed content that
+had been added between them.
+
+- In `testrig.cpp`, replacing from `// ---- status LED` to `// ---- runs` deleted
+  `busVolts()`. Caught immediately by the compiler.
+- In `docs/status.md`, replacing from `### Controller` to `## When the tube
+  arrives` deleted **216 lines** — an entire day of findings. Caught only because
+  a later edit failed to find its anchor.
+
+**The compiler catches this in code. Nothing catches it in prose.** A markdown
+file has no build step, so a slice-delete looks exactly like a successful edit
+and the script prints "ok".
+
+**Rule: replace the specific string you mean to change, never a range between two
+landmarks.** If a range really is needed, assert on the length of what is being
+removed first.
+
+Recovery is straightforward if it is committed — `git show <commit>~1:path` gets
+the file back — which is the argument for committing at every milestone rather
+than at the end of a session.
