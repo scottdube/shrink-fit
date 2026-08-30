@@ -376,3 +376,47 @@ with nothing on the panel to say which. Energy dosing on the integral of V*I*dt
 compensates for coupling by construction. Scott reached this from a clamp
 reading rather than from the requirement; it is the strongest argument for CAN
 being load-bearing rather than a convenience, and it belongs next to CR-01.
+
+## CR-02 assumes a measurement that CR-01 exists because we cannot make
+
+**2026-08-30, Scott.** Asked how a thermocouple is supposed to attach to a tool
+holder, and noted that avoiding temperature measurement is the whole point of
+energy dosing. Both halves land.
+
+**CR-02 specifies "sample nose temperature 200 ms after field-off" and never
+specifies how the sensor reaches the nose.** A holder is loaded and unloaded
+every cycle: it cannot be drilled, cannot be clamped, and a spring-loaded probe
+against a 400 °C nose has contact repeatability worse than the quantity it is
+measuring. The requirement was written as though the sensing problem were solved.
+
+**The deeper contradiction:** CR-01 energy dosing exists *because* per-cycle
+holder temperature is not measurable. CR-02 assumes it is. Both cannot be true,
+and CR-02 is the one without a mechanism.
+
+**Haas settles which way it goes.** The HSF-325 -- a production machine -- does
+not measure temperature at all. Its entire control scheme is diameter -> seconds,
+open loop, with 400 °C published as operator guidance rather than as a feedback
+signal. The industry answer is: control the input, do not measure the output.
+Dosing is that idea improved, since energy self-compensates for the coupling and
+voltage variation a fixed timer cannot see.
+
+### Where the thermocouple actually belongs
+
+- **CR-07 coolant overtemp** (§528) — permanently mounted in a coolant path,
+  nothing to attach per cycle. Buildable as written. One of the BOM's two probes
+  has this home.
+- **Calibration** — establishing the dose→temperature curve once per holder size
+  on a witness piece that *can* be drilled. After that the curve is the
+  instrument and the probe comes off.
+
+**CR-02 needs rewriting** to move temperature from per-cycle verification to
+calibration-time characterisation. Scott's call; flagged, not changed. Note the
+thresholds need revisiting anyway now that Haas gives 400 °C against our 350/375.
+
+### The general shape
+
+A requirement can be internally consistent, survive review, and still assume a
+capability that a *different* requirement in the same document exists to work
+around. Neither one looks wrong alone. What exposed it was someone asking how
+the part gets physically attached — a question no amount of re-reading the spec
+would have raised.
