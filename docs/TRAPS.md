@@ -232,3 +232,33 @@ Idle now displays the duration continuously (N flashes, 1.6 s gap, repeat) and
 the button only ever changes it. Instrument-panel principle: the setting is
 always visible, so nothing has to be interrogated. Ask of any control that
 reports state -- why is the operator asking rather than looking?
+
+## R-11 confirmed on the current channel too -- by energy, not by comparison
+
+**2026-08-30.** PZEM read **3.5 A** peak while the clamp read **23 A**. The
+comparison alone does not settle it, because the two may not have been on the
+same conductor -- a resonant tank legitimately circulates Q times its DC input,
+so 3.5 A in and 23 A round the tank is a physically ordinary pair.
+
+**The energy argument settles it without needing to know.** At 53 V, 3.5 A for
+30 s is 5.6 kJ. Raising even a 100 g slug of steel by 300 K needs ~14 kJ, and
+the bar under test was several times that. The reading is impossible, wherever
+the clamp sat.
+
+Both PZEM channels are therefore corrupt, and the failure is not calibration --
+it is the field. **The INA228 planned to replace it is the same kind of
+instrument in the same place and must be assumed to fail the same way until
+proven otherwise, in the field, against a clamp.**
+
+### What this costs: CR-01 has no instrument
+
+Energy dosing terminates on the integral of V*I*dt. Both factors are currently
+unmeasurable in the field. That promotes the R48's **CAN telemetry from a
+cross-check (CR-11) to the primary power instrument** -- it reports output
+voltage and current digitally from outside the field, which is the one place
+the corruption cannot reach. CAN was already the only way to command bus
+voltage; it is now also the only trustworthy way to observe power. The parts
+are in stock and allocated.
+
+Until CAN is built, cycle termination stays on **time**, and every wattage in
+these docs stays withdrawn.

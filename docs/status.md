@@ -403,3 +403,25 @@ none of it is required to put a tool in a holder.
   parallel. Doesn't matter at two cycles.
 - **Shunt mV rating unmarked.** Doesn't matter until energy dosing.
 - **OQ-3 — Haas holder material.** Emailed, no reply. Non-blocking.
+
+## 2026-08-30 — first real temperature: 320 °C in 30 s
+
+**1" solid bar, 30 s cycle, thermocouple held against the bottom of an existing
+~0.5" deep x 0.25" blind hole in the end.** Not packed, so contact was through
+air over part of the bead -- the reading is a floor, not a peak. Actual metal
+temperature was higher.
+
+**This answers the gate question.** Target nose temperature is 300 °C nominal
+with a 350 °C hard ceiling (requirements.md §4.3, §7). 320 °C on a solid 1" bar,
+with a coil still wound with its turns touching, is inside the shrink-fit
+window -- and a holder nose carries far less mass than this bar, so it should
+reach temperature sooner, not later. The machine has the power. That was not
+established before today.
+
+**What it does not answer:** the 1/8" holder is estimated to want ~390 K rise
+(~410 °C), *above* the 350 °C ceiling (§4.3). That estimate is unsourced and may
+be well off. It is the open question, and it is now the *only* thing between
+this rig and the milling tools it was built for.
+
+Do not carry the 30 s figure across to a holder. Different mass, different
+coupling, different geometry -- it is this bar's number.
