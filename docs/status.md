@@ -493,3 +493,41 @@ the right pattern for a holder.
 piece; sand back to bright before reusing it as a witness. And if this bar is
 the same one recorded earlier at ~310 °C, part of the banding predates this run
 and the agreement is weaker than it looks — confirm the surface went in clean.
+
+### OQ-3 partially closed — Haas publishes no thermal data at all
+
+**2026-08-30.** Fetched the 04-1424 product page directly. Specifications cover
+bore, gage length, concentricity and balanced RPM; **there is no heating
+temperature, no maximum temperature, and no induction instruction.** Combined
+with the unanswered material email, this closes the *expectation* half of OQ-3:
+there is no Haas figure to wait for. The **350 °C ceiling is our own
+conservative choice**, not a manufacturer limit — treat it as ours to defend
+rather than as a spec to cite.
+
+### A low-reading thermocouple defeats CR-02
+
+Scott's reasoning was that a thermocouple erring low is manageable, since more
+time or power closes the gap. **True for reaching temperature, exactly wrong for
+the ceiling.** CR-02's thresholds — flag above 350 °C, lock the size preset
+above 375 °C — fire on the thermocouple reading. A probe reading low never trips
+them: 380 °C actual displays as 340 °C, no flag, no lockout, holder tempering
+quietly. CR-02 is already the fallback, because §8.3 ruled out a real-time
+cutoff entirely.
+
+So the bias that is harmless for coil A/B work is the one bias the holder
+interlock cannot tolerate. Absolute accuracy is not optional at the top of the
+range, whatever is acceptable in the middle of it.
+
+### The smoking insulation may be free to fix
+
+Adafruit's glass-braid K-type ships with a short length of heat-shrink at the
+tip **whose only purpose is to stop the braid fraying**, and their own guidance
+is to cut it off above 250 °C. If the probe on the bench is glass-braid with
+that tip wrap intact, removing it is the entire fix. If the wire is smooth
+plastic to the bead, it is PVC/PTFE (~105–260 °C) and must be replaced —
+[Adafruit #270](https://www.adafruit.com/product/270), bare bead, 500 °C,
+~$14 [ESTIMATE, +40%, not verified live]. Bare bead over stainless tip: it drops
+into a 1.5 mm witness hole and responds faster.
+
+**Identify the material before running it again** — PTFE decomposition above
+260 °C produces fumes that cause polymer fume fever.
