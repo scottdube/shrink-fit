@@ -58,13 +58,14 @@ static const uint32_t DUR_LADDER[] = {10, 20, 30, 40, 50, 60};
 static const uint8_t  DUR_COUNT = sizeof(DUR_LADDER)/sizeof(DUR_LADDER[0]);
 
 // LED read-back of the setting: N pulses, non-blocking.
-// Read-back is bracketed by darkness so it cannot blend into the state pattern.
-// One LED carrying two signals is the underlying flaw (see roadmap.md); this
-// makes the count readable, it does not fix the architecture. A second LED does.
-static uint32_t readoutStart = 0;
-static uint8_t  readoutN     = 0;
-static const uint32_t RO_GAP = 500;   // dark bracket, each side
+// The duration is ALWAYS on display at idle -- N flashes, gap, repeat. There is
+// no "check" press, because a press that reports state is a press that changes
+// it: Scott pressed to read, it incremented, he pressed again to confirm, and it
+// incremented again. Instrument-panel principle -- the setting is just visible.
+// idleAnchor restarts the burst on a change so the new value plays immediately.
+static uint32_t idleAnchor = 0;
 static const uint32_t RO_PER = 400;   // per flash: 200 on, 200 off
+static const uint32_t RO_GAP = 1600;  // dark tail, separates one count from next
 
 // ---- OTA --------------------------------------------------------------------
 static void fieldOn(bool on);            // defined below in the io section
@@ -136,25 +137,18 @@ static void fieldOn(bool on) { digitalWrite(CONTACTOR_PIN, on ? HIGH : LOW); }
 //   cooldown  double blink every 2 s
 static void ledService(int state) {
 #if STATUS_LED_ENABLE
-  // Read-back takes priority: dark, N pulses, dark, then state patterns resume.
-  if (readoutN) {
-    uint32_t t     = millis() - readoutStart;
-    uint32_t total = RO_GAP + (uint32_t)readoutN * RO_PER + RO_GAP;
-    if (t < total) {
-      bool on = false;
-      if (t >= RO_GAP && t < RO_GAP + (uint32_t)readoutN * RO_PER)
-        on = (((t - RO_GAP) % RO_PER) < 200);
-      digitalWrite(STATUS_LED_PIN, on ? HIGH : LOW);
-      return;
-    }
-    readoutN = 0;
-  }
   uint32_t t = millis() % 2000;
   bool on;
   switch (state) {
-    case 1:  on = true;                                   break;  // RUNNING
-    case 2:  on = (t < 90) || (t > 220 && t < 310);       break;  // cooldown
-    default: on = (t < 90);                               break;  // idle
+    case 1:  on = true;                                   break;  // RUNNING solid
+    case 2:  on = (t < 90) || (t > 220 && t < 310);       break;  // cooldown double
+    default: {                                                    // IDLE = the duration
+      uint8_t  n   = (uint8_t)(runSeconds / 10); if (!n) n = 1;
+      uint32_t lit = (uint32_t)n * RO_PER;
+      uint32_t p   = (millis() - idleAnchor) % (lit + RO_GAP);
+      on = (p < lit) && ((p % RO_PER) < 200);
+      break;
+    }
   }
   digitalWrite(STATUS_LED_PIN, on ? HIGH : LOW);
 #else
@@ -241,10 +235,9 @@ static void stepDuration(bool down) {
                 : (uint8_t)((i + 1) % DUR_COUNT);
   runSeconds = DUR_LADDER[i];
   saveDuration();
-  readoutN     = (uint8_t)(runSeconds / 10);
-  readoutStart = millis();
+  idleAnchor = millis();   // replay the count from the top, with the new value
   Serial.printf("duration = %lu s (%u flashes, %s)\n",
-                runSeconds, readoutN, down ? "down" : "up");
+                runSeconds, (unsigned)(runSeconds / 10), down ? "down" : "up");
 }
 
 static void handleLine(String s) {

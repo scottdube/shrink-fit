@@ -214,3 +214,21 @@ review. Pack the hole (copper anti-seize) or wedge the bead against the wall.
 
 Both errors push the same direction as the withdrawn PZEM data: they make the
 machine look weaker than it is, which invites longer cycles to compensate.
+
+## A press that reports state is a press that changes it
+
+**2026-08-30.** The duration button stepped the setting on every press and
+flashed the new value back. Scott, reasonably, read that flash as a *check* --
+pressed to see the setting, lost count, pressed again to confirm, and
+incremented it both times. He asked how long to wait before a press stops
+counting as an adjustment. There is no such interval: there was no read-only
+press to wait for.
+
+I had bracketed the read-back in darkness an hour earlier, which made the count
+legible and left the real defect untouched -- the second fix in a row aimed at
+the symptom. **Legibility was never the problem. Requiring a press at all was.**
+
+Idle now displays the duration continuously (N flashes, 1.6 s gap, repeat) and
+the button only ever changes it. Instrument-panel principle: the setting is
+always visible, so nothing has to be interrogated. Ask of any control that
+reports state -- why is the operator asking rather than looking?
