@@ -123,6 +123,11 @@
 // to stop working the moment the controller goes in the cabinet, unless the
 // antenna ends up outside it.
 #define OTA_HOSTNAME       "shrinkfit-testrig"
+// NO OTA PASSWORD — deliberate, Scott 2026-08-27, not an omission. Anyone on the
+// network can push firmware to this rig. Accepted because it is a bench device on
+// a trusted shop LAN and the machine is never unattended. Revisit if it ever
+// joins a wider network, or when this becomes the real controller rather than a
+// test rig: ArduinoOTA.setPassword() plus --auth on the upload is the fix.
 
 // ---- Status LED --------------------------------------------------------------
 // Onboard LED on GPIO48 — CONFIRMED WORKING 2026-08-27, all three patterns read
