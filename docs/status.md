@@ -17,8 +17,12 @@ PCB milling. One-way, tools stay in. Everything else is phase 2.
   was not recorded with the reading, and a wrong divisor manufactures agreement
   with whatever it is compared against.
 - DC output **floats** (no rail bonded to chassis)
-- **Power is ~10% of target.** Cause: coupling. Stock 60 mm coil resonates near
-  37 kHz and the work barely fills it
+- ~~**Power is ~10% of target.**~~ **REVISED 2026-08-30.** That figure came from
+  the same withdrawn PZEM reading (297 W of 3000 W). Measured at the mains:
+  7.7 A x 240 V ~= **1.8 kW**, i.e. ~60% of the kit rating, not 10%. Coupling is
+  still the limiter and the stock 60 mm coil still barely sees the work — but
+  the deficit is a factor of 1.7, not 10, and any plan scaled to "10x needed"
+  was scaled against an instrument error
 
 ## On the bench
 
