@@ -58,8 +58,13 @@ static const uint32_t DUR_LADDER[] = {10, 20, 30, 40, 50, 60};
 static const uint8_t  DUR_COUNT = sizeof(DUR_LADDER)/sizeof(DUR_LADDER[0]);
 
 // LED read-back of the setting: N pulses, non-blocking.
-static uint32_t readoutUntil = 0;
+// Read-back is bracketed by darkness so it cannot blend into the state pattern.
+// One LED carrying two signals is the underlying flaw (see roadmap.md); this
+// makes the count readable, it does not fix the architecture. A second LED does.
+static uint32_t readoutStart = 0;
 static uint8_t  readoutN     = 0;
+static const uint32_t RO_GAP = 500;   // dark bracket, each side
+static const uint32_t RO_PER = 400;   // per flash: 200 on, 200 off
 
 // ---- OTA --------------------------------------------------------------------
 static void fieldOn(bool on);            // defined below in the io section
@@ -131,11 +136,18 @@ static void fieldOn(bool on) { digitalWrite(CONTACTOR_PIN, on ? HIGH : LOW); }
 //   cooldown  double blink every 2 s
 static void ledService(int state) {
 #if STATUS_LED_ENABLE
-  // Read-back takes priority: N pulses at 400 ms, then normal patterns resume.
-  if (millis() < readoutUntil) {
-    uint32_t r = (readoutUntil - millis());
-    digitalWrite(STATUS_LED_PIN, ((r % 400) < 200) ? HIGH : LOW);
-    return;
+  // Read-back takes priority: dark, N pulses, dark, then state patterns resume.
+  if (readoutN) {
+    uint32_t t     = millis() - readoutStart;
+    uint32_t total = RO_GAP + (uint32_t)readoutN * RO_PER + RO_GAP;
+    if (t < total) {
+      bool on = false;
+      if (t >= RO_GAP && t < RO_GAP + (uint32_t)readoutN * RO_PER)
+        on = (((t - RO_GAP) % RO_PER) < 200);
+      digitalWrite(STATUS_LED_PIN, on ? HIGH : LOW);
+      return;
+    }
+    readoutN = 0;
   }
   uint32_t t = millis() % 2000;
   bool on;
@@ -230,7 +242,7 @@ static void stepDuration(bool down) {
   runSeconds = DUR_LADDER[i];
   saveDuration();
   readoutN     = (uint8_t)(runSeconds / 10);
-  readoutUntil = millis() + (uint32_t)readoutN * 400UL;
+  readoutStart = millis();
   Serial.printf("duration = %lu s (%u flashes, %s)\n",
                 runSeconds, readoutN, down ? "down" : "up");
 }

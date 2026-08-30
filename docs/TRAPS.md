@@ -188,3 +188,29 @@ removed first.
 Recovery is straightforward if it is committed — `git show <commit>~1:path` gets
 the file back — which is the argument for committing at every milestone rather
 than at the end of a session.
+
+## TR-04's 200 ms is an electrical floor, not the time to read
+
+**2026-08-30.** §8.3 gates thermocouple sampling to ≥200 ms after field-off, and
+it is easy — I did it — to read that as "take the reading at 200 ms." It is not.
+There are two independent clocks and they differ by two orders of magnitude:
+
+- **200 ms** — when the reading stops being *corrupted*. Induced voltage has
+  decayed, the junction has stopped self-heating inductively. Electrical.
+- **~10–15 s** — when the reading *peaks*. Thermal, and it depends on how deep
+  the junction sits. For a bead ~12.7 mm down a blind hole in steel,
+  t ≈ x²/α = (0.0127)² / 1.2e-5 ≈ 13 s of conduction lag.
+
+Heat is still arriving at the bead long after the field stops. **Sample from
+200 ms onward and take the maximum**; a single reading at 200 ms is low by a
+wide margin, and reads exactly like a coil that underperforms.
+
+## An oversized TC hole insulates the junction it was drilled for
+
+A junction loose in a hole larger than the bead is surrounded by air, which
+conducts ~1/50th as well as steel. It reads low *and* lags — the curve keeps
+its shape and loses its amplitude, which is the failure mode that survives
+review. Pack the hole (copper anti-seize) or wedge the bead against the wall.
+
+Both errors push the same direction as the withdrawn PZEM data: they make the
+machine look weaker than it is, which invites longer cycles to compensate.
