@@ -9,7 +9,13 @@ PCB milling. One-way, tools stay in. Everything else is phase 2.
 
 - PSU **R48-3000e3** on 240 V — label confirmed 53.5 V / 56.1 A / 3000 W
 - ZVS board oscillates and heats — test bar reached ~310 °C (blue temper band)
-- PZEM validated against the AC clamp at full voltage: 297 W DC vs 336 W AC = **88% efficiency**, textbook
+- ~~PZEM validated against the AC clamp: 297 W DC vs 336 W AC = 88% efficiency~~
+  **WITHDRAWN 2026-08-30.** Both PZEM channels are corrupted by the field. This
+  line sat under *Proven* and vouched for the instrument that has since been
+  disproven twice over — the most misleading sentence in these docs. The 88%
+  agreement was never evidence of accuracy; at minimum the mains wrap divisor
+  was not recorded with the reading, and a wrong divisor manufactures agreement
+  with whatever it is compared against.
 - DC output **floats** (no rail bonded to chassis)
 - **Power is ~10% of target.** Cause: coupling. Stock 60 mm coil resonates near
   37 kHz and the work barely fills it
@@ -163,10 +169,21 @@ inside the field is not error budget — it is the control law being fed a lie.
 
 ### Still unknown
 
-**True current.** Only the voltage channel has been checked. The current reading
-may be accurate, equally wrong, or wrong by a different factor — there is no
-basis to assume. Next measurement: DC clamp on the feed, 40 A, zeroed, against
-the PZEM during a run.
+~~**True current.** Only the voltage channel has been checked.~~
+**ANSWERED 2026-08-30 — and not with a DC clamp.** PZEM read 3.5 A against
+7.7 A true mains (23 A displayed ÷ 3 wraps). Both channels are corrupt.
+
+The planned bring-up reference — *"DC clamp on the feed, 40 A, zeroed"* —
+was never bought: `bom.md` declined the UNI-T UT210E on the grounds that a
+Hall clamp must sit on the DC lead **inside** the field that attacks every
+other sense lead, while the AC clamp reads the mains at 60 Hz feet from the
+coil and is RF-immune *by placement*. **Today vindicated that reasoning
+exactly** — the mains clamp produced the trustworthy number and the in-field
+PZEM failed as R-11 predicted. Do not reinstate the DC-clamp plan.
+
+**Record the wrap count with every mains reading.** `quickstart-1-8.md` §
+documents a 5-turn wrap; the 2026-08-30 reading used 3. A divisor carried
+over from the docs instead of the jaw would be wrong by 40%.
 
 ## FIRST CONTROL — 2026-08-27
 
