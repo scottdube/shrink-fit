@@ -452,3 +452,33 @@ this rig and the milling tools it was built for.
 
 Do not carry the 30 s figure across to a holder. Different mass, different
 coupling, different geometry -- it is this bar's number.
+
+### Temper colours confirm the thermocouple — 2026-08-30
+
+Photographed after the 30 s run. Bands read against `quickstart-1-8.md` §:
+
+| Band | Position on bar | Temperature |
+|---|---|---|
+| Blue-grey | top third | ~310 °C |
+| Purple | sharp band ~2/3 down | 280–290 °C |
+| Brown-purple | just below | ~265 °C |
+| Pale straw | lower quarter | 200–230 °C |
+| none | foot | < 200 °C |
+
+**Thermocouple read 320 °C down the bore at the top; the oxide says ~310 °C at
+the same end.** These share no failure mode — one is a millivolt measurement in
+an RF field, the other is a chemical reaction — so the agreement is real
+corroboration, not two views of one instrument. The temperature question is
+closed, and 320 °C is if anything conservative (the bead was unpacked).
+
+**The gradient is the more valuable half.** The colour map draws the coupling
+zone directly: fully hot over roughly the top two-thirds, steep transition, cold
+foot. That independently confirms the energy reconciliation, which needed
+~60–70% of the 0.4 kg bar involved to balance 52 kJ against a 300 K rise. The
+hot end is also the bored end — heat at the nose, cold at the taper, which is
+the right pattern for a holder.
+
+**Caveats.** Temper oxide is cumulative and the check is now spent on this
+piece; sand back to bright before reusing it as a witness. And if this bar is
+the same one recorded earlier at ~310 °C, part of the banding predates this run
+and the agreement is weaker than it looks — confirm the surface went in clean.
