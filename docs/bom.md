@@ -178,7 +178,7 @@ TWAI replaces the MCP2515; ADuM1201 + SN65HVD230 supplies the isolation.
 |---|---|---|
 | INA228 breakout | CR-01 | $17 |
 | ACS758 Hall current sensor (hedge, see below) | CR-01 / R-11 | $21 |
-| MAX31855 **and its own K-type probe** | CR-02 | $14 + $14 |
+| ~~MAX31855 and its own K-type probe~~ | CR-02 | **$0 — removed** |
 | Coolant flow switch | CR-06 | $21 |
 | E-stop + encoder | CR-09 | $42 |
 
@@ -208,3 +208,30 @@ was caught by an instrument sharing no failure mode with the one that lied — t
 DC clamp against the PZEM, temper colour against the thermocouple. Merging the
 handheld reference into the controller destroys exactly that independence, and
 the next controller under-read would have nothing left to catch it.
+
+### MAX31855 removed — coolant is a 1-Wire job (Scott, 2026-08-30)
+
+A K-type thermocouple and a cold-junction-compensating amplifier for water that
+never exceeds ~60 °C is instrument mismatched to the measurement. **DS18B20
+Waterproof Temperature Probe, 1-Wire, stainless — 2 in stock at B3-R4C8.**
+
+With CR-02 rewritten (see TRAPS) so temperature characterisation happens at
+calibration rather than per cycle, and calibration using Scott's own DMM probe
+on a drillable witness piece, **nothing left in the design needs a K-type
+amplifier.** MAX31855 and both K-type probes come off the list: ~$28 saved and
+one less breakout to mount.
+
+Three properties that matter beyond cost:
+
+- **It fails loudly.** 1-Wire reads carry a CRC8, so a corrupted read is
+  *rejected* rather than returned as a plausible number. On a bench where two
+  instruments spent a day lying convincingly, an interface that cannot lie
+  silently is worth more than its accuracy figure.
+- **Two probes give ΔT.** Inlet and outlet across the coil, with the CR-06 flow
+  switch, is a **calorimetric** measure of power into the coolant — an energy
+  figure from water temperature and mass flow, sharing no failure mode with the
+  entire electrical chain. A third independent instrument from parts on hand.
+- **Built for immersion**, and RB-25 already holds the brass tees to fit it.
+
+**Limit to respect: DS18B20 tops out at +125 °C.** Correct for coolant, useless
+anywhere near the nose. The 300–400 °C measurements stay K-type and handheld.
