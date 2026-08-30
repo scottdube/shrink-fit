@@ -610,3 +610,63 @@ more slowly. The approach is sound; the clock is just longer.
 - Alarm E2 is heating-head over-temperature; E5 is power-module over-temperature.
 - Coil-height table (H1 by diameter, H2 >= 6 mm minimum) gives their coil
   positioning over the clamping portion — relevant to coil and fixture design.
+
+## Bench queue — 2026-08-31, in order
+
+Written 2026-08-30. The PZEM is disassembled on the bench; reassemble first.
+
+**1. One precise simultaneous reading: PZEM current vs DC clamp.** Same instant,
+current only. No probes inside the box, no live leads brought out — the shunt-
+millivolt measurement discussed earlier is not worth the hazard and is not needed.
+
+| Ratio | Meaning |
+|---|---|
+| **exactly 6.0** | 50 A configured against a 300 A shunt — documented bug, known fix, and "3.3ish" was really 5.5 |
+| **exactly 10.0** | outside the documented option set; the range theory is dead |
+
+Community evidence: the failure mode is common (PZEM-051 reading 2x with a 50 A
+shunt set to 100 A; PZEM-017 reading half with a 200 A shunt), register 0x0003
+sets range on the 017 family, factory default 100 A. **But every documented
+pairing caps at 6x.** Nobody reports 10x. The recorded figures — "about three and
+a half", "three point threeish" — were eyeball recollections during a run, not
+readings taken to settle a question, and 5.5 misremembered as 3.5 is exactly the
+slip that survives when nothing depends on it.
+
+**2. Trim the thermocouple tip sleeve.** Free, takes the probe from ~130 °C to
+500 °C. Score along its length and peel; do not cut across.
+
+**3. Does the ratio hold across two power levels?** Constant → a firmware
+multiply makes the ammeter usable. Wandering → the current channel is corrupted
+and the scale-constant story comes out of these docs.
+
+**4. Watch the clamp through a whole cycle — is the draw flat?** Scott reports
+steady 33 A. If that holds, it undermines CR-08's ≥100 Hz integration rate, which
+was specified before anyone knew what the draw does. **Flat current means CAN's
+~1 Hz telemetry integrates energy just as accurately, CAN alone can do CR-01, and
+the INA228 comes off the parts list — the last item on it.** Check the first
+second or two, and re-check once the 19.5 mm coil is on: flat at 0.17 coupling
+may not stay flat at 0.7.
+
+**5. Cross-drill a 5/8" witness bar**, 1.5 mm x 8 mm deep at mid-length. The 1"
+bar does not fit the 19.5 mm coil, so without this the two coils cannot be
+compared on the same workpiece and the coil log has no common baseline.
+
+**6. First runs on the 19.5 mm coil: 5–10 s, stepping up, with a temper witness.
+NOT 30 s.** Cycle time does not survive a coil change (see TRAPS).
+
+### Standing decision: retire the PZEM
+
+It is redundant for bench work — the DC clamp gives current, the second meter
+gives voltage at the PSU, and both are proven against each other. It is inferior
+for the controller, where CAN reads the rectifier's own output digitally from
+outside the field. It has cost a day of investigation and produced no number
+anyone will use. Item 1 above is to close the question, not to rehabilitate the
+instrument.
+
+**Board condition, for the record:** heavy white flux residue plus olive-green
+streaking along the pad columns — copper corrosion product, so the flux was
+activated rather than no-clean and has been working on the copper since
+manufacture. Joints are dull and dark. This is a plausible contributor to the
+*voltage* error (leakage across a divider reads low, and low is what we see)
+alongside the RF, but it cannot produce a flat 10x on current. Not worth cleaning
+now that the instrument is retired.
