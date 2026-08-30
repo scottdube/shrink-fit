@@ -92,6 +92,15 @@
 #define ESTOP_SENSE_PIN    7      // read-only status; the trip itself is hardwired
 #define START_BUTTON_PIN   2      // momentary to GND, INPUT_PULLUP
 #define STOP_BUTTON_PIN    3      // momentary to GND, INPUT_PULLUP
+#define DURATION_BUTTON_PIN 11    // momentary to GND, INPUT_PULLUP
+// *** RIG-ONLY BORROW *** GPIO11 is MAX31855_CS. The thermocouple is Phase 2 and
+// not fitted, so the test rig borrows the pin to get a duration control at the
+// machine. It MUST go back when the TC lands. On the real controller this is
+// what the PCF8574 on the existing I2C bus is for — see roadmap.md.
+//
+// Why a duration button at all: the calibration protocol is an iteration on
+// duration ("heat ~25% longer, try again, repeat"). Without this, every step
+// means plugging a laptop back in, which defeats the point of the buttons.
 // GPIO 3 is an ESP32-S3 strapping pin (JTAG signal source). It is NOT a boot-mode
 // pin like 0/45/46, so a button on it is acceptable — the only consequence of
 // holding STOP through power-up is JTAG source selection, which affects debugging

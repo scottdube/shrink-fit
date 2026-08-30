@@ -20,8 +20,10 @@
 //   any key during a run  ->  ABORT
 //
 // BUTTONS (the normal way to drive this — no laptop needed):
-//   START  runs the stored duration. Ignored while running or in cooldown.
-//   STOP   aborts a run. Does nothing when idle.
+//   START     runs the stored duration. Ignored while running or in cooldown.
+//   STOP      aborts a run. Does nothing when idle.
+//   DURATION  steps the duration ladder and blinks the new setting back:
+//             N flashes = N x 5 s, so 20 s is four flashes. Idle only.
 // Two buttons, not one, because a single button that both starts and stops is
 // mode-dependent: press it not knowing the state and you start a cycle you meant
 // to end. STOP is a FIRMWARE ABORT and is not the SR-03 E-stop.
@@ -41,6 +43,15 @@
 // attached and then run untethered on the buttons — which is the point of
 // having buttons at all (and SR: no USB while energised).
 static Preferences prefs;
+
+// Duration ladder. The calibration protocol steps duration up between attempts,
+// so this has to be settable at the machine, not over USB.
+static const uint32_t DUR_LADDER[] = {5, 10, 15, 20, 30, 45, 60};
+static const uint8_t  DUR_COUNT = sizeof(DUR_LADDER)/sizeof(DUR_LADDER[0]);
+
+// LED read-back of the setting: N pulses, non-blocking.
+static uint32_t readoutUntil = 0;
+static uint8_t  readoutN     = 0;
 
 // ---- limits -----------------------------------------------------------------
 static const uint32_t MAX_RUN_S  = 60;      // hard cap; no test needs more
@@ -72,6 +83,12 @@ static void fieldOn(bool on) { digitalWrite(CONTACTOR_PIN, on ? HIGH : LOW); }
 //   cooldown  double blink every 2 s
 static void ledService(int state) {
 #if STATUS_LED_ENABLE
+  // Read-back takes priority: N pulses at 400 ms, then normal patterns resume.
+  if (millis() < readoutUntil) {
+    uint32_t r = (readoutUntil - millis());
+    digitalWrite(STATUS_LED_PIN, ((r % 400) < 200) ? HIGH : LOW);
+    return;
+  }
   uint32_t t = millis() % 2000;
   bool on;
   switch (state) {
@@ -154,6 +171,19 @@ static void markWh(float wh) {
 // ---- commands ---------------------------------------------------------------
 static void saveDuration() { prefs.putUInt("dur", runSeconds); }
 
+// Step to the next rung, wrapping. Blinks the new value back as runSeconds/5
+// pulses so the setting is readable without a serial monitor.
+static void stepDuration() {
+  uint8_t i = 0;
+  while (i < DUR_COUNT && DUR_LADDER[i] != runSeconds) i++;
+  i = (i >= DUR_COUNT) ? 0 : (uint8_t)((i + 1) % DUR_COUNT);
+  runSeconds = DUR_LADDER[i];
+  saveDuration();
+  readoutN     = (uint8_t)(runSeconds / 5);
+  readoutUntil = millis() + (uint32_t)readoutN * 400UL;
+  Serial.printf("duration = %lu s (%u flashes)\n", runSeconds, readoutN);
+}
+
 static void handleLine(String s) {
   s.trim();
   if (!s.length()) return;
@@ -207,6 +237,7 @@ void setup() {
   fieldOn(false);                            // before anything else
   pinMode(START_BUTTON_PIN, INPUT_PULLUP);
   pinMode(STOP_BUTTON_PIN,  INPUT_PULLUP);
+  pinMode(DURATION_BUTTON_PIN, INPUT_PULLUP);
 #if STATUS_LED_ENABLE
   pinMode(STATUS_LED_PIN, OUTPUT);
   digitalWrite(STATUS_LED_PIN, LOW);
@@ -228,8 +259,9 @@ void setup() {
                 runSeconds, MAX_RUN_S, COOLDOWN_S, divRatio);
   Serial.println("WATER RUNNING FIRST. Board is marked 'disable output no load'.");
   Serial.println("First time: bus up, then 'cal <volts from PZEM>' to fix the divider.");
-  Serial.printf("BUTTONS: START GPIO %d runs %lu s | STOP GPIO %d aborts\n",
-                START_BUTTON_PIN, runSeconds, STOP_BUTTON_PIN);
+  Serial.printf("BUTTONS: START GPIO %d runs %lu s | STOP GPIO %d aborts | DURATION GPIO %d steps\n",
+                START_BUTTON_PIN, runSeconds, STOP_BUTTON_PIN, DURATION_BUTTON_PIN);
+  Serial.println("ladder: 5 10 15 20 30 45 60 s, wraps. Blinks back at 1 flash per 5 s.");
   Serial.println("STOP is a firmware abort, NOT the E-stop (SR-03).");
   Serial.println("r | r <sec> | d <sec> | w <Wh> | cal <V> | s");
 }
@@ -258,6 +290,17 @@ void loop() {
     delay(30);
   }
   prevStop = nowStop;
+
+  // DURATION: idle only. Changing it mid-run would make the log lie about what
+  // was actually commanded.
+  static bool prevDur = HIGH;
+  bool nowDur = digitalRead(DURATION_BUTTON_PIN);
+  if (prevDur == HIGH && nowDur == LOW) {
+    if (state == St::IDLE) stepDuration();
+    else Serial.println("DURATION ignored - only adjustable when idle");
+    delay(30);
+  }
+  prevDur = nowDur;
 
   ledService(state == St::RUNNING ? 1 : (state == St::COOLDOWN ? 2 : 0));
 
