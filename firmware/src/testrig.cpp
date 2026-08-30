@@ -69,6 +69,11 @@ static void otaBegin() {
   }
   Serial.printf("wifi: connecting to \"%s\" ...\n", ssid.c_str());
   WiFi.mode(WIFI_STA);
+  // Power save is ON by default in Arduino and the radio sleeps between beacons,
+  // which shows up as 30-130 ms ping latency and makes OTA invitations time out.
+  // Measured on this rig 2026-08-27. Costs a little idle current, buys single-
+  // digit latency and reliable OTA.
+  WiFi.setSleep(false);
   WiFi.setHostname(OTA_HOSTNAME);
   WiFi.begin(ssid.c_str(), pass.c_str());
   uint32_t t0 = millis();

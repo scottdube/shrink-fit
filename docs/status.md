@@ -211,6 +211,33 @@ meter across the 1 k instead: 0 V idle, 12 V while conducting.
 Bench supply current limit was 500 mA against a ~35 mA draw, so that was never a
 factor.
 
+## OTA works — 2026-08-27
+
+`pio run -e testrig_ota -t upload` from `firmware/`. The rig no longer has to be
+carried to the bench to change firmware, which matters because it does not live
+there — that was a real workflow cost through the whole calibration campaign, not
+a convenience.
+
+**Two things had to be fixed, and the diagnosis order is worth keeping:**
+
+**The IoT VLAN blocked it.** espota needs the *device* to open a TCP connection
+back to the laptop, and IoT VLAN rules block device→LAN while allowing LAN→device.
+Ping succeeded the whole time and told us nothing. **The laptop must be on the
+same network as the rig when flashing.** Moving the rig to the main SSID is the
+alternative — one `wifi` command — and either side can be the one that moves.
+
+**WiFi power save was costing 10–30× latency.** Arduino leaves it on, so the radio
+sleeps between beacons: **42–140 ms before, 4–8 ms after `WiFi.setSleep(false)`**.
+That fix was itself delivered over OTA, which proved the loop end to end.
+
+**mDNS resolving was the diagnostic that mattered.** `shrinkfit-testrig.local`
+answering proves `ArduinoOTA.begin()` ran and the firmware side was healthy — so
+the fault had to be the network path. Without that, the obvious next move would
+have been to go hunting through my own code.
+
+**Guard, unchanged:** OTA is serviced only while IDLE. An upload that hangs at
+"waiting for device" means the rig is mid-cycle or in its 30 s cooldown.
+
 ## Test rig runs untethered — 2026-08-27
 
 **Two buttons and a state lamp, no laptop.** This is what removes the USB tether
