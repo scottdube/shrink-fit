@@ -279,10 +279,10 @@ utilisation categories. `Ith 10A` is thermal current, not breaking capacity.
 
 **Checks before it is fitted:**
 
-- **Confirm the block is NC.** This is the silent failure: an E-stop wired
-  through a normally-open contact mounts correctly, looks correct, and does
-  nothing. Meter it — continuity released, open when pressed. Do it on the bench,
-  not in the panel.
+- ~~Confirm the block is NC.~~ **VERIFIED 2026-08-30, Scott:** twisted out
+  (released) = closed; mushroom pressed in = open. Normally closed, as required.
+  Worth having done on the bench — an E-stop wired through a normally-open
+  contact mounts correctly, looks correct, and does nothing.
 - **Run the contactor coil at 12–24 V, not 53 V.** `Ui AC660V` is an insulation
   rating. DC arcs have no zero crossing to extinguish at, so DC breaking
   capability is always far below the AC figure.
