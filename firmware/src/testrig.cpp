@@ -49,7 +49,12 @@ static Preferences prefs;
 
 // Duration ladder. The calibration protocol steps duration up between attempts,
 // so this has to be settable at the machine, not over USB.
-static const uint32_t DUR_LADDER[] = {5, 10, 15, 20, 30, 45, 60};
+// 10 s rungs, so the LED read-back is one flash per 10 s: the whole ladder is
+// 1..6 flashes and countable at a glance. 5 s rungs put 60 s at twelve flashes,
+// which nobody can count. Fine time resolution is the wrong tool here anyway —
+// the machine doses on ENERGY; these timed cycles are for coil comparison.
+// Serial `d <sec>` still sets any value 1..60; the button then snaps to rung 0.
+static const uint32_t DUR_LADDER[] = {10, 20, 30, 40, 50, 60};
 static const uint8_t  DUR_COUNT = sizeof(DUR_LADDER)/sizeof(DUR_LADDER[0]);
 
 // LED read-back of the setting: N pulses, non-blocking.
@@ -216,15 +221,18 @@ static void saveDuration() { prefs.putUInt("dur", runSeconds); }
 
 // Step to the next rung, wrapping. Blinks the new value back as runSeconds/5
 // pulses so the setting is readable without a serial monitor.
-static void stepDuration() {
+static void stepDuration(bool down) {
   uint8_t i = 0;
   while (i < DUR_COUNT && DUR_LADDER[i] != runSeconds) i++;
-  i = (i >= DUR_COUNT) ? 0 : (uint8_t)((i + 1) % DUR_COUNT);
+  if (i >= DUR_COUNT) i = 0;
+  else i = down ? (uint8_t)((i + DUR_COUNT - 1) % DUR_COUNT)
+                : (uint8_t)((i + 1) % DUR_COUNT);
   runSeconds = DUR_LADDER[i];
   saveDuration();
-  readoutN     = (uint8_t)(runSeconds / 5);
+  readoutN     = (uint8_t)(runSeconds / 10);
   readoutUntil = millis() + (uint32_t)readoutN * 400UL;
-  Serial.printf("duration = %lu s (%u flashes)\n", runSeconds, readoutN);
+  Serial.printf("duration = %lu s (%u flashes, %s)\n",
+                runSeconds, readoutN, down ? "down" : "up");
 }
 
 static void handleLine(String s) {
@@ -314,7 +322,8 @@ void setup() {
   Serial.println("First time: bus up, then 'cal <volts from PZEM>' to fix the divider.");
   Serial.printf("BUTTONS: START GPIO %d runs %lu s | STOP GPIO %d aborts | DURATION GPIO %d steps\n",
                 START_BUTTON_PIN, runSeconds, STOP_BUTTON_PIN, DURATION_BUTTON_PIN);
-  Serial.println("ladder: 5 10 15 20 30 45 60 s, wraps. Blinks back at 1 flash per 5 s.");
+  Serial.println("ladder: 10 20 30 40 50 60 s. Tap = up, hold 1 s = down.");
+  Serial.println("Blinks back at 1 flash per 10 s, so 1..6 flashes.");
   Serial.println("STOP is a firmware abort, NOT the E-stop (SR-03).");
   Serial.println("r | r <sec> | d <sec> | w <Wh> | cal <V> | s | wifi <ssid> <pass>");
 
@@ -352,12 +361,28 @@ void loop() {
 
   // DURATION: idle only. Changing it mid-run would make the log lie about what
   // was actually commanded.
-  static bool prevDur = HIGH;
+  // Short press steps UP, hold steps DOWN. Bidirectional because the calibration
+  // protocol converges from both sides, and wrapping all the way round to go back
+  // one rung is exactly the annoyance that makes people stop using a control.
+  static bool     prevDur    = HIGH;
+  static uint32_t durDownAt  = 0;
+  static bool     durHandled = false;
   bool nowDur = digitalRead(DURATION_BUTTON_PIN);
-  if (prevDur == HIGH && nowDur == LOW) {
-    if (state == St::IDLE) stepDuration();
+
+  if (prevDur == HIGH && nowDur == LOW) {          // pressed
+    durDownAt = millis(); durHandled = false; delay(30);
+  }
+  if (nowDur == LOW && !durHandled && (millis() - durDownAt) > 1000) {
+    if (state == St::IDLE) stepDuration(true);     // held -> down
     else Serial.println("DURATION ignored - only adjustable when idle");
-    delay(30);
+    durHandled = true;
+  }
+  if (prevDur == LOW && nowDur == HIGH) {          // released
+    if (!durHandled) {
+      if (state == St::IDLE) stepDuration(false);  // short -> up
+      else Serial.println("DURATION ignored - only adjustable when idle");
+    }
+    durHandled = true; delay(30);
   }
   prevDur = nowDur;
 
