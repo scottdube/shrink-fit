@@ -279,10 +279,13 @@ question the indicator answers is *"can I put my hand near that holder"*.
   elapsed, bus volts, holder temperature. Genuinely useful, and it must never be
   the only thing telling you the field state.
   **Two are already owned** ([#470](http://192.168.50.10:8001/web/part/470/),
-  genuine Waveshare 1.28 in GC9A01, not clones — clone pinouts and init sequences
-  differ). So the data display costs nothing but firmware, which lowers the bar
-  for fitting one. It does **not** change the conclusion above: lamps still carry
-  state, because the argument was about failure mode, not cost.
+  1.28 in round, GC9A01 class, 8-pin). **Provenance is mixed — at least one may be
+  a clone.** Both carry the 8-pin Waveshare arrangement so the wiring should
+  match, but some boards sold as GC9A01 ship an ST7789 or a different init
+  sequence. **Verify the controller on first use rather than the branding.**
+  Either way the data display costs firmware, not money — which lowers the bar
+  for fitting one but does **not** change the conclusion above. Lamps still carry
+  state, because that argument was about failure mode, not cost.
 
 Position also does work here: three lamps in a fixed row mean the *place* that is
 lit identifies the state even when the colour is ambiguous. That matters for this
