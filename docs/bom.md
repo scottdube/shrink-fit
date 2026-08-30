@@ -180,7 +180,7 @@ TWAI replaces the MCP2515; ADuM1201 + SN65HVD230 supplies the isolation.
 | ~~ACS758 Hall current sensor~~ | R-11 | **$0 — withdrawn** |
 | ~~MAX31855 and its own K-type probe~~ | CR-02 | **$0 — removed** |
 | Coolant flow switch | CR-06 | $21 |
-| E-stop + encoder | CR-09 | $42 |
+| ~~E-stop~~ + encoder | CR-09 | **$21** — E-stop on hand, see below |
 
 Nothing in stock does current sensing. The Hall parts on hand (KY-024, A1324LUA-T,
 TLV493D) are magnetic field sensors, not current sensors — usable only with a core
@@ -264,3 +264,35 @@ architecture, not the same mistake in better packaging.
 
 **Standing plan:** INA228 on the shunt, cross-checked against CAN telemetry, with
 the DC clamp as the handheld bring-up reference it has already proven itself to be.
+
+### E-stop on hand — APT LA39 (2026-08-30)
+
+Red mushroom, twist-release, Siemens Electrical Apparatus (Suzhou) manufacture.
+Marked **EN 60947-5-1 / GB-T 14048.5**, `Ui AC660V`, `Ith 10A`, **AC-15 DC-13**,
+and carrying the **positive-opening symbol** — contacts forced apart
+mechanically, so a welded contact still opens. That marking is the one that
+matters on an E-stop.
+
+**Correct for the role the design already specifies.** SR-03 is *"E-stop cutting
+the DC contactor coil"* — not the bus — and AC-15/DC-13 are coil-switching
+utilisation categories. `Ith 10A` is thermal current, not breaking capacity.
+
+**Checks before it is fitted:**
+
+- **Confirm the block is NC.** This is the silent failure: an E-stop wired
+  through a normally-open contact mounts correctly, looks correct, and does
+  nothing. Meter it — continuity released, open when pressed. Do it on the bench,
+  not in the panel.
+- **Run the contactor coil at 12–24 V, not 53 V.** `Ui AC660V` is an insulation
+  rating. DC arcs have no zero crossing to extinguish at, so DC breaking
+  capability is always far below the AC figure.
+- **Do not fit a plain flyback diode across the coil.** It is the reflex and it
+  is wrong on a safety circuit — a plain diode can double or triple contactor
+  drop-out time, making the E-stop slower the moment you add it. Use a **diode +
+  zener** or an RC snubber, which clamps the inductive kick without stretching
+  release.
+- Consider stacking a **second NC block** — two in series is standard practice,
+  and LA39 blocks are modular.
+
+Standing caveat from §895: **this does not de-energise the AC side.** The
+cord-and-plug remains the disconnect.
