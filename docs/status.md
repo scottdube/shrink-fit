@@ -534,6 +534,13 @@ glass-braid part — white fiberglass braid, blue tracer, black anti-fraying
 sleeve at the tip. Nothing to buy: trim the black sleeve and the probe is rated
 500 °C. No PTFE, so the smoke was the tip wrap alone.
 
+The sleeve is **marked 125 °C**, which on heat-shrink is the maximum continuous
+*operating* rating, not the shrink point (polyolefin shrinks at ~90–120 °C).
+The part was carrying its own limit in print while being run at ~2.5x it.
+Score along its length and peel rather than cutting across — a blade drawn
+toward the bead can nick a conductor, and a half-severed wire gives a junction
+that works until it does not.
+
 **After trimming, keep the two conductors apart along their whole length.** A
 thermocouple reads at the *hottest point where the wires touch* — the bead is
 the junction only because it is the sole contact. With the sleeve gone the outer
