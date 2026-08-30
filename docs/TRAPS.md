@@ -420,3 +420,44 @@ capability that a *different* requirement in the same document exists to work
 around. Neither one looks wrong alone. What exposed it was someone asking how
 the part gets physically attached — a question no amount of re-reading the spec
 would have raised.
+
+## The "long analog path" story was invented, against a fact Scott had given
+
+**2026-08-30.** I justified the INA228 by claiming the PZEM failed because of a
+long analog path — shunt, leads, then the measuring box — and that an INA228
+close-coupled to the shunt would be "a fundamentally different architecture."
+
+**Scott had already told me the opposite**, during the RF diagnosis: *"there's no
+leads that go from the PZEM to the shunt, it's all contained in one box."* I
+built a causal story that contradicted an observation he had personally made,
+and used it to justify a purchase.
+
+### What is actually supported
+
+| Channel | Leads? | Evidence | Reading |
+|---|---|---|---|
+| Voltage | **Long sense leads to the PSU** | reading moved when Scott twisted them | RF pickup, demonstrated |
+| Current | **None — shunt integrated with the board** | Scott, at the bench | cannot be lead-borne RF; consistent with a scale constant |
+
+The two-fault split stands up **better** on Scott's facts than on my theory. But
+the conclusion I drew from the theory does not survive it.
+
+### The consequence for the INA228
+
+**The bus cable is there regardless.** The shunt sits in the conductor carrying
+the tank's return current; mounting an INA228 beside it changes nothing about
+that exposure. An INA228 on that shunt **is the same architecture as the PZEM's
+current channel**, not an improvement on it.
+
+So the open question is not "will the INA228 do better" but "**does a
+close-coupled shunt in this bus work at all**" — and the PZEM's own current
+channel is already that experiment, half-run.
+
+- **Ratio pinned at 0.1 across two power levels** → the shunt reads true and is
+  merely scaled wrong. Shunts work here; the INA228 is sound, and the PZEM may
+  be repairable with a constant.
+- **Ratio wanders** → shunts do not survive this bus, and $17 buys a reproduction
+  of a known failure.
+
+**The ratio test now gates the purchase.** It costs a bench session and no parts.
+Do not order until it has run.
