@@ -110,6 +110,20 @@
 // in series with the contactor coil and must look different — mushroom head,
 // latching, red on yellow. Do not let this button be mistaken for one.
 
+// ---- OTA ---------------------------------------------------------------------
+// Credentials live in NVS, never in source — set once over serial with
+//    wifi <ssid> <password>
+// WiFi is skipped entirely if none are stored, so the rig works with no network.
+//
+// ⚠️ OTA is serviced ONLY while IDLE. An update landing mid-cycle with the field
+// on is the obvious disaster, and gating it costs one condition.
+//
+// ⚠️ This is a BENCH convenience with a known expiry: the Super Mini uses a PCB
+// antenna, and the final machine lives in a grounded steel enclosure. Expect OTA
+// to stop working the moment the controller goes in the cabinet, unless the
+// antenna ends up outside it.
+#define OTA_HOSTNAME       "shrinkfit-testrig"
+
 // ---- Status LED --------------------------------------------------------------
 // Onboard LED on GPIO48 — CONFIRMED WORKING 2026-08-27, all three patterns read
 // correctly on the bench. It is a PLAIN LED, not an addressable RGB: driving it

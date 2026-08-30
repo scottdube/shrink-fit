@@ -17,6 +17,7 @@
 //   w <Wh>     mark a PZEM Wh reading; second mark prints Wh and J per run
 //   cal <V>    one-point calibration — enter the true bus volts from the PZEM
 //   s          status
+//   wifi <ssid> <pass>    store credentials in NVS and connect (OTA)
 //   any key during a run  ->  ABORT
 //
 // BUTTONS (the normal way to drive this — no laptop needed):
@@ -37,6 +38,8 @@
 // Build:  pio run -e testrig -t upload && pio device monitor -e testrig
 #include <Arduino.h>
 #include <Preferences.h>
+#include <WiFi.h>
+#include <ArduinoOTA.h>
 #include "config.h"
 
 // Duration survives a power cycle so the rig can be set up once with USB
@@ -52,6 +55,41 @@ static const uint8_t  DUR_COUNT = sizeof(DUR_LADDER)/sizeof(DUR_LADDER[0]);
 // LED read-back of the setting: N pulses, non-blocking.
 static uint32_t readoutUntil = 0;
 static uint8_t  readoutN     = 0;
+
+// ---- OTA --------------------------------------------------------------------
+static void fieldOn(bool on);            // defined below in the io section
+static bool otaReady = false;
+
+static void otaBegin() {
+  String ssid = prefs.getString("ssid", "");
+  String pass = prefs.getString("pass", "");
+  if (ssid.length() == 0) {
+    Serial.println("wifi: no credentials stored - OTA disabled. Use: wifi <ssid> <pass>");
+    return;
+  }
+  Serial.printf("wifi: connecting to \"%s\" ...\n", ssid.c_str());
+  WiFi.mode(WIFI_STA);
+  WiFi.setHostname(OTA_HOSTNAME);
+  WiFi.begin(ssid.c_str(), pass.c_str());
+  uint32_t t0 = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 12000) delay(200);
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("wifi: FAILED - carrying on without OTA");
+    WiFi.mode(WIFI_OFF);
+    return;
+  }
+  ArduinoOTA.setHostname(OTA_HOSTNAME);
+  ArduinoOTA.onStart([]() {
+    fieldOn(false);                       // belt and braces; we only get here idle
+    Serial.println("\nOTA start - field forced off");
+  });
+  ArduinoOTA.onEnd([]()   { Serial.println("\nOTA done, rebooting"); });
+  ArduinoOTA.onError([](ota_error_t e){ Serial.printf("OTA error %u\n", e); });
+  ArduinoOTA.begin();
+  otaReady = true;
+  Serial.printf("wifi: %s   OTA host \"%s\"\n",
+                WiFi.localIP().toString().c_str(), OTA_HOSTNAME);
+}
 
 // ---- limits -----------------------------------------------------------------
 static const uint32_t MAX_RUN_S  = 60;      // hard cap; no test needs more
@@ -188,6 +226,16 @@ static void handleLine(String s) {
   s.trim();
   if (!s.length()) return;
 
+  if (s.startsWith("wifi")) {
+    String rest = s.substring(4); rest.trim();
+    int sp = rest.indexOf(' ');
+    if (sp < 1) { Serial.println("usage: wifi <ssid> <password>"); return; }
+    prefs.putString("ssid", rest.substring(0, sp));
+    prefs.putString("pass", rest.substring(sp + 1));
+    Serial.println("wifi: stored in NVS. Reboot to connect.");
+    return;
+  }
+
   if (s.startsWith("cal")) {
     float truth = s.substring(3).toFloat();
     if (truth < 10 || truth > 70) { Serial.println("cal <actual bus volts, 10..70>"); return; }
@@ -263,10 +311,16 @@ void setup() {
                 START_BUTTON_PIN, runSeconds, STOP_BUTTON_PIN, DURATION_BUTTON_PIN);
   Serial.println("ladder: 5 10 15 20 30 45 60 s, wraps. Blinks back at 1 flash per 5 s.");
   Serial.println("STOP is a firmware abort, NOT the E-stop (SR-03).");
-  Serial.println("r | r <sec> | d <sec> | w <Wh> | cal <V> | s");
+  Serial.println("r | r <sec> | d <sec> | w <Wh> | cal <V> | s | wifi <ssid> <pass>");
+
+  otaBegin();
 }
 
 void loop() {
+  // OTA is serviced ONLY when idle. An update cannot start, and cannot proceed,
+  // while a cycle is running or cooling down.
+  if (otaReady && state == St::IDLE) ArduinoOTA.handle();
+
   if (Serial.available()) {
     if (state == St::RUNNING) { while (Serial.available()) Serial.read(); endRun("aborted"); }
     else handleLine(Serial.readStringUntil('\n'));
