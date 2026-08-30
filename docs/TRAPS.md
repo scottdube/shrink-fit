@@ -343,3 +343,36 @@ same direction.
 instantaneous value; the conversion between them is a measurement nobody has
 made here. It is the same class of error as the withdrawn PZEM wattages: a
 number that is individually defensible, used for something it does not support.
+
+## An operating point is not a capability — and the difference is a burnt holder
+
+**2026-08-30.** Scott challenged "1,800 W" a second time, on better grounds than
+the first. The measurement is sound (33 A steady at 240 V AC confirmed), but a
+Royer draws what the load permits: tank impedance sets the current, coupling
+sets the tank impedance. **1,750 W is what this coil and this bar demand, not
+what the machine can deliver.** I measured an operating point and used it to
+characterise the machine.
+
+**Why it matters more than bookkeeping.** Draw is 33 A of the R48's 56.1 A, and
+both the kit claim and the PSU label sit near 3,000 W — about **1.7x headroom,
+and improving coupling is exactly what claims it.** A 30 s cycle that produced a
+300 K rise at 1.75 kW moves toward a ~500 K rise at 3 kW. Losses rise with
+temperature so it will not scale that cleanly, but the direction is certain and
+400 °C is not far away.
+
+### Operating rule
+
+**Cycle time does not survive a coil change.** The 19.5 mm coil is a large
+coupling improvement over the 60 mm, so its first runs start at **5–10 s with a
+temper witness and step up** — never at the 30 s that has been safe so far.
+Carrying the old time across is how the first test of a better coil destroys a
+holder.
+
+### The same argument is the argument for CR-01
+
+If coupling sets the draw, **time is a bad proxy for delivered energy** — a
+fixed timer under-doses a poorly coupled load and over-doses a well coupled one,
+with nothing on the panel to say which. Energy dosing on the integral of V*I*dt
+compensates for coupling by construction. Scott reached this from a clamp
+reading rather than from the requirement; it is the strongest argument for CAN
+being load-bearing rather than a convenience, and it belongs next to CR-01.
