@@ -287,6 +287,18 @@ question the indicator answers is *"can I put my hand near that holder"*.
   for fitting one but does **not** change the conclusion above. Lamps still carry
   state, because that argument was about failure mode, not cost.
 
+**Confirmed empirically 2026-08-27, on a smaller version of the same mistake.**
+The test rig's single LED was made to carry both a continuous state pattern
+(idle / running / cooldown) *and* a transient count for the duration read-back.
+They collide: a readout flash is indistinguishable from a state flash, so the
+count picks up a spurious blink at the start or end depending on when the button
+is pressed. Scott's verdict — *"the different status lights all interfere with
+each other… adding an LED is probably the best solution"* — is the three-lamp
+argument arrived at from the bench rather than from reasoning.
+
+**The rule that falls out: one indicator, one signal.** If a second thing needs
+saying, it needs a second lamp, not a cleverer pattern on the first.
+
 Position also does work here: three lamps in a fixed row mean the *place* that is
 lit identifies the state even when the colour is ambiguous. That matters for this
 operator specifically.
