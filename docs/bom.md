@@ -177,7 +177,7 @@ TWAI replaces the MCP2515; ADuM1201 + SN65HVD230 supplies the isolation.
 | Item | Req | Est. (+40%) |
 |---|---|---|
 | INA228 breakout | CR-01 | $17 |
-| ACS758 Hall current sensor (hedge, see below) | CR-01 / R-11 | $21 |
+| ~~ACS758 Hall current sensor~~ | R-11 | **$0 — withdrawn** |
 | ~~MAX31855 and its own K-type probe~~ | CR-02 | **$0 — removed** |
 | Coolant flow switch | CR-06 | $21 |
 | E-stop + encoder | CR-09 | $42 |
@@ -235,3 +235,32 @@ Three properties that matter beyond cost:
 
 **Limit to respect: DS18B20 tops out at +125 °C.** Correct for coolant, useless
 anywhere near the nose. The 300–400 °C measurements stay K-type and handheld.
+
+### ACS758 withdrawn — I reasoned from the wrong property (2026-08-30)
+
+Scott asked where it goes in the circuit. **In series with the DC bus, the same
+position as the shunt** — and asking that question is what broke the argument
+for it.
+
+**It does not inherit the DC clamp's immunity.** The clamp survived today's field
+because it has *no galvanic connection to the circuit* and senses at the jaws.
+The ACS758 sits in the circuit and sends an analog output down a wire. I reasoned
+"Hall sensor worked, therefore Hall sensor" without checking whether the property
+doing the work carried across. It does not.
+
+What it would genuinely buy: ~4 V full-scale output against the shunt's ~50 mV,
+so identical RF pickup corrupts one and not the other, plus galvanic isolation
+between power path and signal.
+
+**What it costs is the whole point of CR-01.** It feeds the ESP32 ADC, so energy
+integration moves into software and back under loop jitter — precisely what the
+INA228's hardware accumulator exists to remove. ADC2 is unusable while WiFi is
+active, constraining pins. And it is another series element in a 56 A path.
+
+**The INA228 is also less exposed than R-11 implies.** The PZEM failed on a *long
+analog path* — shunt, leads, then the measuring box. An INA228 close-coupled to
+the shunt has roughly a centimetre of analog path and I²C thereafter. Different
+architecture, not the same mistake in better packaging.
+
+**Standing plan:** INA228 on the shunt, cross-checked against CAN telemetry, with
+the DC clamp as the handheld bring-up reference it has already proven itself to be.
