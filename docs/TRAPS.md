@@ -315,3 +315,31 @@ actionable content.
 
 A fault carried in a parenthetical from an earlier session, never re-derived,
 and then used to explain a result it had nothing to do with.
+
+## Peak power quoted as if it were cycle-average
+
+**2026-08-30.** Scott asked where "1,800 W" came from. Tracing it exposed two
+things worth keeping.
+
+**The number is well supported.** 33 A (DC clamp on the feed) x 53 V (second
+meter at the PSU under load) = **1,750 W**, no assumptions in the product. The
+mains path corroborates from the other end: 23 A displayed / 3 wraps = 7.67 A,
+x 240 V x PF 0.99 = 1,840 W at the wall, less ~5% PSU loss = 1,750 W DC. Two
+different physical principles at opposite ends of the machine agreeing.
+
+**But 240 V was never measured** — it came from an old status.md line, and was
+never put to Scott. The cross-path agreement is what supports it: at 120 V the
+AC path gives 920 W and disagrees with the DC path by 1.9x. Fine as evidence,
+but it is inference, not a reading of the outlet.
+
+**And both figures are peaks, which I then used as cycle averages.** 1.8 kW x
+30 s = 54 kJ assumes the machine held peak draw for the entire cycle. It does
+not: resistivity rises with temperature and coupling shifts as the work heats,
+so mean draw is below peak. Every energy figure derived from that 54 kJ --
+the temper-band reconciliation, the Haas 80 kJ comparison -- is loose in the
+same direction.
+
+**Quote peak as peak.** An energy claim needs a mean, and a clamp shows an
+instantaneous value; the conversion between them is a measurement nobody has
+made here. It is the same class of error as the withdrawn PZEM wattages: a
+number that is individually defensible, used for something it does not support.
