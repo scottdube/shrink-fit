@@ -439,11 +439,22 @@ air over part of the bead -- the reading is a floor, not a peak. Actual metal
 temperature was higher.
 
 **This answers the gate question.** Target nose temperature is 300 °C nominal
-with a 350 °C hard ceiling (requirements.md §4.3, §7). 320 °C on a solid 1" bar,
-with a coil still wound with its turns touching, is inside the shrink-fit
-window -- and a holder nose carries far less mass than this bar, so it should
-reach temperature sooner, not later. The machine has the power. That was not
-established before today.
+with a 350 °C hard ceiling (requirements.md §4.3, §7). 320 °C on a solid 1" bar
+is inside the shrink-fit window -- and a holder nose carries far less mass than
+this bar, so it should reach temperature sooner, not later. The machine has the
+power. That was not established before today.
+
+**Correction:** an earlier draft of this line said the result was achieved "on a
+shorted coil", implying reserve capacity that has not been shown to exist.
+"Turns touching" is not a fault -- `quickstart-1-8.md` § specifies winding turns
+touching *and insulating them*, because touching is how turns are packed into a
+short axial length. Only **bare** touching turns are shorted turns, and the coil
+appears to carry the fibreglass sleeving `design-references.md` A5 calls for.
+
+The coupling deficit is geometric, not electrical: a 25 mm bar in the stock
+60 mm coil is an area ratio of (25/60)^2 ~= **0.17**. The gain lives in winding
+the 20 mm quickstart coil, not in repairing a short -- same task on the roadmap,
+different reason, and the reason is what sets the target bore.
 
 **What it does not answer:** the 1/8" holder is estimated to want ~390 K rise
 (~410 °C), *above* the 350 °C ceiling (§4.3). That estimate is unsourced and may

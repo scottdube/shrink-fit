@@ -295,3 +295,23 @@ instrument failing to RF is not evidence that all in-field instruments fail** --
 the PZEM's weakness is its sense leads, and a clamp has none. Purchasing
 decisions justified by a risk that has not yet been observed should be recorded
 as predictions, not as findings.
+
+## "Turns touching" is the spec, not the fault
+
+**2026-08-30.** I described the coil as *shorted* three times across a session,
+and twice framed the 320 °C result as achieved *despite* that handicap. Scott
+asked what I meant, which is when it came apart: `quickstart-1-8.md` § says
+**"Wind them touching and insulate — bare touching turns are shorted turns."**
+Touching is how turns are packed into a short axial length. It is the design.
+Only bare touching turns short, and the coil carries the fibreglass sleeving
+`design-references.md` A5 specifies for exactly this reason.
+
+**The error had a consequence beyond vocabulary.** A shorted coil implies stored
+headroom — un-short it and the power arrives. The real deficit is geometric: a
+25 mm bar in a 60 mm coil couples to (25/60)^2 ≈ 0.17 of the bore. Both point at
+"rewind the coil", so the wrong diagnosis survived pointing at the right task —
+but only the geometric one tells you what bore to wind to, which is the entire
+actionable content.
+
+A fault carried in a parenthetical from an earlier session, never re-derived,
+and then used to explain a result it had nothing to do with.
