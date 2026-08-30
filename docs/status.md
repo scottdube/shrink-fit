@@ -549,3 +549,64 @@ sits in a hotter part of the field, **it silently becomes the junction** and the
 reading is of that spot instead. The failure produces a plausible temperature,
 which is what makes it dangerous. Slip fiberglass sleeving or a ceramic bead
 over the pair if the braid opens up.
+
+## OQ-3 ANSWERED — Haas HSF-325 manual gives 400 °C
+
+**2026-08-30.** Scott found the operation manual for Haas's own shrink-fit
+machine. The page 403s to a plain fetch; a browser reads it fine (client
+fingerprinting, per the standing rule). Source:
+<https://www.haascnc.com/service/online-manuals/hsf-325/hsf-325---operation.html>
+
+### The ceiling
+
+> *"This machine has a fast heating capacity! The maximum recommended heating
+> temperature is **400 °C**. Temperatures higher than 400 °C may damage the
+> toolholders. Please contact your toolholder supplier for detailed heating
+> specifications."*
+
+Stated twice, in the Manual and Auto sections. This is Haas's own machine used
+with Haas's own holders, so it is the closest thing to an authoritative figure
+that exists for this build.
+
+**Our ceiling is 350 °C** (CR-02: flag >350, lock out >375), and its stated
+justification was the absence of a manufacturer number. **That justification no
+longer holds.** §4.3's estimate that the 1/8" holder wants ~410 °C sat *above*
+the old ceiling and was the single blocking risk for the whole project; against
+400 °C the gap is ~2.5%, and the 410 figure is itself flagged unsourced.
+
+**DECISION PENDING — Scott's call, not mine.** Raising a limit that protects the
+holders is not a change to make on a subagent's initiative. Recorded, not applied.
+
+Note the circularity: the machine manual defers to the toolholder supplier;
+Haas Tooling is that supplier, publishes nothing (OQ-3), and has not answered.
+The 400 °C is therefore a machine-general limit, not a holder-specific one.
+
+### Recommended times — and what they say about our power
+
+| Tool D | Heat IN | Heat OUT | Cool IN | Cool OUT |
+|---|---|---|---|---|
+| 1-1/4" (32 mm) | 5.0 s | 6.0 s | 4.0 s | 4.5 s |
+| 1" (25 mm) | 8.0 s | 8.5 s | 6.0 s | 6.0 s |
+| 3/4" (19 mm) | 7.5 s | 9.0 s | 4.0 s | 5.0 s |
+| 5/8" (16 mm) | 6.5 s | 7.0 s | 3.0 s | 3.5 s |
+| 1/2" (13 mm) | 6.0 s | 9.0 s | 2.5 s | 3.0 s |
+| 3/8" (10 mm) | 6.0 s | 7.0 s | 2.5 s | 3.0 s |
+
+**Max consumption power: 10,000 W.** Against our measured ~1.8 kW that is 5.6x.
+
+**This retires the worry that 30 s cycles are abnormal.** Haas puts ~80 kJ into
+a 1" tool (8 s x 10 kW, and 10 kW is max consumption so the real figure is
+lower); our 30 s at 1.8 kW is ~54 kJ, into a *solid* 1" bar at 0.17 coupling --
+more mass and worse coupling than a holder nose. Same energy ballpark, delivered
+more slowly. The approach is sound; the clock is just longer.
+
+### Other specifics worth carrying
+
+- **Cooling is an air blast, 2.5–6 s.** Not liquid, and far shorter than assumed.
+- **"We recommend waiting 2 seconds after the heating period to insert the tool"**
+  — Haas's equivalent of our TC_SETTLE / insertion delay.
+- **Alarm E4: "No toolholder in heating head."** They interlock against
+  energising an empty coil. We have no such check. Candidate requirement.
+- Alarm E2 is heating-head over-temperature; E5 is power-module over-temperature.
+- Coil-height table (H1 by diameter, H2 >= 6 mm minimum) gives their coil
+  positioning over the clamping portion — relevant to coil and fixture design.
