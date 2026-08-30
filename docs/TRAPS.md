@@ -262,3 +262,36 @@ are in stock and allocated.
 
 Until CAN is built, cycle termination stays on **time**, and every wattage in
 these docs stays withdrawn.
+
+## Two instruments, two faults — do not let one story cover both
+
+**2026-08-30, later.** A DC clamp on the feed read **33 A** where the PZEM read
+3.3 A, and the round 10× invites a single tidy explanation. It does not fit.
+
+| Channel | Error | Signature |
+|---|---|---|
+| Current | 3.3 A vs 33 A = **10.0×**, round | constant ratio → smells like a **scale constant** |
+| Voltage | 29.7 V vs 53 V = **1.78×**, not round | **moved to ~33 V when the sense leads were twisted** |
+
+A scaling error is indifferent to how wires are dressed. The voltage channel
+responded to lead dressing, so it is RF. The current channel may be nothing more
+than the shunt's full-scale being 10× the value the PZEM is configured for --
+and `status.md` has recorded that shunt as *"mV rating unmarked"* since the
+bench inventory, i.e. this was a known unknown that nobody closed.
+
+**Discriminating test:** run at two clearly different power levels. Ratio pinned
+at 0.1 → scale constant, repairable in firmware. Ratio wanders → RF, unrecoverable.
+
+If it is the constant, **CR-01 energy dosing gets its instrument back** — which
+was written off as impossible earlier the same day. Do not leave that conclusion
+standing on the assumption that both faults share a cause.
+
+### The wider error
+
+I declared the DC clamp unnecessary in `bom.md`, then read a single successful
+mains reading as *vindication* of that call, and wrote it into `status.md` as
+settled. Hours later the declined instrument produced the decisive number. **One
+instrument failing to RF is not evidence that all in-field instruments fail** --
+the PZEM's weakness is its sense leads, and a clamp has none. Purchasing
+decisions justified by a risk that has not yet been observed should be recorded
+as predictions, not as findings.

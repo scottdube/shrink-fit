@@ -181,9 +181,15 @@ The planned bring-up reference — *"DC clamp on the feed, 40 A, zeroed"* —
 was never bought: `bom.md` declined the UNI-T UT210E on the grounds that a
 Hall clamp must sit on the DC lead **inside** the field that attacks every
 other sense lead, while the AC clamp reads the mains at 60 Hz feet from the
-coil and is RF-immune *by placement*. **Today vindicated that reasoning
-exactly** — the mains clamp produced the trustworthy number and the in-field
-PZEM failed as R-11 predicted. Do not reinstate the DC-clamp plan.
+coil and is RF-immune *by placement*.
+
+**That reasoning is now disproven, and I had already claimed it vindicated.**
+Scott put a DC clamp on the feed the same afternoon and read **33 A** — against
+32.6 A predicted independently from the mains side, agreement inside 2%. The
+Hall clamp sat in the field the bom entry said would attack it and was *not*
+attacked. One RF failure (the PZEM) is not evidence that every in-field
+instrument fails; the PZEM's sense leads are the vulnerability, and a clamp
+has none. **The DC clamp is a first-class instrument here — buy the entry back.**
 
 **Record the wrap count with every mains reading.** `quickstart-1-8.md` §
 documents a 5-turn wrap; the 2026-08-30 reading used 3. A divisor carried
