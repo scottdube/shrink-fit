@@ -529,5 +529,16 @@ plastic to the bead, it is PVC/PTFE (~105–260 °C) and must be replaced —
 ~$14 [ESTIMATE, +40%, not verified live]. Bare bead over stainless tip: it drops
 into a 1.5 mm witness hole and responds faster.
 
-**Identify the material before running it again** — PTFE decomposition above
-260 °C produces fumes that cause polymer fume fever.
+**CONFIRMED 2026-08-30 by photograph.** The bench probe *is* the Adafruit
+glass-braid part — white fiberglass braid, blue tracer, black anti-fraying
+sleeve at the tip. Nothing to buy: trim the black sleeve and the probe is rated
+500 °C. No PTFE, so the smoke was the tip wrap alone.
+
+**After trimming, keep the two conductors apart along their whole length.** A
+thermocouple reads at the *hottest point where the wires touch* — the bead is
+the junction only because it is the sole contact. With the sleeve gone the outer
+braid can fray and let the conductors meet further back; if that second contact
+sits in a hotter part of the field, **it silently becomes the junction** and the
+reading is of that spot instead. The failure produces a plausible temperature,
+which is what makes it dangerous. Slip fiberglass sleeving or a ceramic bead
+over the pair if the braid opens up.
