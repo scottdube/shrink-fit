@@ -872,3 +872,47 @@ the sensor.
 Order of value: **Block 0 → Block 3a → Block 2 → everything else.** Block 3a
 decides a purchase and a piece of bus hardware; Block 2 gates the coil comparison
 that the rest of the project's calibration depends on.
+
+## 2026-08-31 — Block 3 result: baseline set, draw is flat enough for CAN
+
+**60 mm coil, 1" bar, 30 s cycle, surface sanded bright before the run.**
+
+| Measurement | Result |
+|---|---|
+| Peak temperature | **~310 °C** (blue temper band, fresh surface) |
+| DC current | **32 A rising steadily to 36.8 A** over the cycle |
+
+### The machine repeats
+
+310 °C here against 320 °C on the thermocouple and ~310 °C on the oxide
+yesterday — **three runs, three methods, same answer.** Reproducibility is worth
+as much as the number: a rig that answers differently each time cannot be
+calibrated at all. **This is the "before" for the coil A/B.**
+
+The hot band is narrow and sharply bounded, mapping the 60 mm coil's coupling
+zone directly, with a steep falloff above and below.
+
+### CR-01 can run on CAN — the draw is flat enough
+
+A 15% rise across 30 s is **0.5% per second**. At 1 Hz that is 30 samples on a
+smooth monotonic ramp, and **trapezoidal integration of a linear ramp is exact**.
+Even the crude midpoint — (32 + 36.8)/2 = 34.4 A — lands within ~1% of the true
+integral. **100 Hz buys nothing on a signal shaped like this**, so CR-08's
+≥100 Hz requirement is over-specified for this load and CAN telemetry suffices.
+
+**Do not return the INA228 yet.** Two things could still overturn this, both
+resolving within days: the R48's actual CAN report rate is unverified (assumed
+~1 Hz; at 0.1 Hz there would be only 3 samples per cycle), and this was measured
+at **0.17 coupling** — at 0.66 the load is a different animal and a 15% ramp
+could become a 50% swing. $16 with a 30-day window against re-ordering and
+waiting.
+
+### The rising current is a free diagnostic
+
+Steel's resistivity roughly doubles from 20 °C to 300 °C, so a hotter workpiece
+absorbs more power and draws more current. **The current curve is therefore a
+proxy for workpiece heating with no thermocouple involved.** If it plateaus, the
+piece has reached thermal equilibrium and more time will not make it hotter.
+
+**Ours was still climbing at 36.8 A when the cycle ended — the bar was still
+heating when we stopped it.** There was more temperature available in that setup.
