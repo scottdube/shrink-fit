@@ -699,3 +699,45 @@ harmless. Dissipation either way is 33² × 750 µΩ ≈ **0.8 W**, negligible.
 If it stays: **mount the INA228 at the shunt**, not at the controller, and twist
 the sense pair. The untwisted loop is not causing the 10x — a flat factor is not
 RF — but there is no reason to build a pickup loop into a new install.
+
+## 2026-08-30 (late) — simultaneous four-instrument read; range theory dead
+
+All read at one instant, ZVS running:
+
+| Instrument | Reading |
+|---|---|
+| PZEM | **30.8 V, 3.10 A, 96.1 W** |
+| UNI-T DC clamp (feed) | **33.9 A** |
+| KAIWEETS KM601 (at ZVS) | **52.30 V** |
+| AC clamp (mains, 3 wraps) | 23.03 → **7.68 A** |
+
+### The shunt-range hypothesis is refuted
+
+**33.9 / 3.10 = 10.94.** Not 6.0, and not a ratio of any two values in the
+PZEM-025's shunt-range set (50/100/200/300 A) — the largest possible mismatch
+there is 6x. **A misconfigured range cannot produce this reading.** That is what
+the test was for, and it settled it.
+
+**Voltage: 52.30 / 30.8 = 1.70.** That ratio has now been 1.78, 1.60 and 1.70
+across three readings. **A scale error does not move.** Corruption confirmed on
+the voltage channel, independently of the current channel.
+
+### The three trustworthy instruments close on each other
+
+- AC side: 7.68 A x 240 V = **1843 W in**
+- DC side: 33.9 A x 52.30 V = **1773 W out**
+- **1773 / 1843 = 96%** — textbook efficiency for a telecom rectifier, from two
+  independent measurements on opposite sides of the PSU.
+
+**PZEM reports 96.1 W against 1773 W actual — off by 18x.** Retired, and now
+demonstrably so rather than by inference.
+
+### Deliberately not pursued further
+
+One point cannot distinguish "constant scale error" from "corruption that happens
+to look like 11x today"; that needs a second power level. **It is not worth bench
+time.** The INA228 (arriving Sept 3) answers the underlying question — *can a
+shunt in this bus be trusted?* — far better, because it exposes **raw shunt
+millivolts** as a register. Two power levels against the clamp show directly
+whether shunt voltage is proportional and stable, with no calibration constant
+and no unknown firmware in between. Same experiment, confounding variable removed.
