@@ -296,3 +296,50 @@ utilisation categories. `Ith 10A` is thermal current, not breaking capacity.
 
 Standing caveat from §895: **this does not de-energise the AC side.** The
 cord-and-plug remains the disconnect.
+
+### Contactor selected — Baomain MC-9b-24VDC (2026-08-30)
+
+**[ASIN B0B4CBZCBC](https://www.amazon.com/Baomain-Magnetic-Contactors-MC-9b-Listed/dp/B0B4CBZCBC) — $31.16, verified live (no escalator).**
+
+LS Electric Metasol MC-9b frame:
+
+| | |
+|---|---|
+| AC-1 (resistive) | **25 A** — load is 13.6 A, 1.8x margin |
+| AC-3 (motor) | 9 A |
+| Rated | 3 HP @ 230 V, 5 HP @ 460 V 3-phase |
+| Main contacts | 3 poles, all NO |
+| Auxiliary | **1NO + 1NC** |
+| Coil | **24 V DC** |
+| Ui / Uimp | 690 V / 6 kV |
+| Mounting | 35 mm DIN rail, screw terminals, 18–10 AWG |
+| Certification | UL, CE, IEC 60947-4-1 |
+
+**The Amazon listing is self-contradictory and nearly disqualified the part.** Its
+spec block reads *"AC-3 (Motor Loads): 9A 24V DC"* and *"AC-1 (Resistive Loads):
+25A 24V DC"* — literally, DC contact ratings at 24 V, which would be the wrong
+part and dangerous on a 240 V feed. **Ui 690 V was the tell**: nobody builds a
+690 V insulation rating into a 24 V DC device. Confirmed against LS Electric's
+own frame spec — 230/460 VAC, DC coil option. The listing pasted the coil voltage
+onto the contact-rating lines.
+
+### Why 24 V rather than Scott's preferred 12 V
+
+No 12 V DC coil exists in this family (56 listings checked; the DC option is
+24 V). The 12 V alternatives were a 2-pole with **no auxiliary contact** — so no
+latch without an added relay — and a 3-pole ATO at **$118.71 shipping Sept 18–24**,
+four times the price and three weeks later.
+
+**24 V is also the better architecture, not a compromise.** A separate ~$15 supply
+for the coil keeps its pull-in inrush and collapse transient **off the logic rail
+entirely** — which matters given the coil needs a snubber rather than a plain
+flyback diode (a plain diode stretches drop-out time on a safety circuit).
+
+### Wiring notes
+
+- **Two main poles switch L1 and L2.** The third stays **unused** — the 12 V rail
+  must NOT be on it, because it has to survive the E-stop to keep the pump
+  running on a hot coil (§6.9).
+- **Aux 1NO is the latch.** Aux 1NC is spare, and is the natural "mains live"
+  input to the controller — it reports that the contactor actually pulled in,
+  rather than that firmware merely commanded it.
