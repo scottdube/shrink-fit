@@ -916,3 +916,67 @@ piece has reached thermal equilibrium and more time will not make it hotter.
 
 **Ours was still climbing at 36.8 A when the cycle ended — the bar was still
 heating when we stopped it.** There was more temperature available in that setup.
+
+## 2026-08-31 — 19.5 mm coil first light: it works, and the bus collapses
+
+### Measured
+
+| Quantity | 60 mm coil (yesterday) | **19.5 mm coil** |
+|---|---|---|
+| Tank frequency | ~59 kHz predicted | **100.37 kHz measured** (DHO914, pickup loop) |
+| Derived inductance | — | **0.635 µH** (from known 3.96 µF) |
+| Bus voltage under load | 52.30 V | **18.0 V** (KM601) |
+| Current | 33.9 A | **67.3 A** (UT210E) |
+| Input power | 1,773 W | **1,211 W** |
+| 5 s | — | very light straw (~200 °C) |
+| 10 s | — | **250 °C** (TC at bar end; oxide reads brown-purple ~265 °C) |
+| 30 s | 310 °C | — |
+| Heating rate | 9.5 K/s | **~22–35 K/s** |
+
+### Three times the heating on two-thirds the power
+
+Work-heating scaling roughly with coupling: 1,773 x 0.17 = 301 versus
+1,211 x 0.66 = 802, a ratio of **2.7x** against the ~3x rate actually observed.
+**The numbers close.** This is coupling doing exactly what the model said.
+
+### The supply is CURRENT-limited and the bus has collapsed
+
+Not power-limited — that was my first reading and it was wrong. A current-limited
+rectifier delivers all the amps it can and lets voltage fall to whatever the load
+takes. At 0.66 coupling the tank impedance is low enough that **the bus falls from
+52.3 V to 18 V** and the machine uses **1,211 W of an available 3,000 W**.
+
+**Nothing is broken.** Peak Vds is now ~57 V against 200 V rated — *less* FET
+stress than before. Current limiting is a designed rectifier mode, not a fault.
+And it heats fast enough to be useful.
+
+**If the power is wanted back:** more inductance *in the same axial length* — a
+multi-layer winding (2 layers x 5 turns rather than 10 turns strung out to 48 mm,
+see `design-references.md` §80). That raises tank impedance so the supply is not
+driven into limit **and** drops frequency toward the caps' 50 kHz rating. Two
+problems, one fix — but a Phase 2 job, not a blocker.
+
+### The two-point test completed itself — INA228 CONFIRMED KEEP
+
+| Operating point | Clamp | PZEM | Ratio |
+|---|---|---|---|
+| 60 mm coil | 33.9 A | 3.10 A | **10.94** |
+| 19.5 mm coil | 67.3 A | ~6.38 A | **10.55** |
+
+**Constant within reading error across a 2x change in current.** That is the
+experiment set up yesterday and undecidable from one point.
+
+- The PZEM's current channel is a **scale error, not corruption** — it misreports
+  magnitude, not shape, and a constant is a firmware multiply.
+- **Decisive consequence: a close-coupled shunt in this bus reads LINEARLY.** That
+  was the gating question for CR-01's sensor. **Keep the INA228** (arrives Sept 3),
+  and **the shunt stays bolted in the bus** rather than coming out.
+
+### Capacitors
+
+100 kHz against a **50 kHz** rating. Real, but the duty cycle makes it minor: the
+rating is a continuous-operation thermal limit, and this machine runs ~10 cycles
+a week at seconds each. Caps measured cool to the touch (though 5 minutes after a
+5 s run, which is several thermal time constants — weak evidence, but the
+exposure is genuinely small). **An IR thermometer would make this a two-second
+non-contact check** and is the right ~$20 to spend if it keeps coming up.

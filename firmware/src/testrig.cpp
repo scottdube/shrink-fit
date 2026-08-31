@@ -54,7 +54,11 @@ static Preferences prefs;
 // which nobody can count. Fine time resolution is the wrong tool here anyway —
 // the machine doses on ENERGY; these timed cycles are for coil comparison.
 // Serial `d <sec>` still sets any value 1..60; the button then snaps to rung 0.
-static const uint32_t DUR_LADDER[] = {10, 20, 30, 40, 50, 60};
+// 5 s rungs from 2026-08-31. The 19.5 mm coil couples ~0.66 against the 60 mm
+// coil's 0.17, so 10 s there is roughly 40 s-equivalent on the old coil -- at or
+// past the 400 C ceiling on the very first run. The ladder needed a floor below
+// the smallest step the old one could take.
+static const uint32_t DUR_LADDER[] = {5, 10, 15, 20, 25, 30};
 static const uint8_t  DUR_COUNT = sizeof(DUR_LADDER)/sizeof(DUR_LADDER[0]);
 
 // LED read-back of the setting: N pulses, non-blocking.
@@ -143,7 +147,7 @@ static void ledService(int state) {
     case 1:  on = true;                                   break;  // RUNNING solid
     case 2:  on = (t < 90) || (t > 220 && t < 310);       break;  // cooldown double
     default: {                                                    // IDLE = the duration
-      uint8_t  n   = (uint8_t)(runSeconds / 10); if (!n) n = 1;
+      uint8_t  n   = (uint8_t)(runSeconds / 5); if (!n) n = 1;
       uint32_t lit = (uint32_t)n * RO_PER;
       uint32_t p   = (millis() - idleAnchor) % (lit + RO_GAP);
       on = (p < lit) && ((p % RO_PER) < 200);
@@ -237,7 +241,7 @@ static void stepDuration(bool down) {
   saveDuration();
   idleAnchor = millis();   // replay the count from the top, with the new value
   Serial.printf("duration = %lu s (%u flashes, %s)\n",
-                runSeconds, (unsigned)(runSeconds / 10), down ? "down" : "up");
+                runSeconds, (unsigned)(runSeconds / 5), down ? "down" : "up");
 }
 
 static void handleLine(String s) {
@@ -310,8 +314,16 @@ void setup() {
 #endif
 
   prefs.begin("testrig", false);
-  runSeconds = prefs.getUInt("dur", 10);
-  if (runSeconds < 1 || runSeconds > MAX_RUN_S) runSeconds = 10;
+  runSeconds = prefs.getUInt("dur", DUR_LADDER[0]);
+  if (runSeconds < 1 || runSeconds > MAX_RUN_S) runSeconds = DUR_LADDER[0];
+  {  // A value saved under the old ladder (40/50/60) is not on this one. Snap to
+     // the SHORTEST rung rather than the nearest -- after a ladder change the
+     // safe default is the least energy, not the closest number.
+    bool onLadder = false;
+    for (uint8_t i = 0; i < DUR_COUNT; i++) if (DUR_LADDER[i] == runSeconds) onLadder = true;
+    if (!onLadder) { runSeconds = DUR_LADDER[0]; saveDuration();
+                     Serial.printf("duration was off-ladder; snapped to %lu s\n", runSeconds); }
+  }
   analogSetPinAttenuation(BUS_SENSE_PIN, ADC_11db);   // full 0–3.3 V span
 
   Serial.begin(115200);
