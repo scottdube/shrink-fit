@@ -770,3 +770,73 @@ Inductance follows from the measured frequency and the known 3.96 µF:
 **L = 1 / ((2*pi*f)^2 * C)** — 59 kHz → 1.84 µH, 108 kHz → 0.55 µH. In-situ, so
 it includes stray lead inductance and the workpiece's effect, which a bench LCR
 reading would miss.
+
+## WORK PLAN — morning of 2026-08-31
+
+Nothing ordered arrives before Sept 1, so today is measurement and machining
+only. No panel or controller work is possible yet.
+
+### Block 0 — five minutes, do first
+
+**Trim the thermocouple tip sleeve.** Score along its length, peel; do not cut
+across. Takes the probe from ~130 °C to its rated 500 °C, and every temperature
+measurement below depends on it. Afterwards check the two conductors touch
+nowhere but the bead.
+
+### Block 1 — bench, no power (~15 min)
+
+- **Reassemble the PZEM** enough to make the bus mechanically sound. Its readings
+  are retired; the shunt stays bolted in because the INA228 (Sept 3) may use it.
+- **Assess the 19.5 mm coil for installability** — do its legs reach the 70 mm
+  barrel clamps, or does it need bending and annealing first? **This decides
+  whether Block 4 happens today**, so answer it before committing to the day.
+  Note `quickstart-1-8.md` §102 prefers a **21 mm** bore over 19.5 (3.0 mm/side
+  clearance to a 15 mm nose rather than 2.25) — the wound coil is testable, but
+  it is not the doc's recommended geometry.
+
+### Block 2 — Tormach (~45 min)
+
+**Cross-drill a 5/8" witness bar, 1.5 mm × 8 mm deep at mid-length.** The 1" bar
+does not fit the 19.5 mm coil, so without a common test piece the two coils
+cannot be compared and the coil log has no baseline. **This gates the whole A/B.**
+
+### Block 3 — powered, existing 60 mm coil (~30 min)
+
+**a) The flat-draw test — highest value of the day.** Watch the DC clamp through
+a complete cycle, *including the first two seconds*. Does it hold 33.9 A or move?
+
+| Result | Consequence |
+|---|---|
+| Flat | CAN alone does CR-01. **INA228 returns, shunt comes out of the bus** |
+| Varies | Fast sampling is real. INA228 stays, mount it at the shunt |
+
+**b) Baseline the witness bar** in the 60 mm coil — this is the "A" of the A/B.
+Same insertion depth, same start temperature, note both. Peak temp read from
+200 ms after field-off and take the **maximum**, not the first number.
+
+### Block 4 — only if the coil is installable (~1 hr)
+
+1. Install the 19.5 mm coil.
+2. **Frequency check FIRST, brief energisation only.** Pickup loop (2–3 turns,
+   ~25 mm, twisted leads) into the DHO914, AC coupled, FFT. **Do not probe the
+   tank** — peak Vds ≈ 164 V plus ringing on a floating output against an earthed
+   scope ground.
+   - **~108 kHz → the caps are at ~2× their 50 kHz rating.** Not a stop, but keep
+     every cycle short and log it. `requirements.md` §147 has the tuning lever
+     (more turns drops resonance; 8 turns on 12 caps lands ~59 kHz).
+3. Short heating runs only: **5 s, then 10 s, stepping up** — never the 30 s that
+   was safe on the old coil. Cycle time does not survive a coil change.
+4. Re-run the flat-draw check on the new coil; flat at 0.17 coupling may not stay
+   flat at 0.7.
+
+### Block 5 — opportunistic (~15 min)
+
+**Pump current with the DC clamp** — running and inrush. It is the last estimated
+figure in §6.11 and it sizes the buck that carries it. Flow measurement waits on
+the sensor.
+
+### If the morning runs short
+
+Order of value: **Block 0 → Block 3a → Block 2 → everything else.** Block 3a
+decides a purchase and a piece of bus hardware; Block 2 gates the coil comparison
+that the rest of the project's calibration depends on.
