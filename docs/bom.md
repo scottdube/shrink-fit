@@ -343,3 +343,33 @@ flyback diode (a plain diode stretches drop-out time on a safety circuit).
 - **Aux 1NO is the latch.** Aux 1NC is spare, and is the natural "mains live"
   input to the controller — it reports that the contactor actually pulled in,
   rather than that firmware merely commanded it.
+
+## ORDERED 2026-08-30 — inbound
+
+| Item | Price | Expected | Notes |
+|---|---|---|---|
+| **Baomain MC-9b-24VDC** contactor, ASIN B0B4CBZCBC | $31.16 | **Sept 1** | 3NO mains + 1NO/1NC aux, 24 V DC coil, UL |
+| **Taiss LA38-11BNRYG** 22 mm momentary ×3 (R/Y/G), ASIN B07GPJ6876 | $14.99 | **Sept 1** | 1NO+1NC each, 22 mm cutout — matches the LA39 E-stop |
+| **INA228** module (GODIYMODULES), ASIN B0GX5HM4X3 | $15.99 | **Sept 3** | onboard R002 to be removed; VIN+/VBUS/VIN− broken out |
+
+**$62.14 total.** Prices verified live, no escalator applied.
+
+**Not ordered / still open:** coolant flow sensor (YF-S401 class, ~$8–11). No
+specific part was chosen — CR-06 wants low-flow sensing on small tubing, and the
+HVAC paddle switches that dominate search results are sized for 1" pipe and will
+not actuate at this loop's flow rate.
+
+### On arrival
+
+- **Contactor:** confirm coil is 24 V **DC** and contacts carry the AC rating,
+  not the 24 V the Amazon listing pasted onto them (see the entry above — Ui
+  690 V was what settled it). Third main pole stays **unused**; the 12 V rail
+  must not be on it (§6.9).
+- **Buttons:** verify the 22 mm cutout matches the LA39 E-stop before cutting the
+  panel. Red's **NC** block is the mains STOP if one is fitted; the master switch
+  may make it unnecessary.
+- **INA228:** desolder R002, then **meter VIN+ to VIN− and confirm open** — proving
+  no pour or stray footprint bridges them. Keep the R002 bagged and taped to the
+  board; if the flat-draw test retires energy dosing, the module goes back.
+  Calibrate the external shunt against the DC clamp: read the shunt-voltage
+  register at known current, R = V/I, program the calibration register.
