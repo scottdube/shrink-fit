@@ -670,3 +670,32 @@ manufacture. Joints are dull and dark. This is a plausible contributor to the
 *voltage* error (leakage across a divider reads low, and low is what we see)
 alongside the RF, but it cannot produce a flat 10x on current. Not worth cleaning
 now that the instrument is retired.
+
+### The shunt outlives the PZEM — and tomorrow's test decides its fate too
+
+**2026-08-30, Scott: "if we remove the PZEM what are we doing for a shunt?"** The
+shunt is a separate part from the PZEM board — a bus-bar element bolted into the
+positive lead. Retiring the board leaves it in the circuit.
+
+**Item 4 in the bench queue (is the draw flat?) therefore decides two things:**
+
+- **CAN suffices** → **remove the shunt as well.** It is two bolted joints in a
+  33 A bus serving no purpose, and every high-current joint is a candidate hot
+  spot. Rejoin the lead.
+- **INA228 needed** → **the existing shunt becomes its shunt.** That is what an
+  INA228 does: reads the millivolt drop and computes current.
+
+**The unmarked rating stops mattering in that case.** The INA228 reports shunt
+voltage as a raw register, so: run a known current (DC clamp), read the shunt-
+voltage register, `R = V / I`, program the calibration register. **Calibrated
+against the clamp, which is already the trusted reference.** The missing stamp —
+an open unknown since the bench inventory, and the thing the whole 10x
+investigation kept circling — simply becomes irrelevant.
+
+Range check: 33 A through a plausible 750 µΩ gives ~25 mV against the INA228's
+±163 mV full scale, and its 20-bit ADC makes the low fraction of full scale
+harmless. Dissipation either way is 33² × 750 µΩ ≈ **0.8 W**, negligible.
+
+If it stays: **mount the INA228 at the shunt**, not at the controller, and twist
+the sense pair. The untwisted loop is not causing the 10x — a flat factor is not
+RF — but there is no reason to build a pickup loop into a new install.
