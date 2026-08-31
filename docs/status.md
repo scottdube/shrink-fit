@@ -814,8 +814,29 @@ a complete cycle, *including the first two seconds*. Does it hold 33.9 A or move
 Same insertion depth, same start temperature, note both. Peak temp read from
 200 ms after field-off and take the **maximum**, not the first number.
 
+### Block 1 RESULT — 2026-08-31
+
+Block 0 done (TC sleeve trimmed). PZEM reassembled and installed; bus
+mechanically sound. **The 19.5 mm coil is installable** — legs need bending to
+point correctly, otherwise ready.
+
+**ORDERING CONSTRAINT: Block 3 must happen before the coil is swapped.** The
+baseline temperature run is the "A" of the A/B and needs the 60 mm coil still
+fitted. Swap first and the comparison is gone.
+
 ### Block 4 — only if the coil is installable (~1 hr)
 
+0. **Bend the legs. Anneal any bend being re-made** — copper at an existing bend
+   is work-hardened and cracks when re-formed, and **a crack in a water-cooled
+   coil is a leak onto a live board.** Torch to dull red (~500–600 °C) and let it
+   cool; there is no quench rate to get wrong with copper. **Radius >= 3x OD**
+   (~15 mm on 3/16" tube) — tighter kinks thin wall and restricts flow invisibly
+   from outside. Pack with sand and plug the ends if it wants to kink.
+   Then confirm both constraints: legs reach the 70 mm barrel clamps **and**
+   clear the fans.
+0b. **Flow-test before energising.** Run coolant, hold pressure, look for weeps
+   at every bend and especially anywhere annealed and re-formed. Five minutes
+   against finding the leak with 1.75 kW and a live board underneath.
 1. Install the 19.5 mm coil.
 2. **Frequency check FIRST, brief energisation only.** Pickup loop (2–3 turns,
    ~25 mm, twisted leads) into the DHO914, AC coupled, FFT. **Do not probe the
