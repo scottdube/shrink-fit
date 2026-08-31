@@ -1057,3 +1057,44 @@ it, and no plausible holder steel is troubled. The oxide is cosmetic and
 cumulative — holders darken over their working life, which also means **the
 colour is spent as a diagnostic on that holder**: it now reads "at least as hot
 as it has ever been", not "as hot as this run".
+
+### Reheat repositions an already-shrunk tool — 2026-08-31
+
+**30 s → cooldown → 15 s** released and re-seated a tool already shrunk in, to a
+chosen depth. Against **25 s → cooldown → 10 s** for the original insertion,
+which fits: a reposition is a release *and* a re-seat in one heat, and Haas's own
+table shows shrink-**out** running 15–20% longer than shrink-in.
+
+**A mis-set depth is therefore recoverable, not a ruined holder.** Worth knowing
+before it happens on a tool that matters.
+
+**Still purple, no hotter — ~285–290 °C on both cycles.** The machine repeats at
+temperature, and **the colour line still has not passed the nose taper** after a
+second cycle. Heat placement holding up under repetition is better evidence than
+the first photo was; one clean run could have been luck.
+
+Two heat cycles is nothing for a holder — these are rated in the thousands.
+
+### Depth-stop collars — buy (MR-15 / roadmap "length preset")
+
+The entire reheat existed because there is **no shoulder in a shrink holder** for
+the tool to bottom on; depth is set by hand, one shot per cycle. `roadmap.md`
+lists this as *"Depth stop / length preset — stickout repeatability"* and MR-15
+specifies insertion *"as a single motion against a preset depth stop."*
+
+**Spec: 1/8" bore, ONE-PIECE SPLIT CLAMP type, aluminum.** Not set-screw —
+a point-contact screw raises a burr on the carbide shank, and **a burr on a
+shrink-fit surface ruins the interference**: it either will not seat or it scores
+the bore. Clamp collars grip evenly with no point load.
+
+**Clamp only on shank that stays outside the holder**, never on the length that
+enters the bore.
+
+Reference dimensions (NABCO 1A002): **0.813" OD, 0.250" width, 4-40 clamp screw**.
+Scott buys from McMaster — search *"clamping shaft collar"*, filter bore to 1/8".
+McMaster cannot be browsed programmatically; every URL redirects to their home
+page, consistent with the note that it is the one vendor that blocks automation.
+
+**Check before ordering: 0.813" OD is 20.6 mm against a 19.5 mm coil bore.** If
+the holder's nose face sits *inside* the coil during insertion, that collar will
+not clear. Measure the geometry; narrower-OD options exist in the same bore.
