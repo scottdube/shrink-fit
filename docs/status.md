@@ -980,3 +980,43 @@ a week at seconds each. Caps measured cool to the touch (though 5 minutes after 
 5 s run, which is several thermal time constants — weak evidence, but the
 exposure is genuinely small). **An IR thermometer would make this a two-second
 non-contact check** and is the right ~$20 to spend if it keeps coming up.
+
+## 2026-08-31 — ★ TOOL IN A HOLDER. Near-term goal achieved.
+
+**A carbide tool is shrunk into a Haas BT30 1/8" holder**, on the 19.5 mm coil.
+That was the project's stated near-term objective — *"get 1–2 carbide 1/8" tools
+into holders to unblock PCB milling"* — and it is done.
+
+### What it took
+
+**25 s → machine cooldown → 10 s.** Roughly 35 s of heating, split.
+
+**That split is the supply derating, made physical.** A single long cycle
+underperforms because output falls as the R48 protects itself: by 25 s the input
+is down near **795 W** (15 V x 53 A) from 1,211 W at the start. The gap let the
+supply recover, so the second 10 s ran nearer full power on an already-hot
+holder, and that combination carried it.
+
+**~35 s split did what ~15 s at sustained full power would have.**
+
+### This is now the strongest argument for the multi-layer rewind
+
+Not elegance — throughput. Raising tank impedance lets the R48 deliver rated
+current **inside its own envelope** instead of being driven into limit and
+derating out of it. Same energy, one cycle, about half the time. It also drops
+frequency toward the caps' 50 kHz rating and stops the bus collapsing. **Three
+problems, one fix** (`design-references.md` §80 — 2 layers x 5 turns in the same
+30 mm axial length, rather than 10 turns strung out to 48 mm).
+
+### Capacitors — the duty-cycle argument holds empirically
+
+**Cool to the touch after a 25 s run** at 2x rated frequency. The rating is a
+continuous-operation thermal limit and this machine runs seconds at a time; that
+was the argument on paper, and the bench now agrees with it.
+
+### Known, not yet needed: release costs more than insertion
+
+Haas's own table shows shrink-**out** running 15–20% longer than shrink-in at
+every size. The near-term goal is one-way — tools stay in — so it does not bite
+today. When a tool does need to come out, budget more than 35 s and expect the
+holder at the top of its temperature range.
