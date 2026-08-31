@@ -796,7 +796,18 @@ nowhere but the bead.
 
 ### Block 2 — Tormach (~45 min)
 
-**Cross-drill a 5/8" witness bar, 1.5 mm × 8 mm deep at mid-length.** The 1" bar
+**Cross-drill a 5/8" witness bar, 1.5 mm × 8 mm deep — in the section that
+protrudes PAST the coil, not at mid-length** (see TRAPS: the probe cannot exit a
+mid-length hole; 1.8 mm/side clearance in the bore against a ~2.5 mm braided
+probe). Mark the insertion depth and reuse the mark every run.
+
+**Drilling it:** 1100MX spindle is 10,000 RPM. HSS ~4,500 RPM at 3–4 IPM;
+carbide is RPM-limited at 10,000, 5–6 IPM. **Mill a small flat first** — a 1.5 mm
+drill walks on a 5/8" curved surface and snaps. Centre-drill, then **G83
+full-retract pecks at ~1 mm** (5.3x diameter deep, so chip evacuation is the
+whole problem). V-block, not flat vise jaws. Have a spare drill.
+*(Tormach publishes no feeds/speeds chart for this machine — these are standard
+practice, calculated, not a spec.)* The 1" bar
 does not fit the 19.5 mm coil, so without a common test piece the two coils
 cannot be compared and the coil log has no baseline. **This gates the whole A/B.**
 

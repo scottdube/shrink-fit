@@ -461,3 +461,42 @@ channel is already that experiment, half-run.
 
 **The ratio test now gates the purchase.** It costs a bench session and no parts.
 Do not order until it has run.
+
+## The witness-bar hole cannot be at mid-length — the wire has nowhere to go
+
+**2026-08-31, Scott:** *"if I drill this hole, I'm gonna have to bend the wire of
+the K-type probe at a ninety degree angle to get it up through the inside of the
+coil. Is that kosher?"*
+
+`quickstart-1-8.md` specifies **"cross-drill 1.5 mm × 8 mm deep at mid-length"**
+and that instruction was written without checking whether the thermocouple can
+physically leave the hole. It cannot:
+
+- **Clearance.** A 19.5 mm coil bore around a 15.875 mm bar leaves **1.8 mm per
+  side.** The glass-braid probe is ~2–2.5 mm over the braid. It does not fit, and
+  forcing it crushes the braid and presses the conductors together — which is the
+  false-junction failure recorded above.
+- **A wire routed up the bore sits in the strongest part of the field**, the one
+  place this whole build works to keep sense leads out of.
+
+Bending the wire itself is harmless — chromel/alumel is ductile and a gentle bend
+does not affect the junction. The bend was never the problem; the destination was.
+
+### Fix
+
+**Site the cross-hole in the section of bar that protrudes past the coil**, so the
+wire exits radially into free air. **Mark the insertion depth and use the same
+mark every run.**
+
+This trades "hottest station" for "same station every time", which is the correct
+trade: **comparing two coils needs identical geometry, not maximum temperature.**
+A cooler station held constant tells you which coil is better; a hotter station
+that moves between runs tells you nothing. Same conclusion as the thermocouple
+packing discussion — chase repeatability, not absolute accuracy.
+
+### Pattern
+
+Fourth time in two days that asking *what does this part physically touch* has
+changed a plan, and the third time it invalidated something already written down.
+The instruction was internally sensible and geometrically impossible, and no
+amount of re-reading it would have surfaced that. See [[ask-where-it-attaches]].
