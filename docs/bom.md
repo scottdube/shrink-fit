@@ -352,12 +352,13 @@ flyback diode (a plain diode stretches drop-out time on a safety circuit).
 | **Taiss LA38-11BNRYG** 22 mm momentary ×3 (R/Y/G), ASIN B07GPJ6876 | $14.99 | **Sept 1** | 1NO+1NC each, 22 mm cutout — matches the LA39 E-stop |
 | **INA228** module (GODIYMODULES), ASIN B0GX5HM4X3 | $15.99 | **Sept 3** | onboard R002 to be removed; VIN+/VBUS/VIN− broken out |
 
-**$62.14 total.** Prices verified live, no escalator applied.
+| **Hall-effect flow sensor, 0.3–3 L/min** | ~$10 | — | ordered same day; low-flow turbine, pulse output |
 
-**Not ordered / still open:** coolant flow sensor (YF-S401 class, ~$8–11). No
-specific part was chosen — CR-06 wants low-flow sensing on small tubing, and the
-HVAC paddle switches that dominate search results are sized for 1" pipe and will
-not actuate at this loop's flow rate.
+**~$72 total.** Prices verified live where shown, no escalator applied.
+
+The flow sensor range matters: **0.3–3 L/min brackets a small 12 V pump**, where
+the 1" HVAC paddle switches that dominate search results would never actuate at
+this loop's flow rate at all — reading "no coolant" forever, or sticking closed.
 
 ### On arrival
 
@@ -373,3 +374,22 @@ not actuate at this loop's flow rate.
   board; if the flat-draw test retires energy dosing, the module goes back.
   Calibrate the external shunt against the DC clamp: read the shunt-voltage
   register at known current, R = V/I, program the calibration register.
+
+### Flow sensor — fitting notes
+
+- **Set CR-06's threshold above the sensor's floor, not at it.** If normal flow
+  is ~1.5 L/min, trip at ~0.8 — far enough from the 0.3 L/min stall point that a
+  slowing turbine does not nuisance-trip mid-cycle.
+- **Mount where it stays flooded.** A bubble parked in the rotor reads as no flow;
+  avoid the high point of the loop.
+- **Supply side, before the coil.** Cooler water, and most YF-series housings are
+  only rated ~80 °C — confirm this one.
+- **Pulse output beats a contact:** CR-06 gets a real rate to threshold, and a
+  slowly declining flow logged over weeks is a clogging loop reporting itself.
+  A switch can never say that.
+
+**It also closes the last open number in the power budget.** The pump's current
+draw is the only figure in §6.11 estimated across a 3x range, and it sizes the
+buck carrying it. One session with the DC clamp and this sensor characterises the
+pump — running current, inrush, and what flow you actually get for it — settling
+both the buck sizing and CR-06's threshold together.
