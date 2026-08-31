@@ -741,3 +741,32 @@ shunt in this bus be trusted?* — far better, because it exposes **raw shunt
 millivolts** as a register. Two power levels against the clamp show directly
 whether shunt voltage is proportional and stable, with no calibration constant
 and no unknown firmware in between. Same experiment, confounding variable removed.
+
+### Bench queue addition — measure tank frequency on the 19.5 mm coil FIRST
+
+**Before running long cycles on the new coil.** The tank caps are marked **50 kHz**
+(`requirements.md` §73 — corrected from an assumed 150), and `design-references.md`
+§99 records that **both predicted bands are above it**:
+
+| Coil | Predicted f | vs 50 kHz cap rating |
+|---|---|---|
+| 60 mm (today's) | ~59 kHz | slightly over |
+| **19.5 mm (untested)** | **~108 kHz**, band 86–130 | **~2x over** |
+
+Running 0.33 µF MKPH parts at twice rated frequency is dielectric heating that
+gives no warning until a capacitor fails.
+
+**Method — no LCR meter needed, and none is owned.** The KM601 has no inductance
+range. Use the **DHO914 with a pickup loop**: 2–3 turns of insulated wire ~25 mm
+across, twisted leads to the probe, held a few inches from the work coil, AC
+coupled. FFT reads the frequency directly.
+
+**Do not probe the tank.** Peak Vds ~= pi x Vdc ~= 164 V plus ringing, and the DC
+output **floats** while the scope ground is earthed — clipping an earthed ground
+to a floating tank makes a fault path through the instrument. The pickup loop has
+no galvanic connection at all.
+
+Inductance follows from the measured frequency and the known 3.96 µF:
+**L = 1 / ((2*pi*f)^2 * C)** — 59 kHz → 1.84 µH, 108 kHz → 0.55 µH. In-situ, so
+it includes stray lead inductance and the workpiece's effect, which a bench LCR
+reading would miss.
