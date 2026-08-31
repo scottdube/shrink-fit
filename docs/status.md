@@ -1020,3 +1020,40 @@ Haas's own table shows shrink-**out** running 15–20% longer than shrink-in at
 every size. The near-term goal is one-way — tools stay in — so it does not bite
 today. When a tool does need to come out, budget more than 35 s and expect the
 holder at the top of its temperature range.
+
+### Heat placement — confirmed correct by the holder itself
+
+Photographed after the successful insertion. The oxide bands read:
+
+| Zone | Colour | Temp |
+|---|---|---|
+| Clamping section / nose | **deep purple** | ~285 °C |
+| Shoulder | gold-straw | ~215 °C |
+| **Flange, drive slots, BT30 taper** | **bright, untouched** | ambient |
+
+**The heat is confined to the clamping section.** The concern that a 30 mm coil
+against a 15 mm clamp length might spread heat onto the taper — the precision
+spindle interface — is **unfounded**. Coil length and positioning are right;
+nothing to change.
+
+**The band is even around the full circumference**, which means the coil sat
+concentric with the nose and heated it uniformly. No hot spot from an off-centre
+coil. That is a quality check available free on every cycle, and no instrument
+can give it.
+
+### And ~285 °C closes §4.3's estimate for good
+
+`requirements.md` §4.3 put the 1/8" holder's requirement at **~410 °C** — the
+figure that sat above the old 350 °C ceiling and was the project's headline
+blocking risk. The doc flagged it unsourced and said *"you will find out
+empirically."*
+
+**It released at ~285 °C surface.** The estimate was high by over 100 degrees.
+That risk is not narrowed, it is **closed** — and with Haas's 400 °C ceiling
+there is now margin on both sides rather than a conflict.
+
+**No metallurgical concern:** H13 tempers at 550–650 °C. 285 °C is nowhere near
+it, and no plausible holder steel is troubled. The oxide is cosmetic and
+cumulative — holders darken over their working life, which also means **the
+colour is spent as a diagnostic on that holder**: it now reads "at least as hot
+as it has ever been", not "as hot as this run".
