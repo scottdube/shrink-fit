@@ -490,9 +490,10 @@ The controller SHALL refuse to start if measured nose temperature exceeds
 **60 °C**. Prevents overshoot when re-heating a warm holder — the failure mode
 that permanently enlarges bores.
 
-### CR-05 — Startup sequencing *(closes gap #8)*
+### CR-05 — Startup sequencing *(closes gap #8; **REVISED 2026-08-30, see §6.10**)*
 On power-up the controller SHALL block the 53 V DC line from the ZVS board for
-**≥30 s**, then apply it as a hard step via contactor.
+**≥30 s**, then apply it as a hard step **via the SSR** (not the contactor —
+see §6.10 for why the original wording is stale and what now gates arming).
 
 Rationale: a Royer oscillator needs a voltage step to commutate. A slow PSU ramp
 puts both MOSFETs into conduction simultaneously. Switch the **DC output**, not
@@ -1286,3 +1287,88 @@ is lost. An E-stop costing a rectifier cold-start is correct behaviour.
 
 **Still true and unchanged:** the cord-and-plug remains the physical disconnect
 for service. An E-stop is not a lockout.
+
+## 6.10 CR-05 revised — what delivers the step, and what gates arming
+
+Two corrections, one inherited and one created by §6.9.
+
+### The SSR delivers the step, not the contactor
+
+CR-05's rationale is the load-bearing part and is unchanged: **a Royer needs a
+hard voltage step to commutate. A slow ramp puts both MOSFETs into conduction
+simultaneously.** No pre-charge, no soft-start on that line — the inrush *is* the
+starting mechanism.
+
+But CR-05's *text* said the contactor delivers that step, and **that stopped being
+true when MR-23 was written** — MR-23 assigns cycle switching to the DC SSR
+precisely because it "switches in microseconds, a better hard step for CR-05 than
+a mechanical contactor." The two requirements have disagreed since.
+
+§6.9 moved the contactor to the AC side without checking CR-05 first. **It
+survives, but by luck rather than by analysis:**
+
+```
+AC CONTACTOR ─▶ rectifier ramps (slowly, harmlessly) ─▶ bus at 53 V
+                                                          │
+                                              SSR OPEN — ZVS sees nothing
+                                                          │
+                                        SSR CLOSES ─▶ hard step ─▶ ZVS
+```
+
+The ZVS never sees the rectifier's ramp because the SSR is open across it. Had
+the SSR not already owned this job, moving the contactor to AC would have fed the
+Royer a slow ramp and destroyed the IRFP260Ns.
+
+### What gates arming
+
+The original ≥30 s is a timer alone, and a timer cannot tell a slow rectifier
+from a dead one. **Arming SHALL require all three:**
+
+1. **Bus voltage ≥ threshold**, read over CAN
+2. **Held across ≥M consecutive samples** — telemetry is ~1 Hz, so a single
+   reading is a weak thing to arm a kilowatt on, and it may be a second stale
+3. **≥30 s since contactor close**
+
+**Neither condition is sufficient alone.** Scott, 2026-08-30: *"is there any
+chance CAN reports full volts but it would sag too low if a cycle were allowed to
+begin right then?"* Yes — four mechanisms produce exactly that:
+
+- **Voltage arrives before capability.** Output capacitance charges to 53 V while
+  the rectifier's current limit is still ramping. The bus reads full and cannot
+  yet deliver 33 A.
+- **Soft-start.** Telecom rectifiers ramp deliberately over seconds.
+- **Telemetry lag.** At ~1 Hz the reading may predate the contactor settling.
+- **No-load ≠ loaded.** The 53 V figure came from a warm, settled rectifier.
+
+| Gate alone | Failure |
+|---|---|
+| Timer only | arms into a bus that never came up |
+| Voltage only | arms into a rectifier still ramping its current capability |
+
+**If the threshold is not reached within a timeout, that is a FAULT, not a
+delay.** A dead rectifier and a slow one are identical to a clock, and only the
+voltage condition separates them.
+
+**Runtime counterpart:** bus sag below a floor *during* a cycle is a CR-03
+plausibility fault. The startup gate stops a bad beginning; this stops a bad
+ending.
+
+### Power architecture (Scott, 2026-08-30)
+
+1. **Master switch (DPST, maintained)** → 12 V logic rail **and** enables the
+   contactor control circuit. Does not itself pull the contactor in.
+2. **MAINS START (momentary)** → contactor pulls in, auxiliary contact latches it.
+3. Controller waits on the three-condition gate above.
+4. **CYCLE START** → SSR closes, hard step, heating begins.
+5. **STOP** → SSR opens. Contactor stays in.
+6. **E-STOP** → drops the contactor coil **only**.
+
+**The E-stop SHALL NOT drop the 12 V rail.** A hot holder and a coil full of
+static water with the pump stopped can boil that water; the FETs also hold heat
+with nothing moving it. Cooling, logging and the CR-02 post-cycle temperature
+reading all depend on the logic surviving the stop.
+
+**The master switch must not latch the contactor.** A maintained switch holding
+the contactor circuit means releasing the E-stop re-energises mains immediately —
+an auto-restart, which is what the momentary-plus-latch arrangement exists to
+prevent. Maintained is correct for the 12 V rail, where a reboot is harmless.
