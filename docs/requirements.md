@@ -1372,3 +1372,40 @@ reading all depend on the logic surviving the stop.
 the contactor circuit means releasing the E-stop re-energises mains immediately —
 an auto-restart, which is what the momentary-plus-latch arrangement exists to
 prevent. Maintained is correct for the 12 V rail, where a reboot is harmless.
+
+### 6.11 Power distribution — 24 V primary, split bucks (Scott, 2026-08-30)
+
+**One AC-DC supply at 24 V**, feeding the contactor coil directly and bucking down
+for everything else. Entirely from stock — **no new parts**.
+
+```
+MAINS ─▶ S-250-24 (24 V 10 A, WS2-S3)
+             ├──▶ contactor coil (~0.3 A)  ── E-stop NC in series
+             ├──▶ LM2596 ─▶ 12 V  logic + display   (~0.5 A)
+             └──▶ LM2596 ─▶ 12 V  pump + fans       (~1.0–1.8 A)
+```
+
+**Two bucks, not one — deliberately.** A DC pump motor draws 3–5x its running
+current at startup. Sharing a rail drags the logic supply down at exactly the
+wrong moment, and a controller brownout mid-cycle is an uncommanded state with
+the field on. **$5 of separation against an intermittent fault that would be
+miserable to diagnose.**
+
+**Bulk capacitance at the ESP32 regardless:** 220 µF electrolytic + 0.1 µF
+ceramic close to the supply pin. Long buck-to-module runs sag on WiFi bursts.
+
+**Why 24 V primary rather than 12 V:** no 12 V DC coil exists in the MC-9b family
+(see bom.md), and a separate coil supply keeps pull-in inrush and collapse
+transient off the logic rail — which matters because the coil takes a snubber
+rather than a plain flyback diode.
+
+**LM2596 limits worth respecting:** 3 A chip rating, **~2 A honest continuous**
+on the little modules without added heatsinking; **Vin 40 V max**, so never feed
+one from the 53 V bus. 24 V in is comfortable.
+
+**Open — measure, do not model.** The 12 V pump's running current and startup
+spike are the only numbers in this budget being guessed, across a 3x range, and
+they size the buck that carries them. **Put the DC clamp on it.** If it runs
+≤1 A it shares with the fans; if the inrush is heavy it wants its own, and the
+XY6020L (6–70 V, 20 A, RB-07) absorbs it — check whether that one is spoken for
+by another build first.
