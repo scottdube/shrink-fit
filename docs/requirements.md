@@ -690,7 +690,7 @@ installed. Sleeve + air is the default; a nose-only dunk is acceptable practice.
 ### 6.6 Switching and protection
 
 | MR-22 | ~~Freewheel diode across the ZVS board's DC input~~ — **CLOSED 2026-08-27. Satisfied by the board as shipped.** No part to fit. |
-| MR-23 | Cycle switching by **DC SSR** (≥60 V, ≥80 A); isolation and E-stop by a **series mechanical contactor**. |
+| MR-23 | **REVISED 2026-08-30 — see §6.9.** Cycle switching by **DC SSR** (≥60 V, ≥80 A); isolation and E-stop by an **AC mains contactor**, not a DC one. |
 | MR-24 | Coil axial position repeatable to **±0.5 mm** relative to the holder nose. |
 | MR-25 | Coil leads as short as practical; coil terminals close to the tank, board outside the radiant field (SR-06). |
 
@@ -778,7 +778,7 @@ bore-wear instrument (§8.2).
 | SR-01 | Grounded metal enclosure for all mains and high-current DC |
 | SR-02 | **Local disconnecting means, in sight of the machine, that de-energises the AC side.** Cord-and-plug satisfies this if the receptacle is accessible. A local breaker or disconnect switch is required only if hardwired or if the receptacle is not reachable from the operating position. If a local device is fitted it MUST be **dual-pole** — see below. |
 | SR-02a | **Label the AC input terminal marked `N` as LIVE, and re-identify the conductor landing on it.** Wording and method below. |
-| SR-03 | E-stop cutting the DC contactor coil |
+| SR-03 | **REVISED 2026-08-30 — see §6.9.** E-stop cutting the **AC mains contactor** coil, killing the rectifier and every downstream rail |
 | SR-04 | Fused DC bus |
 | SR-05 | No exposed conductor above 50 V with the lid closed |
 | SR-06 | Coil and hot-holder zone physically separated from electronics |
@@ -1226,3 +1226,63 @@ insufficient.
 - [Practical Machinist: shrink holder temperature](https://www.practicalmachinist.com/forum/threads/shrink-holder-temperature.239813/) — slimline holders overheated due to low mass; ~5k cycle life
 - Source briefing: `~/Downloads/diy-induction-ai-briefing.md` — ZVS latch-up mechanism, coupling estimates, vapor lock, builder logs
 - Kit: [eBay 286924140726](https://www.ebay.com/itm/286924140726) *(specs unverified — see §2)*
+
+## 6.9 E-stop moved to the AC side — revision of SR-03 and MR-23
+
+**Decided by Scott, 2026-08-30: "I want all of the deadly current killed if I
+have to hit the E-stop."** This supersedes the DC-side arrangement in SR-03 and
+MR-23.
+
+### What was wrong with the original
+
+SR-03 cut a DC contactor coil, dropping the ZVS stage while **the rectifier and
+all mains wiring stayed live** — §8.5 admitted this in as many words and answered
+it with "a reachable plug is the disconnect." An E-stop that leaves 240 V energised
+is answering the wrong hazard: hitting it during commissioning, with hands near
+the board, leaves the most dangerous conductors in the machine untouched.
+
+### Revised architecture
+
+```
+MAINS ─▶ [AC CONTACTOR] ─▶ R48 rectifier ─▶ [SSR] ─▶ ZVS board
+              ▲
+      E-stop NC in series with the coil,
+      latched by an auxiliary contact
+```
+
+- **E-stop breaks the AC contactor coil.** Rectifier dead, DC bus dead with it.
+- **Latching start/stop circuit:** start button energises the contactor, an
+  auxiliary contact holds it in, E-stop or power loss drops it out and it stays
+  out until someone presses start. **This satisfies CR-05's no-auto-restart
+  requirement in hardware, with no firmware involvement.**
+- **The controller drops the same coil** through a relay in that circuit, so a
+  CR-03 time fault kills mains too — and a welded SSR is stopped by either path.
+- **SSR unchanged**, handling the thousands of cycle switchings and normal aborts
+  in microseconds without touching the contactor.
+
+### Why AC is also the easier engineering
+
+| | AC contactor | DC contactor |
+|---|---|---|
+| Arc quenching | current crosses zero 120×/s, self-extinguishing | magnetic blowout, **polarity-sensitive** |
+| Failure mode if mis-wired | none | blowout drives the arc *into* the contacts |
+| Rating to verify | ordinary | true DC breaking capacity at ≥60 V |
+| Cost | ~$25 | ~$49 |
+
+**Stored energy does not defeat it.** The R48's output capacitance is a few
+thousand µF at 53 V — roughly 5 J, which a 1.7 kW load drains in about 3 ms.
+Killing mains kills the bus.
+
+### The DC contactor is retired
+
+MR-23 justified it because *"SSRs fail short, so an SSR alone cannot satisfy
+SR-03."* An AC contactor answers that completely: a shorted SSR is inert with no
+mains behind it. **Removed from the BOM** — $49 and every DC-arc and polarity
+consideration replaced by ~$25 of ordinary gear.
+
+**What is given up:** cutting DC without restarting the rectifier. The SSR
+already does that in microseconds and is the normal abort path, so nothing real
+is lost. An E-stop costing a rectifier cold-start is correct behaviour.
+
+**Still true and unchanged:** the cord-and-plug remains the physical disconnect
+for service. An E-stop is not a lockout.

@@ -49,7 +49,7 @@ kit**. Status as of 2026-08-09.
 | Copper sheet, focus discs | 1 | MR-07 | $20 |
 | **Freewheel diode, ≥100 V ≥100 A fast recovery** | 1 | **MR-22** | $15 |
 | **DC SSR, ≥60 V ≥80 A** | 1 | MR-23 | $30 |
-| **DC contactor** (series, positive-opening) | 1 | MR-23, SR-03 | $35 |
+| ~~DC contactor (series, positive-opening)~~ **AC mains contactor, ~25 A** | 1 | MR-23, SR-03 (**revised** — requirements §6.9) | $18 |
 | ~~AC mains breaker, dual-pole~~ | — | SR-02 | **$0** — cord-and-plug; the panel breaker protects the circuit and the plug is the disconnect |
 | NEMA 6-20 cord + plug | 1 | SR-02 | $20 |
 | Mains EMI filter | 1 | SR-12 | $25 |
