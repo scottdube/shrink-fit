@@ -1098,3 +1098,49 @@ page, consistent with the note that it is the one vendor that blocks automation.
 **Check before ordering: 0.813" OD is 20.6 mm against a 19.5 mm coil bore.** If
 the holder's nose face sits *inside* the coil during insertion, that collar will
 not clear. Measure the geometry; narrower-OD options exist in the same bore.
+
+## 2026-08-31 — INA228 bring-up COMPLETE
+
+On a **NodeMCU-32S** (the identified variant, §6.12), deliberately separate from
+the S3 test rig so a working machine was never at risk.
+
+| Check | Result |
+|---|---|
+| I²C scan | **0x40 responds** |
+| MFG_ID | **0x5449** — genuinely TI |
+| DEVICE_ID | **0x2281** — genuinely an INA228 |
+| WiFi / OTA | joined IoT, **`shrinkfit-ina228.local`**, OTA verified end to end |
+| R002 removed | **VIN+ to VIN− now 35 MΩ** — open |
+| Analog front end | responds under `stream` |
+
+**The ID registers are the check that mattered.** Anything can acknowledge an
+address; 0x5449 + 0x2281 say it is the part it claims to be. Doing that *before*
+the rework meant a dead board could not be ambiguous between arrived-dead and
+killed-in-desoldering.
+
+**35 MΩ is fully open for this purpose.** Against a ~750 µΩ shunt it diverts
+about two parts in a hundred billion. The residual is the chip's input network
+plus rework flux; neither matters.
+
+### Two bad instructions of mine, recorded so they are not repeated
+
+**"Touch VIN+/VIN− and watch VSHUNT move" is wrong twice over.** With R002 fitted
+the pads are shorted through 2 mΩ against a finger's ~1 MΩ — nothing external can
+move it. And *after* removal, touching **both** pads with one finger connects
+them, driving the differential **toward zero**: the one action guaranteed to
+produce the least signal.
+
+**A real test, quantitative, two resistors:** 3.3 V → 1 kΩ → 10 Ω → GND, VIN+ on
+the junction, VIN− on ground = **32.7 mV**, well inside the ±163 mV range.
+VSHUNT should read ≈ **+32,700 µV**, and **−32,700** with the leads swapped —
+which also confirms the polarity convention before committing to Kelvin taps.
+
+**`stream` must be typed** — the sketch prints nothing otherwise. That was
+mentioned once in passing and never as a step, and cost time.
+
+### Next
+
+Wire VIN+ upstream tap, VIN− downstream tap, VBUS to the same point as VIN−,
+GND to DC−. Then known current on the clamp, read the shunt-voltage register,
+**R = V / I**. Landing near 750 / 500 / 250 µΩ confirms the Kelvin taps;
+an implausible value means they are on the wrong points.
