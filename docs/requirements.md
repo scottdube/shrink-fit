@@ -1409,3 +1409,52 @@ they size the buck that carries them. **Put the DC clamp on it.** If it runs
 ≤1 A it shares with the fans; if the inrush is heavy it wants its own, and the
 XY6020L (6–70 V, 20 A, RB-07) absorbs it — check whether that one is spoken for
 by another build first.
+
+## 6.12 Controller board — DECIDED 2026-08-31 (closes OQ-5)
+
+**Two boards, two purposes.** This was agreed in conversation on 2026-08-30 and
+never written down; the rest of these docs still assume the Super Mini throughout.
+
+### The test rig STAYS on the ESP32-S3 Super Mini
+
+It works: OTA proven, TWAI listen-only at 125 kbps with zero bus errors, buttons,
+status LED, duration ladder. **Do not disturb a working rig.** The Super Mini
+footprint work — symbol verified against three independent sources, row spacing
+*measured* at 15.2 mm — remains valid and in use. It simply does not carry to the
+controller.
+
+**Consequence: the INA228 I²C work goes on the S3 rig.** No conflict, nothing
+waits on the board change.
+
+### The controller PCB moves to a 38-pin ESP32 devkit
+
+**~5 already in stock** (B3-R6C3 and RB-12). Reasons, in order of weight:
+
+1. **The requirements are not stable enough to design pin-exact against.** In two
+   days: CR-02 rewritten, SR-03 / MR-23 / CR-05 revised, PZEM retired, MAX31855
+   and the DC contactor deleted, power architecture changed. **Spare GPIOs are
+   cheap insurance against another week like that after the board is milled.**
+2. **Pin budget.** ~22 needed (CAN 2, SSR 1, contactor relay 1, encoder 3, two
+   start buttons, E-stop sense, 3 lamps, 1-Wire, flow, I²C 2, TFT SPI 6) against
+   **13 usable** on the Super Mini.
+3. **The shop already has a proven `NodeMCU-32S_38pin_THT` footprint.** An S3
+   controller needs a new one, and **two footprints in this shop have been built
+   mirrored.** That is a real risk the ESP32 sidesteps.
+4. **Nothing here needs an S3-only feature.** TWAI, WiFi/OTA, I²C and SPI are all
+   on the ESP32, plus a hardware **PCNT** quadrature counter for the encoder.
+5. Scott's S3 boards were bought for voice-assistant work.
+
+### Open before the PCB is laid out
+
+- **IDENTIFY THE VARIANT FIRST.** NodeMCU-32S and DOIT DevKit-V1 share the 38-pin
+  outline and **put power on different pins — the wrong one destroys the module.**
+  NodeMCU-32S silks `5V` and P-prefixed names; DOIT silks `VIN` and `D`/`GPIO`.
+  There are at least three different boards in that bin.
+- **GPIO 6–11 are the internal SPI flash bus** → NPTH holes, no copper, and do not
+  delete the holes or the module cannot seat.
+- **ADC2 is dead while WiFi is active** → any analog input goes on ADC1 (GPIO 32–39).
+- **GPIO 34–39 are input-only** — fine for buttons, flow and E-stop sense, useless
+  for lamps.
+- Firmware port is modest: pin renumbering, a different status-LED pin (GPIO48
+  does not exist on ESP32), and serial via CP2102 rather than native USB. OTA and
+  TWAI are identical APIs.
