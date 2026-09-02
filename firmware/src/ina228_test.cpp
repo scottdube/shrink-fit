@@ -31,6 +31,8 @@ static const char *OTA_HOST = "shrinkfit-ina228";
 static Preferences prefs;
 static bool otaReady = false;
 static void otaBegin();   // defined below, after the register helpers
+static bool     streaming = false;
+static uint32_t nextRead  = 0;
 
 static const int PIN_SDA = 21;
 static const int PIN_SCL = 22;
@@ -147,7 +149,8 @@ void setup() {
   scan();
   identify();
   otaBegin();
-  Serial.println("\ncommands:  scan | id | r (read once) | stream | stop | wifi <ssid> <pass>");
+  Serial.println("\ncommands:  scan | id | r | stream | stop");
+  Serial.println("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
   Serial.println("Shorting VIN+ to VIN- should drive VSHUNT to ~0. Touching them");
   Serial.println("with a finger should move it. That is the analog front end alive.");
 }
@@ -179,28 +182,70 @@ static void otaBegin() {
   otaReady = true;
 }
 
-static bool streaming = false;
-static uint32_t nextRead = 0;
+
+// Line assembly is deliberately non-blocking and printable-only.
+// readStringUntil() blocks for its 1 s timeout and returns whatever arrives, so
+// one stray byte on a floating RX line reads as an unrecognised command and the
+// console fills with "?" forever -- and the same blocking stalls ArduinoOTA for
+// a second at a time. Accumulate characters instead, drop anything unprintable.
+static char    lineBuf[96];
+static uint8_t lineLen = 0;
+
+static void handleLine(const char *line) {
+  String s(line); s.trim();
+  if (!s.length()) return;
+
+  // Separate commands because the combined "wifi <ssid> <pass>" splits on the
+  // first space -- an SSID containing a space silently puts half of itself into
+  // the password, and the only symptom is 4WAY_HANDSHAKE_TIMEOUT, which reads
+  // as a wrong password. Take the whole rest of the line each time instead.
+  if (s.startsWith("ssid ")) {
+    prefs.putString("ssid", s.substring(5));
+    Serial.printf("ssid = \"%s\" (%d chars) — set pass, then reboot\n",
+                  s.substring(5).c_str(), s.length() - 5);
+  }
+  else if (s.startsWith("pass ")) {
+    prefs.putString("pass", s.substring(5));
+    Serial.printf("pass saved, %d chars — reboot to join\n", s.length() - 5);
+  }
+  else if (s == "wifi?") {
+    // SSID echoed in full, password only as a length: enough to spot a
+    // truncation or a stray character without printing the secret.
+    String ss = prefs.getString("ssid", "");
+    String pp = prefs.getString("pass", "");
+    Serial.printf("stored ssid = \"%s\" (%d chars)\n", ss.c_str(), ss.length());
+    Serial.printf("stored pass = %d chars\n", pp.length());
+  }
+  else if (s == "wifi clear") { prefs.remove("ssid"); prefs.remove("pass");
+                                Serial.println("cleared"); }
+  else if (s.startsWith("wifi ")) {
+    int sp = s.indexOf(' ', 5);
+    if (sp < 0) { Serial.println("usage: ssid <name>  then  pass <password>"); return; }
+    prefs.putString("ssid", s.substring(5, sp));
+    prefs.putString("pass", s.substring(sp + 1));
+    Serial.println("saved — reboot to join  (use ssid/pass separately if either has a space)");
+  }
+  else if (s == "scan")   scan();
+  else if (s == "id")     identify();
+  else if (s == "r")      dump();
+  else if (s == "stream") { streaming = true;  Serial.println("streaming — 'stop' to end"); }
+  else if (s == "stop")   { streaming = false; Serial.println("stopped"); }
+  else Serial.printf("? \"%s\" — scan | id | r | stream | stop | ssid <n> | pass <p> | wifi? | wifi clear\n",
+                     s.c_str());
+}
 
 void loop() {
-  if (Serial.available()) {
-    String s = Serial.readStringUntil('\n'); s.trim();
-    if (s.startsWith("wifi ")) {
-      int sp = s.indexOf(' ', 5);
-      if (sp < 0) Serial.println("usage: wifi <ssid> <password>");
-      else {
-        prefs.putString("ssid", s.substring(5, sp));
-        prefs.putString("pass", s.substring(sp + 1));
-        Serial.println("saved — reboot to join");
-      }
+  while (Serial.available()) {
+    int c = Serial.read();
+    if (c == '\n' || c == '\r') {
+      if (lineLen) { lineBuf[lineLen] = 0; lineLen = 0; handleLine(lineBuf); }
+    } else if (c >= 0x20 && c < 0x7F) {
+      if (lineLen < sizeof(lineBuf) - 1) lineBuf[lineLen++] = (char)c;
     }
-    else if (s == "scan")   scan();
-    else if (s == "id")     identify();
-    else if (s == "r")      dump();
-    else if (s == "stream") { streaming = true;  Serial.println("streaming — 'stop' to end"); }
-    else if (s == "stop")   { streaming = false; Serial.println("stopped"); }
-    else if (s.length())    Serial.println("? scan | id | r | stream | stop");
+    // nulls, 0xFF and framing junk are dropped silently -- they are line noise,
+    // not commands, and echoing them back is how the console jammed.
   }
+
   if (otaReady) ArduinoOTA.handle();
   if (streaming && millis() > nextRead) { nextRead = millis() + 500; dump(); }
 }

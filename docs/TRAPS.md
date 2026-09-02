@@ -500,3 +500,32 @@ Fourth time in two days that asking *what does this part physically touch* has
 changed a plan, and the third time it invalidated something already written down.
 The instruction was internally sensible and geometrically impossible, and no
 amount of re-reading it would have surfaced that. See [[ask-where-it-attaches]].
+
+## espota needs the LAPTOP on the device's VLAN — second time
+
+**2026-08-31.** The INA228 bring-up board came up clean on IoT
+(`192.168.30.54`, OTA server confirmed running on `shrinkfit-ina228.local:3232`)
+and `pio run -e ina228_ota -t upload` still failed with **"No response from
+device"**. The laptop was on `192.168.1.203`.
+
+**espota runs backwards from the intuition.** The host sends an *invitation*, and
+then **the device connects BACK to the host**. Across VLANs with no reverse
+route, that return connection never lands — while the board pings fine, answers
+mDNS, and reports its OTA server up. **Everything looks healthy on the device
+side because the device side IS healthy.**
+
+**Fix: put the laptop on the same network as the board.** Nothing on the board
+needs changing.
+
+This is the same fault diagnosed during the test rig's OTA bring-up
+(2026-08-27). It has now cost time twice, on two different boards, and it will
+recur every time a new board joins IoT while the laptop sits on the house LAN.
+
+**Check first, before debugging anything else:**
+
+```
+ifconfig | grep "inet " | grep -v 127.0.0.1     # laptop
+```
+
+If that subnet does not match the address the board printed at boot, stop —
+there is no fault to find.
