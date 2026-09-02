@@ -1446,10 +1446,18 @@ waits on the board change.
 
 ### Open before the PCB is laid out
 
-- **IDENTIFY THE VARIANT FIRST.** NodeMCU-32S and DOIT DevKit-V1 share the 38-pin
-  outline and **put power on different pins — the wrong one destroys the module.**
-  NodeMCU-32S silks `5V` and P-prefixed names; DOIT silks `VIN` and `D`/`GPIO`.
-  There are at least three different boards in that bin.
+- ~~IDENTIFY THE VARIANT FIRST.~~ **DONE 2026-08-31 — it is a NodeMCU-32S.**
+  Silk reads **`5V`** (not `VIN`) and **P-prefixed** pin names (P15, P2, P0, P21,
+  P22…), branded NODEMCU / ESP-32S / V1.1. **Both tells match, and this is the
+  variant the shop already has a proven `NodeMCU-32S_38pin_THT` footprint for** —
+  no new footprint to draw, and no exposure to the mirroring failure that has hit
+  two footprints in this shop.
+  **Mark the other boards in that bin.** There are at least four different 38-pin
+  products across B3-R6C3 and RB-12; only this type matches the footprint, and a
+  DOIT DevKit-V1 (silks `VIN`, `D`/`GPIO` names) grabbed by mistake and plugged
+  into a board built for this one is a destroyed module.
+  Pins confirmed present for I²C: **P21 = SDA, P22 = SCL**, 3V3 and GND on the
+  opposite rail. SVP/SVN are GPIO36/39, the input-only ADC1 pins.
 - **GPIO 6–11 are the internal SPI flash bus** → NPTH holes, no copper, and do not
   delete the holes or the module cannot seat.
 - **ADC2 is dead while WiFi is active** → any analog input goes on ADC1 (GPIO 32–39).
