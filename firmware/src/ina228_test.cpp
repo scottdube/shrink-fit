@@ -20,6 +20,17 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <WiFi.h>
+#include <ArduinoOTA.h>
+#include <Preferences.h>
+
+// Hostname deliberately DIFFERENT from the test rig's "shrinkfit-testrig" --
+// both are on the same network and an mDNS collision would send a flash to the
+// wrong board. No OTA password, consistent with the rig (Scott, 2026-08-27).
+static const char *OTA_HOST = "shrinkfit-ina228";
+static Preferences prefs;
+static bool otaReady = false;
+static void otaBegin();   // defined below, after the register helpers
 
 static const int PIN_SDA = 21;
 static const int PIN_SCL = 22;
@@ -131,12 +142,41 @@ void setup() {
   Serial.println("\n=== INA228 bring-up — 38-pin ESP32 ===");
   Serial.printf("chip %s  rev %d  %d MHz\n",
                 ESP.getChipModel(), ESP.getChipRevision(), getCpuFrequencyMhz());
+  prefs.begin("ina228", false);
   Wire.begin(PIN_SDA, PIN_SCL, 100000);   // 100 kHz: bring-up, not throughput
   scan();
   identify();
-  Serial.println("\ncommands:  scan | id | r (read once) | stream | stop");
+  otaBegin();
+  Serial.println("\ncommands:  scan | id | r (read once) | stream | stop | wifi <ssid> <pass>");
   Serial.println("Shorting VIN+ to VIN- should drive VSHUNT to ~0. Touching them");
   Serial.println("with a finger should move it. That is the analog front end alive.");
+}
+
+// Credentials live in NVS and are typed at the serial console -- they never
+// appear in the repo or in a build. Set once with: wifi <ssid> <password>
+static void otaBegin() {
+  String ssid = prefs.getString("ssid", "");
+  String pass = prefs.getString("pass", "");
+  if (!ssid.length()) { Serial.println("no wifi credentials — 'wifi <ssid> <pass>'"); return; }
+
+  WiFi.mode(WIFI_STA);
+  WiFi.setHostname(OTA_HOST);
+  WiFi.begin(ssid.c_str(), pass.c_str());
+  Serial.printf("wifi: joining %s ", ssid.c_str());
+  uint32_t t0 = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) { delay(300); Serial.print("."); }
+  if (WiFi.status() != WL_CONNECTED) { Serial.println(" FAILED"); return; }
+
+  // Power save costs 40-140 ms of latency and made espota time out on the rig.
+  WiFi.setSleep(false);
+  Serial.printf(" %s  (%s.local)\n", WiFi.localIP().toString().c_str(), OTA_HOST);
+
+  ArduinoOTA.setHostname(OTA_HOST);
+  ArduinoOTA.onStart([]()  { Serial.println("\nOTA start"); });
+  ArduinoOTA.onEnd([]()    { Serial.println("\nOTA done — rebooting"); });
+  ArduinoOTA.onError([](ota_error_t e) { Serial.printf("\nOTA error %u\n", e); });
+  ArduinoOTA.begin();
+  otaReady = true;
 }
 
 static bool streaming = false;
@@ -145,12 +185,22 @@ static uint32_t nextRead = 0;
 void loop() {
   if (Serial.available()) {
     String s = Serial.readStringUntil('\n'); s.trim();
-    if      (s == "scan")   scan();
+    if (s.startsWith("wifi ")) {
+      int sp = s.indexOf(' ', 5);
+      if (sp < 0) Serial.println("usage: wifi <ssid> <password>");
+      else {
+        prefs.putString("ssid", s.substring(5, sp));
+        prefs.putString("pass", s.substring(sp + 1));
+        Serial.println("saved — reboot to join");
+      }
+    }
+    else if (s == "scan")   scan();
     else if (s == "id")     identify();
     else if (s == "r")      dump();
     else if (s == "stream") { streaming = true;  Serial.println("streaming — 'stop' to end"); }
     else if (s == "stop")   { streaming = false; Serial.println("stopped"); }
     else if (s.length())    Serial.println("? scan | id | r | stream | stop");
   }
+  if (otaReady) ArduinoOTA.handle();
   if (streaming && millis() > nextRead) { nextRead = millis() + 500; dump(); }
 }
