@@ -151,8 +151,10 @@ void setup() {
   otaBegin();
   Serial.println("\ncommands:  scan | id | r | stream | stop");
   Serial.println("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
-  Serial.println("Shorting VIN+ to VIN- should drive VSHUNT to ~0. Touching them");
-  Serial.println("with a finger should move it. That is the analog front end alive.");
+  Serial.println("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
+  Serial.println("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
+  Serial.println("VSHUNT. The touch test only works AFTER R002 is removed, when the");
+  Serial.println("inputs float. MFG_ID + DEVICE_ID above are what prove the chip.");
 }
 
 // Credentials live in NVS and are typed at the serial console -- they never
