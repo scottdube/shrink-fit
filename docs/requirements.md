@@ -1466,3 +1466,52 @@ waits on the board change.
 - Firmware port is modest: pin renumbering, a different status-LED pin (GPIO48
   does not exist on ESP32), and serial via CP2102 rather than native USB. OTA and
   TWAI are identical APIs.
+
+## 6.13 R48 CAN protocol — from the community, verified against source
+
+Source: craigpeacock/Huawei_R4850G2_CAN (`r4850.c`, read 2026-09-02). Written for
+the **R4850G2 (50 A)**; ours is the **R48-3000e3 (56.1 A)** — see the trap below.
+
+**Bus:** 125 kbps, 29-bit extended IDs. The PSU breakout's 2-pin JST is CAN-H/CAN-L
+and measured **55 kΩ = unterminated** — fit a **120 Ω** across it at our end.
+
+### Request (send every 1 s — the rectifier answers, it does not volunteer)
+`ID 0x108040FE`, DLC 8, all bytes 0x00.
+
+### Telemetry response
+`ID 0x1081407F`, DLC 8. `data[1]` is the sub-ID; **`data[4..7]` big-endian uint32,
+divide by 1024.**
+
+| `data[1]` | Meaning |
+|---|---|
+| 0x75 | **Output voltage** (V) |
+| 0x81 | **Output current** (A) — *the README says 0x82; the code says 0x81. Settle on the bench against the DC clamp.* |
+| 0x78 | Input voltage (V) |
+| 0x73 | Output power (W) |
+| 0x7F / 0x80 | Output / input stage temperature (°C) |
+
+### Set commands
+`ID 0x108180FE`, DLC 8. `data[0] = 0x01`. Value in `data[6..7]` big-endian.
+
+| `data[1]` | Sets | Value |
+|---|---|---|
+| 0x00 | Output voltage, **online** (takes effect now, not persisted) | **volts × 1024** |
+| 0x01 | Output voltage, offline (default at power-up) | volts × 1024 |
+| 0x03 | Current limit, **online** | **(amps / MAX_CURRENT) × 1024** |
+| 0x04 | Current limit, offline | same |
+
+### TRAP — MAX_CURRENT is the rectifier's rating, and ours is not 50 A
+The current command is a **fraction of the unit's maximum**, not amps. The
+community code hard-codes `MAX_CURRENT 50` for the G2. **Our label says 56.1 A.**
+Using 50 would mis-scale every current limit by ~12% — a commanded 30 A would
+land near 33.7 A. **Settle it empirically:** command a limit, load the bus, read
+the DC clamp, and adjust the constant until commanded equals measured.
+
+### Firmware guard — not optional
+**Clamp every voltage command in firmware to ≤ 48.0 V** (the IRFP260N operating
+ceiling; peak Vds ≈ π·V, 16% margin at 53.5). The rectifier accepts up to 58.5 V,
+which would put ~184 V on 200 V FETs with ringing on top. A typo in a serial
+command must not be able to do that. Commissioning at 41.5 V.
+
+**Use ONLINE commands only during bring-up.** Offline writes persist across
+power cycles; a mistake there follows the rectifier to the next session.
