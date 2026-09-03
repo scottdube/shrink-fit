@@ -1341,6 +1341,548 @@
 		)
 		(embedded_fonts no)
 	)
+	(symbol "shrink-fit-controller:PCF8574"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "U"
+			(at 0 12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PCF8574 (0x20)"
+			(at 0 -12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -15.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -17.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "I2C 8-bit I/O expander, quasi-bidirectional"
+			(at 0 -20.32 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "PCF8574_0_1"
+			(rectangle
+				(start -10.16 10.16)
+				(end 10.16 -10.16)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "PCF8574_1_1"
+			(pin input line
+				(at -12.7 8.89 0)
+				(length 2.54)
+				(name "A0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -12.7 6.3500000000000005 0)
+				(length 2.54)
+				(name "A1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -12.7 3.8100000000000005 0)
+				(length 2.54)
+				(name "A2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -12.7 1.2700000000000005 0)
+				(length 2.54)
+				(name "P0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -12.7 -1.2699999999999996 0)
+				(length 2.54)
+				(name "P1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -12.7 -3.8099999999999987 0)
+				(length 2.54)
+				(name "P2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -12.7 -6.35 0)
+				(length 2.54)
+				(name "P3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -12.7 -8.89 0)
+				(length 2.54)
+				(name "VSS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 12.7 8.89 180)
+				(length 2.54)
+				(name "VDD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 12.7 6.3500000000000005 180)
+				(length 2.54)
+				(name "SDA"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 12.7 3.8100000000000005 180)
+				(length 2.54)
+				(name "SCL"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin open_collector line
+				(at 12.7 1.2700000000000005 180)
+				(length 2.54)
+				(name "INT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 12.7 -1.2699999999999996 180)
+				(length 2.54)
+				(name "P7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 12.7 -3.8099999999999987 180)
+				(length 2.54)
+				(name "P6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 12.7 -6.35 180)
+				(length 2.54)
+				(name "P5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 12.7 -8.89 180)
+				(length 2.54)
+				(name "P4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "shrink-fit-controller:Q_2N7002"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "Q"
+			(at 0 5.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "2N7002"
+			(at 0 -5.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -10.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "N-MOSFET, logic level, SOT-23"
+			(at 0 -12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "Q_2N7002_0_1"
+			(rectangle
+				(start -2.54 3.81)
+				(end 2.54 -3.81)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.54 0) (xy -1.27 0)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.27 2.54) (xy -1.27 -2.54)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 2.54) (xy 2.54 2.54) (xy 2.54 5.08)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -2.54) (xy 2.54 -2.54) (xy 2.54 -5.08)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "Q_2N7002_1_1"
+			(pin input line
+				(at -5.08 0 0)
+				(length 2.54)
+				(name "G"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 2.54 -5.08 90)
+				(length 2.54)
+				(name "S"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 2.54 5.08 270)
+				(length 2.54)
+				(name "D"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
 	(symbol "shrink-fit-controller:PWR_FLAG"
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3191,7 +3733,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "PCF8574 + lamp drivers"
+		(property "Value" "LAMPS 12V  G / A / R"
 			(at 27.94 237.49 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3247,7 +3789,7 @@
 			)
 		)
 	)
-	(label "+3V3"
+	(label "+12V"
 		(at 40.64 226.06 0)
 		(effects
 			(font
@@ -3255,9 +3797,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "f88d8b12-6253-249c-1e19-74470cb841cb")
+		(uuid "7db8db69-6f24-0f15-632a-cbfe00692919")
 	)
-	(label "GND"
+	(label "LAMP_G"
 		(at 40.64 228.6 0)
 		(effects
 			(font
@@ -3265,9 +3807,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "be6c019e-4537-a4dc-1ee5-6ae8ef60a89d")
+		(uuid "1c741e06-b0f9-a412-46fb-0592dd55c405")
 	)
-	(label "SDA"
+	(label "LAMP_A"
 		(at 40.64 231.14000000000001 0)
 		(effects
 			(font
@@ -3275,9 +3817,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "10d02e1e-fdbd-f0f2-8e6f-47594b570784")
+		(uuid "59f80255-5ea2-a938-1fa6-4c56b1f9d8df")
 	)
-	(label "SCL"
+	(label "LAMP_R"
 		(at 40.64 233.68 0)
 		(effects
 			(font
@@ -3285,7 +3827,668 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "817020a3-5383-d602-c92c-32453b2423a7")
+		(uuid "5411fdb6-6711-e6de-447b-d9c6f7dc2736")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:PCF8574")
+		(at 205.74 165.1 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "4f70bb8a-2621-ece5-47eb-5d49a79aa671")
+		(property "Reference" "U2"
+			(at 194.74 152.1 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "PCF8574 (0x20)"
+			(at 194.74 179.1 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_DIP:DIP-16_W7.62mm"
+			(at 205.74 165.1 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 205.74 165.1 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "06e62c6a-4d17-3003-1d30-f7fd1ae8f780")
+		)
+		(pin "2"
+			(uuid "8635b4cc-c0a7-48bf-a58f-ef28889517a6")
+		)
+		(pin "3"
+			(uuid "4f37df46-26a5-518f-3a9b-1647cebfefd8")
+		)
+		(pin "4"
+			(uuid "b94974fd-2b6b-2d28-06a6-31f32a600995")
+		)
+		(pin "5"
+			(uuid "8e730445-a49f-5a5b-474b-dc2eebb7e9e0")
+		)
+		(pin "6"
+			(uuid "2b5700e8-4f33-5b0a-3db6-577a74b3f94c")
+		)
+		(pin "7"
+			(uuid "23f20dda-ca9d-2b76-0126-c9d2098ddfc3")
+		)
+		(pin "8"
+			(uuid "5df87555-1c46-d736-3896-519adc46a879")
+		)
+		(pin "9"
+			(uuid "0ff492c5-ea61-c863-5f05-11150ff2eaa7")
+		)
+		(pin "10"
+			(uuid "96edaf36-f4f5-0b2c-0a5c-46f01dcef19f")
+		)
+		(pin "11"
+			(uuid "c88f2ab3-439b-fa1d-a1e6-707f81cf52a2")
+		)
+		(pin "12"
+			(uuid "1a401adc-40b2-7a1c-b2c4-639ff246c92c")
+		)
+		(pin "13"
+			(uuid "b69d958e-f35f-d0a7-a35e-98fa0c637d81")
+		)
+		(pin "14"
+			(uuid "a99ca5f2-0c2a-e688-a3ac-e4d6126a8b48")
+		)
+		(pin "15"
+			(uuid "c31881bd-e5fc-c04b-0371-79fa683f5606")
+		)
+		(pin "16"
+			(uuid "3f1ccbf6-6dd3-a926-7a3e-2426b2e0a105")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "U2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GND"
+		(at 193.04000000000002 156.20999999999998 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "45d261bb-5c66-3cb7-0dd7-bcf3b016a9fd")
+	)
+	(label "GND"
+		(at 193.04000000000002 158.75 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4c00168e-8a32-01ec-a476-ab416b26c031")
+	)
+	(label "GND"
+		(at 193.04000000000002 161.29 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "17d50ef7-a56f-7bed-be51-ccbdcde4309c")
+	)
+	(label "LAMP_G_DRV"
+		(at 193.04000000000002 163.82999999999998 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "887b40a5-02c4-3cb9-6be7-7d6949640230")
+	)
+	(label "LAMP_A_DRV"
+		(at 193.04000000000002 166.37 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a8ea1e7d-432e-c1f1-2fc7-2b86555261eb")
+	)
+	(label "LAMP_R_DRV"
+		(at 193.04000000000002 168.91 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "201b4bb0-acd8-0614-c53c-cdaa1ffe5582")
+	)
+	(no_connect
+		(at 193.04000000000002 171.45)
+		(uuid "4b7dd1ae-160c-d0bb-aee2-c953c0801cfb")
+	)
+	(label "GND"
+		(at 193.04000000000002 173.99 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "22427f52-72cb-57fd-0a0b-d353f50c78df")
+	)
+	(label "+3V3"
+		(at 218.44 156.20999999999998 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "38b27e3a-39eb-7bee-7288-331af0f2cf10")
+	)
+	(label "SDA"
+		(at 218.44 158.75 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e32ce7b8-ae82-f21b-35ac-d066ae48b694")
+	)
+	(label "SCL"
+		(at 218.44 161.29 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7807589c-c80d-41f5-3aca-8f6ecc3872bc")
+	)
+	(no_connect
+		(at 218.44 163.82999999999998)
+		(uuid "c692f3fc-f015-01f6-91e4-d166c8015a7c")
+	)
+	(no_connect
+		(at 218.44 166.37)
+		(uuid "6836ad15-64ea-455a-6110-a403ca92942c")
+	)
+	(no_connect
+		(at 218.44 168.91)
+		(uuid "7ee97eda-0b4d-03c0-bbf5-706afa349387")
+	)
+	(no_connect
+		(at 218.44 171.45)
+		(uuid "11e935a3-3881-d499-b7ea-e75e15ae72c0")
+	)
+	(no_connect
+		(at 218.44 173.99)
+		(uuid "e6e3eb5f-8464-d468-0bcb-965219b5cc8b")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:C")
+		(at 223.52 158.75 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "2d0d2608-243e-7c49-fbce-e988fbd02e1e")
+		(property "Reference" "C2"
+			(at 226.06 157.48 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100nF"
+			(at 226.06 160.01999999999998 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"
+			(at 223.52 158.75 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 223.52 158.75 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "79a4e180-909f-6fd8-b8ae-527557de474b")
+		)
+		(pin "2"
+			(uuid "713cb5a5-6179-ab14-d830-8c69d95d5a18")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "C2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+3V3"
+		(at 223.52 156.20999999999998 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "373ea7cc-4cc1-82a1-7507-d5a5cd8c031c")
+	)
+	(label "GND"
+		(at 223.52 161.29 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "ad3e9368-c470-19ca-7b2d-2fb815faa7ed")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:Q_2N7002")
+		(at 246.38 152.4 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "a03a466b-8c6d-65ff-52df-31f304ee847a")
+		(property "Reference" "Q2"
+			(at 250.19 151.13 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2N7002"
+			(at 250.19 153.67000000000002 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 246.38 152.4 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 246.38 152.4 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "a975f8f2-e094-d60a-73f4-de258dc2d69a")
+		)
+		(pin "2"
+			(uuid "8f360369-8837-59ad-52af-821252547ed6")
+		)
+		(pin "3"
+			(uuid "c0206855-0112-3d34-d764-ea5884262f27")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "Q2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "LAMP_G_DRV"
+		(at 241.29999999999998 152.4 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "41a89c73-2803-233a-97ab-7d291f7bc35c")
+	)
+	(label "GND"
+		(at 248.92 157.48000000000002 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e40ea1ea-0987-d7bd-5c7e-2f54d405e64f")
+	)
+	(label "LAMP_G"
+		(at 248.92 147.32 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0ac4c926-b214-8ad7-64f6-a618c46ed5fd")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:Q_2N7002")
+		(at 246.38 170.18 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "0a0caac8-6541-ddf1-2205-1915665e7b1f")
+		(property "Reference" "Q3"
+			(at 250.19 168.91 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2N7002"
+			(at 250.19 171.45000000000002 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 246.38 170.18 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 246.38 170.18 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "404d0966-20f9-ff4b-fa0e-c6111b16caea")
+		)
+		(pin "2"
+			(uuid "0d4fa392-1938-96e3-4b5e-bf4cb8ff3939")
+		)
+		(pin "3"
+			(uuid "66a5dbd5-1b17-2276-3761-9dfec8269b63")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "Q3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "LAMP_A_DRV"
+		(at 241.29999999999998 170.18 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8bd58e8e-b78b-3bc1-0699-b57d254e00f4")
+	)
+	(label "GND"
+		(at 248.92 175.26000000000002 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "149117de-8cf2-e6c6-2ae5-47627ea3808f")
+	)
+	(label "LAMP_A"
+		(at 248.92 165.1 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6e0b48f6-d42e-a588-6821-e80f9115441a")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:Q_2N7002")
+		(at 246.38 187.96 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "8d5136e8-48ea-1696-f3af-0ee418986ea1")
+		(property "Reference" "Q4"
+			(at 250.19 186.69 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2N7002"
+			(at 250.19 189.23000000000002 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 246.38 187.96 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 246.38 187.96 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "61a8b390-36ae-1a6b-e655-ae800d245ea4")
+		)
+		(pin "2"
+			(uuid "c015c911-dd1d-462a-a549-b1c0cbe72c42")
+		)
+		(pin "3"
+			(uuid "f2a1f261-79ef-58de-9972-f5ca6ad0af7e")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "Q4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "LAMP_R_DRV"
+		(at 241.29999999999998 187.96 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "05928325-85aa-d481-20ab-1cc1cfaaf97f")
+	)
+	(label "GND"
+		(at 248.92 193.04000000000002 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "29cfa5ef-df8f-9fec-e20d-7d184bae17da")
+	)
+	(label "LAMP_R"
+		(at 248.92 182.88 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f34d1d78-0da4-bb47-ea37-2231603eb2c1")
+	)
+	(text "Lamps: anode to +12V (J13.1), cathode to the 2N7002 drain. Output LOW at the expander = lamp OFF; HIGH = ON. 2N7002 is SOT-23 SMD - on a single-sided milled board it goes on B.Cu, flipped."
+		(exclude_from_sim no)
+		(at 170.18 93.98 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "59a58592-7ca2-e143-39a2-48ff46e04f07")
 	)
 	(symbol
 		(lib_id "shrink-fit-controller:PWR_FLAG")

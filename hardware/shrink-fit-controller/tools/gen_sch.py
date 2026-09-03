@@ -99,6 +99,37 @@ LIB["RotaryEncoder_EC11"] = sym("RotaryEncoder_EC11",
    +lpin("passive", 0.00,-12.70,90,3.81,"MP","MP"),
     extra='\t\t(duplicate_pin_numbers_are_jumpers yes)\n')
 
+
+# PCF8574 in DIP-16. Pin numbers are the real package pins so the stock
+# Package_DIP footprint maps 1:1. Address pins A0-A2 all to GND = 0x20; the
+# INA228 sits at 0x40, no collision.
+_L = [("A0","1"),("A1","2"),("A2","3"),("P0","4"),("P1","5"),("P2","6"),("P3","7"),("VSS","8")]
+_R = [("VDD","16"),("SDA","15"),("SCL","14"),("INT","13"),("P7","12"),("P6","11"),("P5","10"),("P4","9")]
+_pins = ""
+for i,(nm,num) in enumerate(_L):
+    _pins += lpin("input" if nm.startswith("A") else ("power_in" if nm=="VSS" else "bidirectional"),
+                  -12.7, 8.89-i*2.54, 0, 2.54, nm, num)
+for i,(nm,num) in enumerate(_R):
+    t = "power_in" if nm=="VDD" else ("open_collector" if nm=="INT" else "bidirectional")
+    _pins += lpin(t, 12.7, 8.89-i*2.54, 180, 2.54, nm, num)
+LIB["PCF8574"] = sym("PCF8574",
+    prop("Reference","U",12.7)+prop("Value","PCF8574 (0x20)",-12.7)
+    +prop("Footprint","",-15.24,hide=True)+prop("Datasheet","",-17.78,hide=True)
+    +prop("Description","I2C 8-bit I/O expander, quasi-bidirectional",-20.32,hide=True),
+    rect(-10.16,10.16,10.16,-10.16), _pins)
+
+# 2N7002 in SOT-23: 1=G 2=S 3=D. Same footprint geometry as the 2N3904 symbol
+# body, different pins, because the PCF8574 sources only ~100 uA when HIGH --
+# far too little for a 2N3904 base, but a MOSFET gate is voltage-driven and
+# does not care.
+LIB["Q_2N7002"] = sym("Q_2N7002",
+    prop("Reference","Q",5.08)+prop("Value","2N7002",-5.08)+prop("Footprint","",-7.62,hide=True)
+    +prop("Datasheet","",-10.16,hide=True)+prop("Description","N-MOSFET, logic level, SOT-23",-12.7,hide=True),
+    rect(-2.54,3.81,2.54,-3.81,"none")
+    +poly([(-2.54,0),(-1.27,0)])+poly([(-1.27,2.54),(-1.27,-2.54)],0.508)
+    +poly([(0,2.54),(2.54,2.54),(2.54,5.08)])+poly([(0,-2.54),(2.54,-2.54),(2.54,-5.08)]),
+    lpin("input",-5.08,0,0,2.54,"G","1")+lpin("passive",2.54,-5.08,90,2.54,"S","2")+lpin("passive",2.54,5.08,270,2.54,"D","3"))
+
 LIB["PWR_FLAG"] = sym("PWR_FLAG",
     prop("Reference","#FLG",3.81,hide=True)+prop("Value","PWR_FLAG",2.54)+prop("Footprint","",-2.54,hide=True)
     +prop("Datasheet","",-5.08,hide=True)+prop("Description","ERC power-source marker",-7.62,hide=True),
@@ -247,7 +278,42 @@ conn("J9", "CAN isolated stack",          4, 154.94, ["+3V3","GND","CAN_TX","CAN
 conn("J10","INA228 I2C",                  4, 172.72, ["+3V3","GND","SDA","SCL"])
 conn("J11","DS18B20 1-Wire x2",           3, 190.5,  ["+3V3","GND","OW_DATA"])
 conn("J12","Round TFT (SPI)",             6, 203.2,  ["+3V3","GND","TFT_CS","TFT_DC","TFT_SCK","TFT_MOSI"])
-conn("J13","PCF8574 + lamp drivers",      4, 226.06, ["+3V3","GND","SDA","SCL"])
+conn("J13","LAMPS 12V  G / A / R",         4, 226.06, ["+12V","LAMP_G","LAMP_A","LAMP_R"])
+
+# ---- U2 : PCF8574 + three 2N7002 lamp drivers ------------------------------
+# Lamp logic lives entirely in the ESP32; the PCF8574 has no firmware. Firmware
+# should rewrite the lamp byte EVERY loop, not only on change: outputs hold
+# their last state if the MCU hangs, and a refreshed byte turns a hang into a
+# lamp that stops responding rather than one that lies.
+# Boot note: PCF8574 powers up with all outputs HIGH, so all three lamps light
+# for the ~100 ms until firmware writes the first byte. That is a free bulb
+# test, not a fault.
+U2X, U2Y = 205.74, 165.1
+instance("PCF8574","U2","PCF8574 (0x20)",U2X,U2Y,0,16,U2X-11,U2Y-13,U2X-11,U2Y+14,
+         fp="Package_DIP:DIP-16_W7.62mm")
+# left side: A0 A1 A2 -> GND (address 0x20); P0/P1/P2 -> gates; P3 nc; VSS -> GND
+for i,net in enumerate(["GND","GND","GND","LAMP_G_DRV","LAMP_A_DRV","LAMP_R_DRV",None,"GND"]):
+    x,y = U2X-12.7, U2Y-(8.89-i*2.54)
+    if net: label(net,x,y,180)
+    else:   nc(x,y)
+# right side: VDD SDA SCL INT P7 P6 P5 P4
+for i,net in enumerate(["+3V3","SDA","SCL",None,None,None,None,None]):
+    x,y = U2X+12.7, U2Y-(8.89-i*2.54)
+    if net: label(net,x,y,0)
+    else:   nc(x,y)
+instance("C","C2","100nF",U2X+17.78,U2Y-6.35,0,2,U2X+20.32,U2Y-7.62,U2X+20.32,U2Y-5.08,
+         fp="Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm")
+label("+3V3",U2X+17.78,U2Y-8.89,90); label("GND",U2X+17.78,U2Y-3.81,270)
+
+# three identical low-side drivers, gate straight from the expander pin
+for k,(q,dn) in enumerate([("Q2","G"),("Q3","A"),("Q4","R")]):
+    qx,qy = 246.38, 152.4 + k*17.78
+    instance("Q_2N7002",q,"2N7002",qx,qy,0,3,qx+3.81,qy-1.27,qx+3.81,qy+1.27,
+             fp="Package_TO_SOT_SMD:SOT-23")
+    label(f"LAMP_{dn}_DRV", qx-5.08, qy, 180)          # gate
+    label("GND",            qx+2.54, qy+5.08, 270)      # source
+    label(f"LAMP_{dn}",     qx+2.54, qy-5.08, 90)       # drain -> lamp cathode
+text("Lamps: anode to +12V (J13.1), cathode to the 2N7002 drain. Output LOW at the expander = lamp OFF; HIGH = ON. 2N7002 is SOT-23 SMD - on a single-sided milled board it goes on B.Cu, flipped.",170.18,93.98)
 
 # ---- PWR_FLAGs so ERC sees a source on rails fed from off-board ----
 for i,(y,net) in enumerate([(25.4,"+24V"),(27.94,"GND")]):
