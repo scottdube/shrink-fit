@@ -25,9 +25,9 @@ Leaves **16 unrestricted output-capable** pins (4, 5, 13, 14, 16–19, 21–23,
 |---|---|---|
 | 4 | **SSR control** | via 2N3904, pattern already proven |
 | 16 | **AC contactor drop relay** | controller's path to kill mains (§6.9) |
-| 25 | Lamp **GREEN** — IDLE | 12 V panel lamp via 2N3904 |
-| 26 | Lamp **AMBER** — COOLDOWN | |
-| 27 | Lamp **RED** — HEATING | FAULT = red flashing, others dark |
+| ~~25~~ | *(free)* | lamps moved to the PCF8574 |
+| ~~26~~ | *(free)* | |
+| ~~27~~ | *(free)* | |
 | 5 | TFT **CS** | |
 | 17 | TFT **DC** | |
 | 18 | TFT **SCK** | VSPI default |
@@ -155,3 +155,37 @@ grep -A2 '"Reference" "U1"' *.kicad_pcb | grep -B1 'net "'
 
 Every net must land on the pad number this table gives, not on the pad whose
 silk name matches. That check is the one that catches the failure; ERC will not.
+
+## DECIDED 2026-08-31 — TFT on the first board, lamps on the expander
+
+**TFT is in scope for board one.** Assigned: CS 5, DC 17, SCK 18, MOSI 23.
+
+**Three lamps move to a PCF8574** on the existing I²C bus. **GPIO 25, 26 and 27
+come back as clean spares**, so the board has real headroom with the display
+fitted.
+
+### The lamp drivers change from 2N3904 to 2N7002 — this is not cosmetic
+
+**PCF8574 outputs are quasi-bidirectional.** Driven LOW they sink 25 mA happily.
+Driven HIGH they are only a **weak pull-up sourcing ~100 µA.**
+
+**That breaks the 2N3904 pattern proven on the SSR.** An NPN needs base current
+*sourced into* it: 100 µA × hFE 150 ≈ 15 mA of collector current — marginal for a
+lamp and worse over temperature. The failure would be dim or intermittent lamps
+that work on the bench and sag in the panel, which is a miserable thing to chase.
+
+**A MOSFET gate is voltage-driven, not current-driven.** The weak pull-up charges
+it fine — lamps do not care about switching speed. **2N7002, 50 in stock at
+RB-12** (AO3400A also on hand, lower Rds(on), same package).
+
+```
+PCF8574 Px ──[ gate ]  2N7002  ──┬── lamp cathode
+                       source ── GND     lamp anode ── +12 V
+```
+
+**Addressing:** PCF8574 sits at 0x20–0x27, PCF8574**A** at 0x38–0x3F. The INA228
+is at 0x40 — no collision either way. Five expander outputs remain spare.
+
+**To buy: 1× PCF8574** (~$3 [ESTIMATE, +40%]). Nothing else — the MOSFETs are in
+stock and the SSR keeps its proven 2N3904, since it is driven from a real GPIO
+that can source properly.
