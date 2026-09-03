@@ -103,3 +103,55 @@ lamps are simply the cheapest thing to move off the MCU.
 - Whether the TFT is in scope for the first board.
 - Lamp drive: 12 V panel lamps (#722/#724) each need a 2N3904, same as the SSR.
 - Pull-up values and placement for 34/35/36/39.
+
+## Symbol pin numbers — the table that prevents the wrong-pad failure
+
+**Symbol and footprint are the proven pair from `sln-geo-aux-heat`**, now copied
+into this project: symbol `NodeMCU-32S`, footprint `NodeMCU-32S_38pin_THT`. Both
+are on a board that was built and works.
+
+**On this symbol the pin NAMES and NUMBERS deliberately disagree** — names are
+GPIO, numbers are header position. **Pin number 26 is the pin named P32.**
+Wiring by number lands nets on the wrong GPIOs and passes ERC, DRC and visual
+review. Wire by NAME; verify against this table.
+
+| Function | GPIO | Symbol name | **Pin #** |
+|---|---|---|---|
+| SSR control | 4 | P4 | **13** |
+| AC contactor drop relay | 16 | P16 | **12** |
+| Lamp GREEN | 25 | P25 | **28** |
+| Lamp AMBER | 26 | P26 | **29** |
+| Lamp RED | 27 | P27 | **30** |
+| TFT CS | 5 | P5 | **10** |
+| TFT DC | 17 | P17 | **11** |
+| TFT SCK | 18 | P18 | **9** |
+| TFT MOSI | 23 | P23 | **2** |
+| I²C SDA | 21 | P21 | **6** |
+| I²C SCL | 22 | P22 | **3** |
+| 1-Wire (DS18B20 ×2) | 33 | P33 | **27** |
+| CAN TX | 14 | P14 | **31** |
+| CAN RX | 32 | P32 | **26** |
+| Cycle START | 34 | P34 | **24** |
+| Cycle STOP | 35 | P35 | **25** |
+| E-stop sense | 36 | P36_VP | **22** |
+| Flow pulse | 39 | P39_VN | **23** |
+| Encoder A | 13 | P13 | **34** |
+| Encoder B | 19 | P19 | **8** |
+| Encoder switch | 15 | P15 | **16** |
+
+**Power:** 3V3 = pin **20** (power_out — the module *supplies* 3.3 V), 5V = pin
+**38** (power_in), GND = pins **1, 7, 33, 37**.
+
+**FLASH PINS — NPTH, no copper:** CLK **19**, SD0 **18**, SD1 **17**, SD2 **35**,
+SD3 **36**. These are the internal SPI flash bus (GPIO 6–11). Holes with no pad
+so the module's pins pass through touching nothing. **Do not delete the holes** —
+without them the module cannot seat.
+
+### Verification before copper
+
+```
+grep -A2 '"Reference" "U1"' *.kicad_pcb | grep -B1 'net "'
+```
+
+Every net must land on the pad number this table gives, not on the pad whose
+silk name matches. That check is the one that catches the failure; ERC will not.
