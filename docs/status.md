@@ -1173,3 +1173,34 @@ session left by a closed laptop lid must never lock you out of your own board.
 *(Housekeeping: the telnet firmware itself landed inside commit `bd0fbc7`, whose
 message is about the pin map — a `git commit -a` swept it up. The code is
 correct; only the commit message is misleading.)*
+
+## CAN Stage 1 — firmware built, awaiting flash and wiring (2026-09-02)
+
+Committed as `06dc90b`. **Not yet on the board**: the bring-up board is on external
+power with no USB, and OTA needs the laptop on IoT.
+
+**Sequence decided:** CAN first (needs the R48 on mains, DC output OPEN — nothing
+connected, as benign as it gets), then open the PZEM box once to bring the shunt's
+Kelvin leads out, then INA228 calibration at the bench supply in CC mode.
+
+### Wiring for Stage 1
+
+| From | To |
+|---|---|
+| SN65HVD230 **CTX** | NodeMCU **GPIO 14** (P14, pin 31) |
+| SN65HVD230 **CRX** | NodeMCU **GPIO 32** (P32, pin 26) — **not GPIO 12**, which must be LOW at boot and would never start |
+| SN65HVD230 3V3 / GND | NodeMCU 3V3 / GND |
+| CANH / CANL | PSU breakout **2-pin JST** |
+| **220 Ω ∥ 270 Ω = 121 Ω** | across CANH–CANL at the module (no 120 Ω in stock; the module's three `01C` parts are 10 kΩ, not termination) |
+| transceiver **GND** | R48 **DC−** — the JST carries only H and L, and the transceiver needs a common-mode reference |
+| NodeMCU power | **USB wall wart, not the laptop** — telnet is the console |
+
+### What success looks like
+`can` over telnet → state RUNNING, rx counting up, **Vout ≈ 53.5 V** against the
+KAIWEETS on the open terminals, Iout ≈ 0. Whichever of `Iout[0x81]` / `Iout[0x82]`
+tracks the DC clamp later is the real current sub-ID; the other is discarded.
+
+### If it does not
+- `BUS-OFF` → termination. Check the 220∥270 is actually across H and L.
+- `tx` climbing, `rx` stuck at 0 → R48 not on mains, H/L swapped, or no GND to DC−.
+- Nothing at all → transceiver RS pin; the module's 10 kΩ to GND should hold it in high-speed mode.
