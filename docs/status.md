@@ -1144,3 +1144,32 @@ Wire VIN+ upstream tap, VIN− downstream tap, VBUS to the same point as VIN−,
 GND to DC−. Then known current on the clamp, read the shunt-voltage register,
 **R = V / I**. Landing near 750 / 500 / 250 µΩ confirms the Kelvin taps;
 an implausible value means they are on the wrong points.
+
+### Telnet console — the stream OTA does not carry (2026-08-31)
+
+`ArduinoOTA` uploads firmware only. A `WiFiServer` on **port 23** carries the
+console; all output goes to both USB and telnet through one `say()` path.
+
+**The asymmetry is the point.** espota needs the laptop on the device's VLAN
+because *the device connects back to the host*. **Telnet is an ordinary outbound
+connection from laptop to board**, so it crosses the VLAN espota cannot. Firmware
+pushes still need the IoT switch; watching the stream does not — which matters
+because the laptop cannot live on IoT (other jobs hit firewall problems).
+
+```
+nc shrinkfit-ina228.local 23
+pio device monitor --port socket://shrinkfit-ina228.local:23   # familiar interface
+```
+
+**macOS has no telnet client** — `telnet` returns `command not found`. Use `nc`.
+
+Verified: banner, commands accepted, live reads — VSHUNT +5.6 µV, VBUS 0.4 mV,
+die 26.0 °C on floating inputs. Noise values, but the ADC is converting and the
+die temperature is plausibly ambient.
+
+A second connection **displaces** the first rather than being refused: a stale
+session left by a closed laptop lid must never lock you out of your own board.
+
+*(Housekeeping: the telnet firmware itself landed inside commit `bd0fbc7`, whose
+message is about the pin map — a `git commit -a` swept it up. The code is
+correct; only the commit message is misleading.)*
