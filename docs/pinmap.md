@@ -68,16 +68,27 @@ itself.
 **34–39 have no internal pull-ups.** Every button on them needs an external
 10 kΩ to 3V3, or it floats and reads randomly.
 
-## The headroom is real but the display consumes it
+## Headroom — and how to get it without giving anything up
 
-**21 pins assigned. Spares are 0, 2 and 12 — all strapping pins**, all awkward.
+**21 pins assigned. The only spares are 0, 2 and 12 — all strapping pins**, all
+awkward. That is tight: any new requirement lands on a strapping pin or displaces
+something.
 
-**Drop the TFT and 5, 17, 18, 23 come back** — four clean spares, which is
-comfortable. **The display is the swing item**, and it is Stage 4 work.
+**The fix is the PCF8574, not dropping anything.** Put the three lamps on an I²C
+expander:
 
-That is worth knowing now: the board has enough pins for everything *including*
-a display, with almost nothing left over. Any new requirement after that lands on
-a strapping pin or displaces something.
+- Lamps are **slow static outputs** — the one load an expander is genuinely good at
+- **The I²C bus already exists** for the INA228, so it costs zero MCU pins
+- **GPIO 25, 26, 27 come back** — three clean spares, ~$1
+
+That leaves the board with the display fitted, the lamps driven, and real
+headroom. `roadmap.md` reached for the same part when the Super Mini was the
+constraint; the reasoning survives the board change.
+
+**An earlier draft of this section led with "drop the TFT and four pins come
+back."** That framed a decision Scott had already taken — he wants a display and
+an encoder for settings — as though the display were the problem. It is not. The
+lamps are simply the cheapest thing to move off the MCU.
 
 ## Deliberately unassigned
 

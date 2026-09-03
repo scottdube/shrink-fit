@@ -34,6 +34,32 @@ static void otaBegin();   // defined below, after the register helpers
 static bool     streaming = false;
 static uint32_t nextRead  = 0;
 
+// --- telnet console ----------------------------------------------------------
+// OTA uploads firmware; it does not carry the console. This does. It also works
+// where espota does not: telnet is an ordinary OUTBOUND connection from the
+// laptop to the board, so it crosses the VLAN that espota's reverse connection
+// cannot (see TRAPS). That means the stream is readable from the house network
+// without switching WiFi.
+static WiFiServer telnetSrv(23);
+static WiFiClient telnetCli;
+
+// Everything printed goes to BOTH the USB console and the telnet client, so
+// there is one output path and no "which window is this in?" confusion.
+static void say(const char *s) {
+  Serial.print(s);
+  if (telnetCli && telnetCli.connected()) telnetCli.print(s);
+}
+static void sayfln()                 { say("\n"); }
+static void sayfln(const char *s)    { say(s); say("\n"); }
+static void sayfln(const String &s)  { say(s.c_str()); say("\n"); }
+static void sayf(const char *fmt, ...) {
+  char buf[256];
+  va_list ap; va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  say(buf);
+}
+
 static const int PIN_SDA = 21;
 static const int PIN_SCL = 22;
 
@@ -79,24 +105,24 @@ static bool read24(uint8_t reg, int32_t *out, bool isSigned) {
 
 // --- I2C scan ----------------------------------------------------------------
 static void scan() {
-  Serial.println("\nI2C scan on SDA=21 SCL=22 ...");
+  sayfln("\nI2C scan on SDA=21 SCL=22 ...");
   uint8_t found = 0;
   for (uint8_t a = 1; a < 127; a++) {
     Wire.beginTransmission(a);
     if (Wire.endTransmission() == 0) {
-      Serial.printf("  0x%02X  responds", a);
-      if (a >= 0x40 && a <= 0x4F) Serial.print("   <-- INA228 address range");
-      Serial.println();
+      sayf("  0x%02X  responds", a);
+      if (a >= 0x40 && a <= 0x4F) say("   <-- INA228 address range");
+      sayfln();
       found++;
       if (a >= 0x40 && a <= 0x4F) inaAddr = a;
     }
   }
   if (!found) {
-    Serial.println("  NOTHING RESPONDED.");
-    Serial.println("  Check: 3V3 and GND actually connected? SDA/SCL not swapped?");
-    Serial.println("  This board has its own pull-ups, so external ones are not needed.");
+    sayfln("  NOTHING RESPONDED.");
+    sayfln("  Check: 3V3 and GND actually connected? SDA/SCL not swapped?");
+    sayfln("  This board has its own pull-ups, so external ones are not needed.");
   } else {
-    Serial.printf("  %u device(s). Using 0x%02X.\n", found, inaAddr);
+    sayf("  %u device(s). Using 0x%02X.\n", found, inaAddr);
   }
 }
 
@@ -107,9 +133,9 @@ static void identify() {
   uint16_t mfg = 0, dev = 0;
   bool okM = read16(REG_MFG_ID, &mfg);
   bool okD = read16(REG_DEVICE_ID, &dev);
-  Serial.printf("\nMFG_ID    0x%04X  %s\n", mfg,
+  sayf("\nMFG_ID    0x%04X  %s\n", mfg,
                 (okM && mfg == 0x5449) ? "OK  (TI)" : "UNEXPECTED — expect 0x5449");
-  Serial.printf("DEVICE_ID 0x%04X  %s\n", dev,
+  sayf("DEVICE_ID 0x%04X  %s\n", dev,
                 (okD && (dev & 0xFFF0) == 0x2280) ? "OK  (INA228)"
                                                   : "UNEXPECTED — expect 0x228x");
 }
@@ -132,29 +158,29 @@ static void dump() {
   float busV     = vbus * 195.3125e-6f;
   float dieC     = (int16_t)temp * 7.8125e-3f;
 
-  Serial.printf("CONFIG 0x%04X  ADC_CONFIG 0x%04X  SHUNT_CAL 0x%04X  ADCRANGE %d\n",
+  sayf("CONFIG 0x%04X  ADC_CONFIG 0x%04X  SHUNT_CAL 0x%04X  ADCRANGE %d\n",
                 cfg, adc, cal, adcRange ? 1 : 0);
-  Serial.printf("VSHUNT %+8ld raw = %+10.3f uV     VBUS %8ld raw = %7.4f V     DIE %.1f C\n",
+  sayf("VSHUNT %+8ld raw = %+10.3f uV     VBUS %8ld raw = %7.4f V     DIE %.1f C\n",
                 (long)vsh, shuntUV, (long)vbus, busV, dieC);
 }
 
 void setup() {
   Serial.begin(115200);
   delay(400);
-  Serial.println("\n=== INA228 bring-up — 38-pin ESP32 ===");
-  Serial.printf("chip %s  rev %d  %d MHz\n",
+  sayfln("\n=== INA228 bring-up — 38-pin ESP32 ===");
+  sayf("chip %s  rev %d  %d MHz\n",
                 ESP.getChipModel(), ESP.getChipRevision(), getCpuFrequencyMhz());
   prefs.begin("ina228", false);
   Wire.begin(PIN_SDA, PIN_SCL, 100000);   // 100 kHz: bring-up, not throughput
   scan();
   identify();
   otaBegin();
-  Serial.println("\ncommands:  scan | id | r | stream | stop");
-  Serial.println("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
-  Serial.println("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
-  Serial.println("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
-  Serial.println("VSHUNT. The touch test only works AFTER R002 is removed, when the");
-  Serial.println("inputs float. MFG_ID + DEVICE_ID above are what prove the chip.");
+  sayfln("\ncommands:  scan | id | r | stream | stop");
+  sayfln("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
+  sayfln("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
+  sayfln("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
+  sayfln("VSHUNT. The touch test only works AFTER R002 is removed, when the");
+  sayfln("inputs float. MFG_ID + DEVICE_ID above are what prove the chip.");
 }
 
 // Credentials live in NVS and are typed at the serial console -- they never
@@ -162,25 +188,28 @@ void setup() {
 static void otaBegin() {
   String ssid = prefs.getString("ssid", "");
   String pass = prefs.getString("pass", "");
-  if (!ssid.length()) { Serial.println("no wifi credentials — 'wifi <ssid> <pass>'"); return; }
+  if (!ssid.length()) { sayfln("no wifi credentials — 'wifi <ssid> <pass>'"); return; }
 
   WiFi.mode(WIFI_STA);
   WiFi.setHostname(OTA_HOST);
   WiFi.begin(ssid.c_str(), pass.c_str());
-  Serial.printf("wifi: joining %s ", ssid.c_str());
+  sayf("wifi: joining %s ", ssid.c_str());
   uint32_t t0 = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) { delay(300); Serial.print("."); }
-  if (WiFi.status() != WL_CONNECTED) { Serial.println(" FAILED"); return; }
+  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) { delay(300); say("."); }
+  if (WiFi.status() != WL_CONNECTED) { sayfln(" FAILED"); return; }
 
   // Power save costs 40-140 ms of latency and made espota time out on the rig.
   WiFi.setSleep(false);
-  Serial.printf(" %s  (%s.local)\n", WiFi.localIP().toString().c_str(), OTA_HOST);
+  sayf(" %s  (%s.local)\n", WiFi.localIP().toString().c_str(), OTA_HOST);
 
   ArduinoOTA.setHostname(OTA_HOST);
-  ArduinoOTA.onStart([]()  { Serial.println("\nOTA start"); });
-  ArduinoOTA.onEnd([]()    { Serial.println("\nOTA done — rebooting"); });
-  ArduinoOTA.onError([](ota_error_t e) { Serial.printf("\nOTA error %u\n", e); });
+  ArduinoOTA.onStart([]()  { sayfln("\nOTA start"); });
+  ArduinoOTA.onEnd([]()    { sayfln("\nOTA done — rebooting"); });
+  ArduinoOTA.onError([](ota_error_t e) { sayf("\nOTA error %u\n", e); });
   ArduinoOTA.begin();
+  telnetSrv.begin();
+  telnetSrv.setNoDelay(true);   // otherwise output arrives in laggy clumps
+  sayf("telnet console: telnet %s 23\n", WiFi.localIP().toString().c_str());
   otaReady = true;
 }
 
@@ -203,36 +232,36 @@ static void handleLine(const char *line) {
   // as a wrong password. Take the whole rest of the line each time instead.
   if (s.startsWith("ssid ")) {
     prefs.putString("ssid", s.substring(5));
-    Serial.printf("ssid = \"%s\" (%d chars) — set pass, then reboot\n",
+    sayf("ssid = \"%s\" (%d chars) — set pass, then reboot\n",
                   s.substring(5).c_str(), s.length() - 5);
   }
   else if (s.startsWith("pass ")) {
     prefs.putString("pass", s.substring(5));
-    Serial.printf("pass saved, %d chars — reboot to join\n", s.length() - 5);
+    sayf("pass saved, %d chars — reboot to join\n", s.length() - 5);
   }
   else if (s == "wifi?") {
     // SSID echoed in full, password only as a length: enough to spot a
     // truncation or a stray character without printing the secret.
     String ss = prefs.getString("ssid", "");
     String pp = prefs.getString("pass", "");
-    Serial.printf("stored ssid = \"%s\" (%d chars)\n", ss.c_str(), ss.length());
-    Serial.printf("stored pass = %d chars\n", pp.length());
+    sayf("stored ssid = \"%s\" (%d chars)\n", ss.c_str(), ss.length());
+    sayf("stored pass = %d chars\n", pp.length());
   }
   else if (s == "wifi clear") { prefs.remove("ssid"); prefs.remove("pass");
-                                Serial.println("cleared"); }
+                                sayfln("cleared"); }
   else if (s.startsWith("wifi ")) {
     int sp = s.indexOf(' ', 5);
-    if (sp < 0) { Serial.println("usage: ssid <name>  then  pass <password>"); return; }
+    if (sp < 0) { sayfln("usage: ssid <name>  then  pass <password>"); return; }
     prefs.putString("ssid", s.substring(5, sp));
     prefs.putString("pass", s.substring(sp + 1));
-    Serial.println("saved — reboot to join  (use ssid/pass separately if either has a space)");
+    sayfln("saved — reboot to join  (use ssid/pass separately if either has a space)");
   }
   else if (s == "scan")   scan();
   else if (s == "id")     identify();
   else if (s == "r")      dump();
-  else if (s == "stream") { streaming = true;  Serial.println("streaming — 'stop' to end"); }
-  else if (s == "stop")   { streaming = false; Serial.println("stopped"); }
-  else Serial.printf("? \"%s\" — scan | id | r | stream | stop | ssid <n> | pass <p> | wifi? | wifi clear\n",
+  else if (s == "stream") { streaming = true;  sayfln("streaming — 'stop' to end"); }
+  else if (s == "stop")   { streaming = false; sayfln("stopped"); }
+  else sayf("? \"%s\" — scan | id | r | stream | stop | ssid <n> | pass <p> | wifi? | wifi clear\n",
                      s.c_str());
 }
 
@@ -248,6 +277,30 @@ void loop() {
     // not commands, and echoing them back is how the console jammed.
   }
 
-  if (otaReady) ArduinoOTA.handle();
+  if (otaReady) {
+    ArduinoOTA.handle();
+
+    // One client at a time. A second connection displaces the first rather than
+    // being refused -- a stale session left open by a closed laptop lid should
+    // never lock you out of your own board.
+    if (telnetSrv.hasClient()) {
+      if (telnetCli && telnetCli.connected()) telnetCli.stop();
+      telnetCli = telnetSrv.available();
+      telnetCli.printf("\n=== INA228 bring-up — telnet console ===\n"
+                       "commands:  scan | id | r | stream | stop\n");
+    }
+    static char tBuf[96];
+    static uint8_t tLen = 0;
+    while (telnetCli && telnetCli.available()) {
+      int c = telnetCli.read();
+      if (c == '\n' || c == '\r') {
+        if (tLen) { tBuf[tLen] = 0; tLen = 0; handleLine(tBuf); }
+      } else if (c >= 0x20 && c < 0x7F) {
+        if (tLen < sizeof(tBuf) - 1) tBuf[tLen++] = (char)c;
+      }
+      // telnet negotiation bytes (0xFF IAC ...) are non-printable and dropped
+      // by the same filter that drops line noise on the UART.
+    }
+  }
   if (streaming && millis() > nextRead) { nextRead = millis() + 500; dump(); }
 }
