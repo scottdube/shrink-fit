@@ -192,6 +192,18 @@ static void canBegin() {
   sayf("CAN: up, 125 kbps, TX=GPIO%d RX=GPIO%d. Requesting R48 telemetry at 1 Hz.\n", CAN_TX, CAN_RX);
 }
 
+// Tear down and rebuild the driver. Needed after any wiring change: once the
+// controller has gone error-passive (tx_err >= 128) it stops taking the bus,
+// and the counters only decay through successful frames -- which a bus that
+// was just fixed cannot deliver until the controller transmits again. A reboot
+// clears it too, but that loses the telnet session and the evidence.
+static void canReset() {
+  if (canUp) { twai_stop(); twai_driver_uninstall(); canUp = false; }
+  canTx = canRx = canRxErr = 0;
+  r48V = r48I81 = r48I82 = r48Vin = r48P = NAN;
+  canBegin();
+}
+
 static void canRequest() {
   twai_message_t m = {};
   m.extd = 1; m.identifier = R48_REQ_ID; m.data_length_code = 8;
@@ -261,7 +273,7 @@ void setup() {
   identify();
   otaBegin();
   canBegin();
-  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw");
+  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset");
   sayfln("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
   sayfln("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
   sayfln("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
@@ -343,6 +355,7 @@ static void handleLine(const char *line) {
     sayfln("saved — reboot to join  (use ssid/pass separately if either has a space)");
   }
   else if (s == "can")    canStatus();
+  else if (s == "canreset") canReset();
   else if (s == "canraw") { canRaw = !canRaw; sayf("raw CAN dump %s\n", canRaw ? "ON" : "off"); }
   else if (s == "scan")   scan();
   else if (s == "id")     identify();

@@ -1467,7 +1467,16 @@ waits on the board change.
   does not exist on ESP32), and serial via CP2102 rather than native USB. OTA and
   TWAI are identical APIs.
 
-## 6.13 R48 CAN protocol — from the community, verified against source
+## 6.13 R48 CAN protocol — ***WITHDRAWN 2026-09-02, WRONG MANUFACTURER***
+
+**Everything in this section is the Huawei R4850G2 protocol. Our rectifier is a
+Vertiv R48-3000e3 — a different company's product entirely.** The IDs, the
+encodings and the request frame below are all wrong for it. Superseded by §6.14.
+Kept only so the mistake is legible.
+
+### Original section, invalid:
+
+## 6.13-OLD R48 CAN protocol — from the community, verified against source
 
 Source: craigpeacock/Huawei_R4850G2_CAN (`r4850.c`, read 2026-09-02). Written for
 the **R4850G2 (50 A)**; ours is the **R48-3000e3 (56.1 A)** — see the trap below.
@@ -1515,3 +1524,72 @@ command must not be able to do that. Commissioning at 41.5 V.
 
 **Use ONLINE commands only during bring-up.** Offline writes persist across
 power cycles; a mistake there follows the rectifier to the next session.
+
+
+## 6.14 R48-3000e3 CAN — the ACTUAL protocol (Vertiv, not Huawei)
+
+Source: **`anikrooz/Emerson-Vertiv-R48`** (`src/VertivPsu.cpp`, read 2026-09-02) —
+titled *"CAN bus control of Vertiv R48-3000e3 and possibly others"*, reverse
+engineered from the **Emerson M820B** controller. Our exact model, named.
+
+**How the wrong protocol got in:** §2.1 called this "a CAN-controlled telecom
+rectifier" and the search that followed found the Huawei R4850G2, which is
+extensively documented. **R48 and R4850 are different products from different
+companies.** The datasheet says Vertiv on it; nobody checked.
+
+### Bus
+125 kbps, **extended 29-bit** — the bit rate is the one thing the two share.
+
+### IDs (all extended)
+| ID | Purpose |
+|---|---|
+| `0x0607FF83` | **set voltage / set current (amps)** |
+| `0x0647FF83` | settings query |
+| `0x0677FF83` | set current as a percentage |
+| `0x06080783` | control |
+| `0x0707FF83` / `0x0717FF83` | sync |
+| `0x00860F8003` | init handshake reply — `rxBuf[3] == 0x58` |
+| `0x00860F8007` | status/telemetry reply |
+
+### Set output voltage — `0x0607FF83`
+`{0x03, 0xF0, 0x00, 0x21, ...}`, value `(volts×10 − 320) × 0x40000 / 10`,
+result across bytes 4–7 with `mesg[4] = 0x42`.
+
+### Set output current — `0x0607FF83`
+`{0x03, 0xF0, 0x00, 0x1A, ...}`, bit-packed, scaled `amps/5`.
+
+### Telemetry — status frame, `data[0] == 0x11`
+- **Vout** = `(rxBuf[1]<<8 | rxBuf[2]) / 1022`
+- **Iout** = `(rxBuf[6]<<8 | rxBuf[7]) × 2`
+
+**Note `/1022`, not `/1024`.** Not a typo in their code — worth confirming
+against the KAIWEETS on first contact.
+
+### It is a CONVERSATION, not a poll — this is the big behavioural difference
+The Huawei answers a request. **This one requires an init handshake, then
+periodic traffic on a ~6 s loop.** It gives up on you:
+
+| Silence | Result |
+|---|---|
+| 20 s | `_acOff = 1` — **output drops** |
+| 25 s | `_initialising = 1` — handshake must restart |
+
+**Consequence for CR-01/CR-11: the controller must keep talking for the
+rectifier to keep delivering.** A firmware hang doesn't just lose telemetry, it
+drops the bus after 20 s. That is a *safety feature* we get free — but it also
+means the CAN task can never be allowed to stall during a heating cycle.
+
+### Still unknown, and it blocks everything
+**Where CAN physically is on this unit.** The 2-pin JST was assumed to be
+CAN-H/CAN-L and never confirmed (§2.2 said "confirm before connecting"). A forum
+report says the JST is an **enable line — ground one wire to turn the supply on**.
+The breakout card exposes only mains (3-pos), DC+/−, and that JST. **CAN may not
+be broken out at all**, in which case it means tapping the rectifier's own edge
+connector.
+
+### Evidence from the bench, 2026-09-02
+`tx_err=128, rx_err=0, bus_err ~800/s, rx=0` — the ESP32 transmits, **nothing
+acknowledges**, it retries to error-passive. A CAN node ACKs any well-formed
+frame regardless of ID, so **this is not the wrong-protocol symptom; it is the
+no-node-on-the-bus symptom.** Two independent faults: wrong language, and
+probably wrong wires.
