@@ -1626,3 +1626,44 @@ terminal block for the CAN."* People add the tap; the cards do not ship with it.
 
 Back-probe from the card's solder side; the fingers are inside the connector once
 the card is seated.
+
+### 6.14.2 ROOT CAUSE — the breakout card omits the comms interface by design
+
+An Amazon listing for the same class of R48-3000e3 adapter says it plainly:
+
+> *"The interface board is custom-made by our shop. It is **not the original
+> factory interface board and does not have the original factory communication
+> interface, only the input and output interface.**"*
+
+**That is our card.** Mains in, DC out, and one 2-pin enable line — exactly what
+was measured. The aftermarket cards drop the communication pins to save cost.
+
+**Nothing was wrong with the transceiver, the wiring, the 220∥270 termination or
+the firmware's bus setup.** `tx_err=128 / rx_err=0` was correct and honest: there
+was no CAN node on those wires because those wires are not CAN.
+
+### Options, in order of preference
+
+1. **Source a factory interface board** (or an aftermarket one that explicitly
+   lists CAN terminals). The listing's disclaimer proves a comms-bearing version
+   exists. Cleanest — no modification, no probing near mains.
+2. **Tap the rectifier's edge connector directly.** The socket carries ~40 signal
+   contacts in two rows. **AC MAINS ENTERS THROUGH THIS SAME CONNECTOR** — the
+   card's 3-position mains block proves it. Do not probe it live and blind.
+   Requires the pinout, which is not published (searched: Vertiv datasheets, the
+   user manual, both community repos, the Endless Sphere thread — none give pin
+   numbers).
+3. **Defer CAN.** The machine works without it; see the cost below.
+
+### What deferring CAN actually costs
+
+- **No throttle.** The bus collapses to 18 V under the 19.5 mm coil because
+  nothing limits current. §6.11's current-limit protection is unavailable.
+- **CR-01 energy dosing loses its independent voltage reference**, though the
+  INA228 covers V and I on its own once calibrated.
+- **CR-05's arming gate** (§6.10) wanted CAN-reported bus voltage. Without it,
+  arming falls back to the ≥30 s timer alone — which cannot tell a slow rectifier
+  from a dead one.
+
+**None of these block tools going into holders.** They block the machine becoming
+repeatable and self-protecting, which is Phase 2.
