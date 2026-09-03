@@ -344,17 +344,21 @@ flyback diode (a plain diode stretches drop-out time on a safety circuit).
   input to the controller — it reports that the contactor actually pulled in,
   rather than that firmware merely commanded it.
 
-## ORDERED 2026-08-30 — inbound
+## ORDERED 2026-08-30 — ALL ARRIVED 2026-09-03
 
-| Item | Price | Expected | Notes |
+Every item below is in hand and on the books. All four are on the **assembly
+table** with the rig except the spare flow sensor, which went home to B3-R7C2.
+
+| Item | Price | Status | Notes |
 |---|---|---|---|
-| **Baomain MC-9b-24VDC** contactor, ASIN B0B4CBZCBC | $31.16 | **Sept 1** | 3NO mains + 1NO/1NC aux, 24 V DC coil, UL |
-| **Taiss LA38-11BNRYG** 22 mm momentary ×3 (R/Y/G), ASIN B07GPJ6876 | $14.99 | **Sept 1** | 1NO+1NC each, 22 mm cutout — matches the LA39 E-stop |
-| **INA228** module (GODIYMODULES), ASIN B0GX5HM4X3 | $15.99 | **Sept 3** | onboard R002 to be removed; VIN+/VBUS/VIN− broken out |
+| **Baomain MC-9b-24VDC** contactor, ASIN B0B4CBZCBC | $31.16 | ✅ PO-0153, assy table | 3NO mains + 1NO/1NC aux, 24 V DC coil, UL |
+| **Taiss LA38-11BNRYG** 22 mm momentary ×3 (R/Y/G), ASIN B07GPJ6876 | $14.99 | ✅ PO-0150, assy table | 1NO+1NC each, 22 mm cutout — matches the LA39 E-stop. **3 pieces**, $5.00 each |
+| **INA228** module (GODIYMODULES), ASIN B0GX5HM4X3 | $15.99 | ✅ PO-0152, assy table | R002 **already removed**, VIN+/VIN− 35 MΩ. Bring-up passed |
+| **Yotache YF-S401 flow sensor** ×2, 0.3–3 L/min, ASIN B0H28L84GL | $17.99 | ✅ PO-0151, split | **2 pieces**, $9.00 each. One to the coolant loop, one spare in B3-R7C2 |
 
-| **Hall-effect flow sensor, 0.3–3 L/min** | ~$10 | — | ordered same day; low-flow turbine, pulse output |
-
-**~$72 total.** Prices verified live where shown, no escalator applied.
+**$80.13 total**, all prices as booked from the orders — no escalator, none
+estimated. The flow sensor came in at $17.99 for two rather than the ~$10
+placeholder guessed on 2026-08-30.
 
 The flow sensor range matters: **0.3–3 L/min brackets a small 12 V pump**, where
 the 1" HVAC paddle switches that dominate search results would never actuate at
@@ -369,11 +373,24 @@ this loop's flow rate at all — reading "no coolant" forever, or sticking close
 - **Buttons:** verify the 22 mm cutout matches the LA39 E-stop before cutting the
   panel. Red's **NC** block is the mains STOP if one is fitted; the master switch
   may make it unnecessary.
-- **INA228:** desolder R002, then **meter VIN+ to VIN− and confirm open** — proving
-  no pour or stray footprint bridges them. Keep the R002 bagged and taped to the
-  board; if the flat-draw test retires energy dosing, the module goes back.
-  Calibrate the external shunt against the DC clamp: read the shunt-voltage
-  register at known current, R = V/I, program the calibration register.
+- **INA228: DONE 2026-09-02.** R002 desoldered, VIN+ to VIN− measured **35 MΩ**
+  — open, so no pour or stray footprint bridges them.
+  Still to do: calibrate the external shunt against the DC clamp — read the
+  shunt-voltage register at known current, R = V/I, program the calibration
+  register.
+
+  **The "keep the R002 taped to the board" instruction is RETRACTED.** It existed
+  only so the module could go back inside the 30-day window if the flat-draw test
+  retired energy dosing. **The module is staying:** at 0.66 coupling the 19.5 mm
+  coil collapses the bus 52.3 V → 18 V, which is exactly the non-flat load that
+  1 Hz CAN telemetry cannot integrate, so CR-01 needs the INA228 after all.
+  Received 2026-09-03 (PO-0152), now on the assembly table with the rig.
+
+  **The R002 is stocked separately** at Scott's direction — InvenTree part 1172,
+  stock #771, in B3-R3C2. Its tolerance is **unverifiable**: 2 mΩ reads as a dead
+  short on every meter here, and desoldering is the stress that cracks a
+  low-value chip's terminations. Do not use it as a reference; its one real use
+  is putting the module back to stock form if it is ever repurposed.
 
 ### Flow sensor — fitting notes
 
