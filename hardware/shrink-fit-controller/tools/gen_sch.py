@@ -75,7 +75,7 @@ LIB["Q_2N3904"] = sym("Q_2N3904",
     +poly([(2.54,-2.54),(0.889,-2.032),(1.778,-1.143),(2.54,-2.54)],0.254,"outline"),
     lpin("passive",2.54,-5.08,90,2.54,"E","1")+lpin("passive",-5.08,0,0,2.54,"B","2")+lpin("passive",2.54,5.08,270,2.54,"C","3"))
 
-for n in (2,4,5):
+for n in (2,3,4,5,6):
     pins = ""
     for i in range(1,n+1):
         pins += lpin("passive",5.08,-(i-1)*2.54,180,2.54,"~",str(i))
@@ -93,9 +93,18 @@ LIB["PWR_FLAG"] = sym("PWR_FLAG",
 
 # --- pull the verified SuperMini symbol out of the project lib, unchanged ---
 libfile = io.open("shrink-fit-controller.kicad_sym", encoding="utf-8").read()
-m = re.search(r'(\t\(symbol "ESP32-S3-SuperMini-HW747".*?\n\t\)\n)', libfile, re.S)
-assert m, "SuperMini symbol not found in project lib"
-SUPERMINI = m.group(1)
+# The NodeMCU-32S symbol and its NodeMCU-32S_38pin_THT footprint are the proven
+# pair from sln-geo-aux-heat -- a board that was built and works. Copied in
+# unchanged rather than redrawn; a redrawn footprint is how this shop produced
+# two mirrored ones.
+_i = libfile.index('(symbol "NodeMCU-32S"')
+_d = 0
+for _j in range(_i, len(libfile)):
+    if libfile[_j] == '(': _d += 1
+    elif libfile[_j] == ')':
+        _d -= 1
+        if _d == 0: break
+MCU = "\t" + libfile[_i:_j+1] + "\n"
 
 # append the new symbols to the project lib (skip ones already there)
 add = "".join(body for name, body in LIB.items() if f'(symbol "{name}"' not in libfile)
@@ -110,7 +119,7 @@ def prefixed(name, body):
     assert body.lstrip("\t").startswith(tag), f"{name}: unexpected body head"
     return body.replace(tag, f'(symbol "shrink-fit-controller:{name}"', 1)
 EMBED = "".join(prefixed(n, b) for n, b in LIB.items())
-EMBED += prefixed("ESP32-S3-SuperMini-HW747", SUPERMINI)
+EMBED += prefixed("NodeMCU-32S", MCU)
 
 # ---------------- schematic (sheet coords, y DOWN) ----------------
 
@@ -171,50 +180,75 @@ def conn(ref, value, n, y0, nets):
         if net:
             label(net, px, py, 0)
 
-conn("J1","12V IN (kit wall wart)",2, 38.1, ["+12V","GND"])
-conn("PS1","LM2596 module 12V->5V",4, 50.8, ["+12V","GND","+5V","GND"])
-conn("J2","SSR-100DD input",2, 68.58, ["+12V","SSR_K"])
-conn("J3","Bus sense DC+/DC-",2, 78.74, ["BUS_V+","GND"])
-conn("J4","Flow switch",2, 88.9, ["+3V3","FLOW_SW"])
-conn("J5","E-stop sense",2, 99.06, ["ESTOP_SENSE","GND"])
-conn("J6","Start button",2, 109.22, ["START_BTN","GND"])
-conn("J7","CAN TTL (Phase 2)",4, 121.92, ["+3V3","GND","CAN_TX","CAN_RX"])
-conn("J8","MAX31855 (Phase 2)",5, 139.7, ["+3V3","GND","TC_SCK","TC_CS","TC_MISO"])
-conn("J9","INA228 I2C (Phase 2)",4, 157.48, ["+3V3","GND","SDA","SCL"])
+conn("J1", "24V IN (S-250-24)",           2,  25.4,  ["+24V","GND"])
+conn("PS1","LM2596  24V->5V  logic",      4,  38.1,  ["+24V","GND","+5V","GND"])
+conn("PS2","LM2596  24V->12V motors",     4,  55.88, ["+24V","GND","+12V","GND"])
+conn("J2", "SSR-100DD input",             2,  73.66, ["+12V","SSR_K"])
+conn("J3", "Contactor drop relay",        2,  83.82, ["+12V","RELAY_K"])
+conn("J4", "Flow sensor (Hall, 0.3-3L)",  3,  93.98, ["+5V","GND","FLOW_PULSE"])
+conn("J5", "E-stop sense",                2, 106.68, ["ESTOP_SENSE","GND"])
+conn("J6", "CYCLE START",                 2, 116.84, ["CYCLE_START","GND"])
+conn("J7", "CYCLE STOP",                  2, 127.0,  ["CYCLE_STOP","GND"])
+conn("J8", "Encoder EC11",                5, 137.16, ["+3V3","GND","ENC_A","ENC_B","ENC_SW"])
+conn("J9", "CAN isolated stack",          4, 154.94, ["+3V3","GND","CAN_TX","CAN_RX"])
+conn("J10","INA228 I2C",                  4, 172.72, ["+3V3","GND","SDA","SCL"])
+conn("J11","DS18B20 1-Wire x2",           3, 190.5,  ["+3V3","GND","OW_DATA"])
+conn("J12","Round TFT (SPI)",             6, 203.2,  ["+3V3","GND","TFT_CS","TFT_DC","TFT_SCK","TFT_MOSI"])
+conn("J13","PCF8574 + lamp drivers",      4, 226.06, ["+3V3","GND","SDA","SCL"])
 
-# ---- PWR_FLAGs on stubs so ERC sees a source on externally-fed rails ----
-for i,(y,net) in enumerate([(38.1,"+12V"),(40.64,"GND"),(55.88,"+5V"),(78.74,"BUS_V+")]):
-    # the label already sits AT the pin; hang the flag on a stub at the same point
+# ---- PWR_FLAGs so ERC sees a source on rails fed from off-board ----
+for i,(y,net) in enumerate([(25.4,"+24V"),(27.94,"GND"),(43.18,"+5V"),(60.96,"+12V")]):
     instance("PWR_FLAG", f"#FLG{i+1}", "PWR_FLAG", 40.64, y, 0, 1, 43.18, y-2.54, 43.18, y-1.27)
 
-# ---- U1 ----
-instance("ESP32-S3-SuperMini-HW747","U1","ESP32-S3 Super Mini HW-747",101.6,104.14,0,18,95.25,87.63,95.25,120.65)
-LEFT = [("TX",None),("RX",None),("GPIO1","BUS_SENSE"),("GPIO2","START_BTN"),("GPIO3",None),
-        ("GPIO4","CAN_TX"),("GPIO5","CAN_RX"),("GPIO6","FLOW_SW"),("GPIO7","ESTOP_SENSE")]
-for i,(nm,net) in enumerate(LEFT):
-    x,y = 88.9, 93.98 + i*2.54
-    if net: label(net,x,y,180)
-    else:   nc(x,y)
-RIGHT = [("GPIO8","SDA"),("GPIO9","SCL"),("GPIO10","SSR_DRV"),("GPIO11","TC_CS"),
-         ("GPIO12","TC_SCK"),("GPIO13","TC_MISO"),("3V3","+3V3"),("GND","GND"),("5V","+5V")]
-for i,(nm,net) in enumerate(RIGHT):
-    x,y = 114.3, 114.3 - i*2.54
-    label(net,x,y,0)
+# ---- U1 : NodeMCU-32S -------------------------------------------------------
+# Nets are placed by PIN NUMBER from the symbol's own geometry, then rendered
+# beside the name, because on this symbol the two deliberately disagree:
+# pin number 26 is the pin named P32. Wiring by number lands nets on the wrong
+# GPIOs and passes ERC, DRC and visual review alike.
+UX, UY = 127.0, 127.0
+NET_BY_PIN = {
+     1:("GND",        "GND"),        2:("P23", "TFT_MOSI"),   3:("P22", "SCL"),
+     4:("TX0",  None),                5:("RX0",  None),        6:("P21", "SDA"),
+     7:("GND",        "GND"),        8:("P19", "ENC_B"),       9:("P18", "TFT_SCK"),
+    10:("P5",  "TFT_CS"),           11:("P17", "TFT_DC"),     12:("P16", "RELAY_K"),
+    13:("P4",  "SSR_DRV"),          14:("P0",   None),        15:("P2",   None),
+    16:("P15", "ENC_SW"),           17:("SD1",  None),        18:("SD0",  None),
+    19:("CLK",  None),
+    20:("3V3", "+3V3"),             21:("EN",   None),        22:("P36_VP","ESTOP_SENSE"),
+    23:("P39_VN","FLOW_PULSE"),     24:("P34", "CYCLE_START"),25:("P35", "CYCLE_STOP"),
+    26:("P32", "CAN_RX"),           27:("P33", "OW_DATA"),    28:("P25",  None),
+    29:("P26",  None),              30:("P27",  None),        31:("P14", "CAN_TX"),
+    32:("P12",  None),              33:("GND",  "GND"),       34:("P13", "ENC_A"),
+    35:("SD2",  None),              36:("SD3",  None),        37:("GND",  "GND"),
+    38:("5V",  "+5V"),
+}
+# Pin geometry read from the symbol itself -- never retyped.
+_lib = io.open("shrink-fit-controller.kicad_sym", encoding="utf-8").read()
+_k = _lib.index('(symbol "NodeMCU-32S_1_1"')
+_d = 0
+for _e in range(_k, len(_lib)):
+    if _lib[_e] == '(': _d += 1
+    elif _lib[_e] == ')':
+        _d -= 1
+        if _d == 0: break
+_blk = _lib[_k:_e+1]                      # <-- BOUNDED. Nothing outside the symbol.
+GEO = {int(n): (float(x), float(y)) for x, y, a, n in
+       re.findall(r'\(pin\s+\S+\s+\S+\s*\n?\s*\(at ([-\d.]+) ([-\d.]+) (\d+)\).*?\(number "(\d+)"',
+                  _blk, re.S)}
+assert len(GEO) == 38, f"expected 38 pins, parsed {len(GEO)}"
+# Sanity: the MCU's pins sit at x = +/-15.24. Anything else means the parse
+# escaped the symbol again -- which it did once, silently, and ERC found it.
+assert all(abs(abs(x) - 15.24) < 0.01 for x, _ in GEO.values()), "GEO parse escaped the symbol"
 
-# ---- divider ----
-label("BUS_V+",170.18,66.04,90)
-wire(170.18,66.04,170.18,68.58)
-instance("R","R2","220k",170.18,73.66,0,2,172.72,72.39,172.72,74.93)
-wire(170.18,78.74,170.18,81.28); junction(170.18,80.01)
-instance("R","R3","10k",170.18,86.36,0,2,172.72,85.09,172.72,87.63)
-wire(170.18,80.01,177.8,80.01); junction(177.8,80.01)
-wire(177.8,80.01,182.88,80.01); label("BUS_SENSE",182.88,80.01,0)
-instance("C","C1","100nF",177.8,86.36,0,2,180.34,85.09,180.34,87.63)
-wire(177.8,80.01,177.8,83.82)
-wire(177.8,88.9,177.8,91.44); wire(177.8,91.44,170.18,91.44); junction(170.18,91.44)
-wire(170.18,91.44,170.18,93.98); label("GND",170.18,93.98,270)
+instance("NodeMCU-32S","U1","NodeMCU-32S (ESP32, 38-pin)",UX,UY,0,38,UX-14,UY-30,UX-14,UY+30)
+for num,(name,net) in NET_BY_PIN.items():
+    px,py = GEO[num]
+    x, y  = UX + px, UY - py
+    ang   = 180 if px < 0 else 0
+    if net: label(net, x, y, ang)
+    else:   nc(x, y)
 
-# ---- SSR driver ----
+# ---- SSR driver : unchanged, 2N3904 off a real GPIO that can source ----------
 label("SSR_DRV",193.04,81.28,180)
 wire(193.04,81.28,195.58,81.28)
 instance("R","R1","1k",200.66,81.28,90,2,198.12,77.47,198.12,74.93)
@@ -224,21 +258,23 @@ wire(215.9,76.2,215.9,73.66); label("SSR_K",215.9,73.66,90)
 wire(215.9,86.36,215.9,88.9); label("GND",215.9,88.9,270)
 
 # ---- notes ----
-text("WIRE BY PIN NAME, NEVER BY NUMBER. U1 numbers are header positions: GPIO1 = pin 3, GPIO10 (SSR drive) = pin 12. Verify pads in the .kicad_pcb after layout.",160.02,35.56)
-text("GND IS DC-. The controller floats with the bus (SR-11 bond withdrawn). No USB while energised; no earthed scope ground clip - differential probe only.",160.02,40.64)
-text("Divider 220k/10k = 23:1 (180k not stocked). Calibrate with testrig 'cal <V>'. C1 is not optional: sensing beside a kW oscillator (R-11).",160.02,45.72)
-text("SSR-100DD input 3-32V, fed from +12V; Q1 low-side. GPIO10 delivers the voltage STEP (CR-05) - CAN sets bus volts, never enables output.",160.02,50.8)
-text("Phase 2 headers J7/J8/J9: footprints reserved, unpopulated. CAN stack (ADUM1201 + B0505S + SN65HVD230) is off-board - isolation required. INA228 shunt value is a PLACEHOLDER until VR-11 four-wire cal.",160.02,55.88)
-text("GPIO3 reserved: Stage-4 encoder.",83.82,92.71)
-text("J4 flow: switch to 3V3, firmware INPUT_PULLDOWN, active high = flow proven. J5/J6: contacts to GND, INPUT_PULLUP, active low.",160.02,60.96)
+text("WIRE BY PIN NAME, NEVER BY NUMBER. On this symbol pin NUMBER 26 is the pin NAMED P32 - numbers are header positions. Verify every net against the pad number in docs/pinmap.md after layout; ERC will not catch it.",170.18,25.4)
+text("FLASH PINS - NPTH, NO COPPER: pins 17,18,19,35,36 (SD1,SD0,CLK,SD2,SD3) are the internal SPI flash bus, GPIO6-11. Holes with no pad. Do NOT delete the holes or the module cannot seat.",170.18,33.02)
+text("34/35/36/39 (pins 24,25,22,23) are INPUT ONLY with NO internal pull-up. Every button and sensor on them needs an external 10k to 3V3 or it floats and reads randomly.",170.18,40.64)
+text("GND IS DC-. The controller floats with the bus. No USB while energised; no earthed scope ground clip - differential probe or a non-contact pickup loop only.",170.18,48.26)
+text("SSR-100DD input 3-32V from +12V, Q1 low-side. P4 delivers the voltage STEP (CR-05); the AC contactor never does - a Royer fed a slow ramp shoots through and kills the IRFP260Ns.",170.18,55.88)
+text("LAMPS ARE NOT ON THE MCU. Three 12V panel lamps hang off a PCF8574 (J13) via 2N7002 MOSFETs. The expander sources only ~100uA when high, which is too little for a 2N3904 base - a MOSFET gate is voltage-driven and does not care.",170.18,63.5)
+text("MAINS START IS NOT HERE. It is hardwired in the contactor coil circuit (requirements 6.9) and must never reach the MCU: firmware must not be able to energise mains by itself.",170.18,71.12)
+text("Bus voltage now comes from the INA228 (J10), not a discrete divider. The old 220k/10k and its filter cap are deleted.",170.18,78.74)
+text("SPARE: P25 (28), P26 (29), P27 (30) - freed by moving lamps to the expander. P0/P2/P12 are strapping pins, usable only with care.",170.18,86.36)
 
 # ---------------- write ----------------
 sch = (f'(kicad_sch\n\t(version 20260306)\n\t(generator "eeschema")\n'
        f'\t(generator_version "10.0")\n\t(uuid "{ROOT}")\n\t(paper "A3")\n'
        f'\t(title_block\n\t\t(title "Shrink-Fit Induction Controller")\n'
-       f'\t\t(date "2026-08-26")\n\t\t(rev "A")\n'
-       f'\t\t(comment 1 "U1 wired by pin NAME (GPIO) - numbers are header positions. Pinout verified from 3 sources incl. both faces of the physical board.")\n'
-       f'\t\t(comment 2 "GND = DC-. Floating with the bus by design. Phase 2 blocks are headers, unpopulated.")\n'
+       f'\t\t(date "2026-08-31")\n\t\t(rev "B")\n'
+       f'\t\t(comment 1 "U1 = NodeMCU-32S. Wired by pin NAME; numbers are header positions and pin 26 is named P32. Symbol and footprint are the proven pair from sln-geo-aux-heat.")\n'
+       f'\t\t(comment 2 "Rev B: MCU changed S3 Super Mini -> NodeMCU-32S. 24V primary, two bucks. MAX31855 deleted. Lamps on a PCF8574. Bus sense via INA228.")\n'
        f'\t)\n\t(lib_symbols\n{EMBED}\t)\n'
        + "".join(out) +
        f'\t(sheet_instances\n\t\t(path "/"\n\t\t\t(page "1")\n\t\t)\n\t)\n'

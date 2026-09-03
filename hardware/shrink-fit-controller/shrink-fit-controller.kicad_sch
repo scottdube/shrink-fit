@@ -6,1889 +6,1602 @@
 	(paper "A3")
 	(title_block
 		(title "Shrink-Fit Induction Controller")
-		(date "2026-08-26")
-		(rev "A")
-		(comment 1 "U1 wired by pin NAME (GPIO) - numbers are header positions. Pinout verified from 3 sources incl. both faces of the physical board.")
-		(comment 2 "GND = DC-. Floating with the bus by design. Phase 2 blocks are headers, unpopulated.")
+		(date "2026-08-31")
+		(rev "B")
+		(comment 1 "U1 = NodeMCU-32S. Wired by pin NAME; numbers are header positions and pin 26 is named P32. Symbol and footprint are the proven pair from sln-geo-aux-heat.")
+		(comment 2 "Rev B: MCU changed S3 Super Mini -> NodeMCU-32S. 24V primary, two bucks. MAX31855 deleted. Lamps on a PCF8574. Bus sense via INA228.")
 	)
 	(lib_symbols
-		(symbol "shrink-fit-controller:C"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "C"
-				(at 0 5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "C"
-				(at 0 -5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 -7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 -10.16 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Capacitor"
-				(at 0 -12.7 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "C_0_1"
-				(polyline
-					(pts
-						(xy -1.524 0.508) (xy 1.524 0.508)
-					)
-					(stroke
-						(width 0.4064)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.524 -0.508) (xy 1.524 -0.508)
-					)
-					(stroke
-						(width 0.4064)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "C_1_1"
-				(pin passive line
-					(at 0 2.54 270)
-					(length 2.032)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -2.54 90)
-					(length 2.032)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "shrink-fit-controller:CONN_02"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "J"
-				(at 0 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "CONN_02"
-				(at 0 -5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 -7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 -10.16 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Generic header / screw terminal"
-				(at 0 -12.7 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "CONN_02_0_1"
-				(rectangle
-					(start -5.08 1.27)
-					(end 2.54 -3.81)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "CONN_02_1_1"
-				(pin passive line
-					(at 5.08 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -2.54 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "shrink-fit-controller:CONN_04"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "J"
-				(at 0 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "CONN_04"
-				(at 0 -10.16 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 -12.7 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 -15.24 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Generic header / screw terminal"
-				(at 0 -17.78 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "CONN_04_0_1"
-				(rectangle
-					(start -5.08 1.27)
-					(end 2.54 -8.89)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "CONN_04_1_1"
-				(pin passive line
-					(at 5.08 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -2.54 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -5.08 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -7.62 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "shrink-fit-controller:CONN_05"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "J"
-				(at 0 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "CONN_05"
-				(at 0 -12.7 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 -15.24 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 -17.78 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Generic header / screw terminal"
-				(at 0 -20.32 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "CONN_05_0_1"
-				(rectangle
-					(start -5.08 1.27)
-					(end 2.54 -11.43)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "CONN_05_1_1"
-				(pin passive line
-					(at 5.08 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -2.54 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -5.08 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -7.62 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -10.16 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "shrink-fit-controller:ESP32-S3-SuperMini-HW747"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "U"
-				(at 0 15.24 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "ESP32-S3-SuperMini-HW747"
-				(at 0 -15.24 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "shrink-fit-controller:ESP32-S3-SuperMini-HW747"
-				(at 0 -17.78 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 -20.32 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "AITRIP ESP32-S3 Super Mini, HW-747 V0.0.2. 2x9 header, 2.54mm. Pin NUMBERS are header positions (DIP order, pin 1 = TX top-left component-side-up); pin NAMES are GPIOs. Number 3 is GPIO1 - wire by NAME."
-				(at 0 -22.86 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "ESP32-S3 SuperMini HW-747 module"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "ESP32-S3-SuperMini-HW747_0_1"
-				(rectangle
-					(start -10.16 12.7)
-					(end 10.16 -12.7)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "ESP32-S3-SuperMini-HW747_1_1"
-				(pin bidirectional line
-					(at -12.7 10.16 0)
-					(length 2.54)
-					(name "TX"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -12.7 7.62 0)
-					(length 2.54)
-					(name "RX"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -12.7 5.08 0)
-					(length 2.54)
-					(name "GPIO1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -12.7 2.54 0)
-					(length 2.54)
-					(name "GPIO2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -12.7 0 0)
-					(length 2.54)
-					(name "GPIO3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -12.7 -2.54 0)
-					(length 2.54)
-					(name "GPIO4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -12.7 -5.08 0)
-					(length 2.54)
-					(name "GPIO5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -12.7 -7.62 0)
-					(length 2.54)
-					(name "GPIO6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -12.7 -10.16 0)
-					(length 2.54)
-					(name "GPIO7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 12.7 -10.16 180)
-					(length 2.54)
-					(name "GPIO8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 12.7 -7.62 180)
-					(length 2.54)
-					(name "GPIO9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 12.7 -5.08 180)
-					(length 2.54)
-					(name "GPIO10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "12"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 12.7 -2.54 180)
-					(length 2.54)
-					(name "GPIO11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "13"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 12.7 0 180)
-					(length 2.54)
-					(name "GPIO12"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "14"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 12.7 2.54 180)
-					(length 2.54)
-					(name "GPIO13"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "15"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_out line
-					(at 12.7 5.08 180)
-					(length 2.54)
-					(name "3V3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "16"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 12.7 7.62 180)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "17"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 12.7 10.16 180)
-					(length 2.54)
-					(name "5V"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "18"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "shrink-fit-controller:PWR_FLAG"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "#FLG"
-				(at 0 3.81 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "PWR_FLAG"
-				(at 0 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 -2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 -5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "ERC power-source marker"
-				(at 0 -7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "PWR_FLAG_0_1"
-				(polyline
-					(pts
-						(xy 0 0) (xy 0 1.016) (xy -0.762 1.524) (xy 0 2.032) (xy 0.762 1.524) (xy 0 1.016)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "PWR_FLAG_1_1"
-				(pin power_out line
-					(at 0 0 90)
-					(length 0)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "shrink-fit-controller:Q_2N3904"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "Q"
-				(at 0 7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "2N3904"
-				(at 0 -7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 -10.16 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 -12.7 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "NPN BJT, TO-92 pinout 1=E 2=B 3=C (American EBC, flat face toward you)"
-				(at 0 -15.24 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "Q_2N3904_0_1"
-				(polyline
-					(pts
-						(xy -2.54 1.905) (xy -2.54 -1.905)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -2.54 0.762) (xy 2.54 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -2.54 -0.762) (xy 2.54 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.54 -2.54) (xy 0.889 -2.032) (xy 1.778 -1.143) (xy 2.54 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-			)
-			(symbol "Q_2N3904_1_1"
-				(pin passive line
-					(at 2.54 -5.08 90)
-					(length 2.54)
-					(name "E"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "B"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(name "C"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "shrink-fit-controller:R"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "R"
-				(at 0 7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "R"
-				(at 0 -7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 -10.16 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 -12.7 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Resistor, THT axial"
-				(at 0 -15.24 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "R_0_1"
-				(rectangle
-					(start -1.016 2.54)
-					(end 1.016 -2.54)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "R_1_1"
-				(pin passive line
-					(at 0 5.08 270)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -5.08 90)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-	)
-	(text "Divider 220k/10k = 23:1 (180k not stocked). Calibrate with testrig 'cal <V>'. C1 is not optional: sensing beside a kW oscillator (R-11)."
+	(symbol "shrink-fit-controller:R"
 		(exclude_from_sim no)
-		(at 177.546 39.116 0)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "R"
+			(at 0 7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
-			(justify left bottom)
 		)
-		(uuid "0b4214ac-ff45-f1a6-905a-1718610469cd")
+		(property "Value" "R"
+			(at 0 -7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -10.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, THT axial"
+			(at 0 -15.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "R_0_1"
+			(rectangle
+				(start -1.016 2.54)
+				(end 1.016 -2.54)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "R_1_1"
+			(pin passive line
+				(at 0 5.08 270)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -5.08 90)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
 	)
-	(text "WIRE BY PIN NAME, NEVER BY NUMBER. U1 numbers are header positions: GPIO1 = pin 3, GPIO10 (SSR drive) = pin 12. Verify pads in the .kicad_pcb after layout."
+	(symbol "shrink-fit-controller:C"
 		(exclude_from_sim no)
-		(at 177.038 29.464 0)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "C"
+			(at 0 5.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
-			(justify left bottom)
 		)
-		(uuid "1cc45c72-1bc0-9130-1b4c-6815da285b32")
+		(property "Value" "C"
+			(at 0 -5.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -10.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Capacitor"
+			(at 0 -12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "C_0_1"
+			(polyline
+				(pts
+					(xy -1.524 0.508) (xy 1.524 0.508)
+				)
+				(stroke
+					(width 0.4064)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.524 -0.508) (xy 1.524 -0.508)
+				)
+				(stroke
+					(width 0.4064)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "C_1_1"
+			(pin passive line
+				(at 0 2.54 270)
+				(length 2.032)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -2.54 90)
+				(length 2.032)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
 	)
-	(text "GND IS DC-. The controller floats with the bus (SR-11 bond withdrawn). No USB while energised; no earthed scope ground clip - differential probe only."
+	(symbol "shrink-fit-controller:Q_2N3904"
 		(exclude_from_sim no)
-		(at 177.546 34.036 0)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "Q"
+			(at 0 7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
-			(justify left bottom)
 		)
-		(uuid "24061a15-398f-d337-2b1d-f37240a89256")
+		(property "Value" "2N3904"
+			(at 0 -7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -10.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "NPN BJT, TO-92 pinout 1=E 2=B 3=C (American EBC, flat face toward you)"
+			(at 0 -15.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "Q_2N3904_0_1"
+			(polyline
+				(pts
+					(xy -2.54 1.905) (xy -2.54 -1.905)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.54 0.762) (xy 2.54 2.54)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.54 -0.762) (xy 2.54 -2.54)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 2.54 -2.54) (xy 0.889 -2.032) (xy 1.778 -1.143) (xy 2.54 -2.54)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+		)
+		(symbol "Q_2N3904_1_1"
+			(pin passive line
+				(at 2.54 -5.08 90)
+				(length 2.54)
+				(name "E"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -5.08 0 0)
+				(length 2.54)
+				(name "B"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 2.54 5.08 270)
+				(length 2.54)
+				(name "C"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
 	)
-	(text "J4 flow: switch to 3V3, firmware INPUT_PULLDOWN, active high = flow proven. J5/J6: contacts to GND, INPUT_PULLUP, active low."
+	(symbol "shrink-fit-controller:CONN_02"
 		(exclude_from_sim no)
-		(at 177.546 54.356 0)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "J"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
-			(justify left bottom)
 		)
-		(uuid "34a52190-7efd-0d55-8d60-1699273c1b74")
+		(property "Value" "CONN_02"
+			(at 0 -5.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -10.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic header / screw terminal"
+			(at 0 -12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "CONN_02_0_1"
+			(rectangle
+				(start -5.08 1.27)
+				(end 2.54 -3.81)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "CONN_02_1_1"
+			(pin passive line
+				(at 5.08 0.0 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -2.54 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
 	)
-	(text "SSR-100DD input 3-32V, fed from +12V; Q1 low-side. GPIO10 delivers the voltage STEP (CR-05) - CAN sets bus volts, never enables output."
+	(symbol "shrink-fit-controller:CONN_03"
 		(exclude_from_sim no)
-		(at 177.546 44.196 0)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "J"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
-			(justify left bottom)
 		)
-		(uuid "351ad95a-9d3b-cc78-d3ef-80c4bff01018")
+		(property "Value" "CONN_03"
+			(at 0 -7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -10.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic header / screw terminal"
+			(at 0 -15.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "CONN_03_0_1"
+			(rectangle
+				(start -5.08 1.27)
+				(end 2.54 -6.35)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "CONN_03_1_1"
+			(pin passive line
+				(at 5.08 0.0 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -2.54 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -5.08 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
 	)
-	(text "Phase 2 headers J7/J8/J9: footprints reserved, unpopulated. CAN stack (ADUM1201 + B0505S + SN65HVD230) is off-board - isolation required. INA228 shunt value is a PLACEHOLDER until VR-11 four-wire cal."
+	(symbol "shrink-fit-controller:CONN_04"
 		(exclude_from_sim no)
-		(at 177.546 49.276 0)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "J"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
-			(justify left bottom)
 		)
-		(uuid "4fe52b30-a475-d744-c0c6-8554534b62c8")
+		(property "Value" "CONN_04"
+			(at 0 -10.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -15.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic header / screw terminal"
+			(at 0 -17.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "CONN_04_0_1"
+			(rectangle
+				(start -5.08 1.27)
+				(end 2.54 -8.89)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "CONN_04_1_1"
+			(pin passive line
+				(at 5.08 0.0 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -2.54 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -5.08 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -7.62 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
 	)
-	(text "GPIO3 reserved: Stage-4 encoder."
+	(symbol "shrink-fit-controller:CONN_05"
 		(exclude_from_sim no)
-		(at 85.852 90.932 0)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "J"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "CONN_05"
+			(at 0 -12.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -15.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -17.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic header / screw terminal"
+			(at 0 -20.32 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "CONN_05_0_1"
+			(rectangle
+				(start -5.08 1.27)
+				(end 2.54 -11.43)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "CONN_05_1_1"
+			(pin passive line
+				(at 5.08 0.0 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -2.54 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -5.08 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -7.62 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -10.16 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "shrink-fit-controller:CONN_06"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "J"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "CONN_06"
+			(at 0 -15.239999999999998 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -17.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -20.32 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic header / screw terminal"
+			(at 0 -22.86 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "CONN_06_0_1"
+			(rectangle
+				(start -5.08 1.27)
+				(end 2.54 -13.969999999999999)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "CONN_06_1_1"
+			(pin passive line
+				(at 5.08 0.0 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -2.54 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -5.08 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -7.62 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -10.16 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 -12.7 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "shrink-fit-controller:PWR_FLAG"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "#FLG"
+			(at 0 3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -5.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "ERC power-source marker"
+			(at 0 -7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "PWR_FLAG_0_1"
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 1.016) (xy -0.762 1.524) (xy 0 2.032) (xy 0.762 1.524) (xy 0 1.016)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "PWR_FLAG_1_1"
+			(pin power_out line
+				(at 0 0 90)
+				(length 0)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "shrink-fit-controller:NodeMCU-32S" (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+    (property "Reference" "U1" (at 0 3.81 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "NodeMCU-32S" (at 0 -3.81 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+    (symbol "NodeMCU-32S_0_1"
+      (rectangle (start -10.16 26.67) (end 10.16 -26.67)
+        (stroke (width 0.254) (type default)) (fill (type background))
+      )
+    )
+    (symbol "NodeMCU-32S_1_1"
+      (pin power_in line (at -15.24 24.13 0) (length 3.81)
+        (name "GND" (effects (font (size 1.0 1.0))))
+        (number "1" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 21.59 0) (length 3.81)
+        (name "P23" (effects (font (size 1.0 1.0))))
+        (number "2" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 19.05 0) (length 3.81)
+        (name "P22" (effects (font (size 1.0 1.0))))
+        (number "3" (effects (font (size 1.0 1.0))))
+      )
+      (pin output line (at -15.24 16.51 0) (length 3.81)
+        (name "TX0" (effects (font (size 1.0 1.0))))
+        (number "4" (effects (font (size 1.0 1.0))))
+      )
+      (pin input line (at -15.24 13.97 0) (length 3.81)
+        (name "RX0" (effects (font (size 1.0 1.0))))
+        (number "5" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 11.43 0) (length 3.81)
+        (name "P21" (effects (font (size 1.0 1.0))))
+        (number "6" (effects (font (size 1.0 1.0))))
+      )
+      (pin power_in line (at -15.24 8.89 0) (length 3.81)
+        (name "GND" (effects (font (size 1.0 1.0))))
+        (number "7" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 6.35 0) (length 3.81)
+        (name "P19" (effects (font (size 1.0 1.0))))
+        (number "8" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 3.81 0) (length 3.81)
+        (name "P18" (effects (font (size 1.0 1.0))))
+        (number "9" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 1.27 0) (length 3.81)
+        (name "P5" (effects (font (size 1.0 1.0))))
+        (number "10" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 -1.27 0) (length 3.81)
+        (name "P17" (effects (font (size 1.0 1.0))))
+        (number "11" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 -3.81 0) (length 3.81)
+        (name "P16" (effects (font (size 1.0 1.0))))
+        (number "12" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 -6.35 0) (length 3.81)
+        (name "P4" (effects (font (size 1.0 1.0))))
+        (number "13" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 -8.89 0) (length 3.81)
+        (name "P0" (effects (font (size 1.0 1.0))))
+        (number "14" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 -11.43 0) (length 3.81)
+        (name "P2" (effects (font (size 1.0 1.0))))
+        (number "15" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 -13.97 0) (length 3.81)
+        (name "P15" (effects (font (size 1.0 1.0))))
+        (number "16" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 -16.51 0) (length 3.81)
+        (name "SD1" (effects (font (size 1.0 1.0))))
+        (number "17" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 -19.05 0) (length 3.81)
+        (name "SD0" (effects (font (size 1.0 1.0))))
+        (number "18" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at -15.24 -21.59 0) (length 3.81)
+        (name "CLK" (effects (font (size 1.0 1.0))))
+        (number "19" (effects (font (size 1.0 1.0))))
+      )
+      (pin power_out line (at 15.24 24.13 180) (length 3.81)
+        (name "3V3" (effects (font (size 1.0 1.0))))
+        (number "20" (effects (font (size 1.0 1.0))))
+      )
+      (pin input line (at 15.24 21.59 180) (length 3.81)
+        (name "EN" (effects (font (size 1.0 1.0))))
+        (number "21" (effects (font (size 1.0 1.0))))
+      )
+      (pin input line (at 15.24 19.05 180) (length 3.81)
+        (name "P36_VP" (effects (font (size 1.0 1.0))))
+        (number "22" (effects (font (size 1.0 1.0))))
+      )
+      (pin input line (at 15.24 16.51 180) (length 3.81)
+        (name "P39_VN" (effects (font (size 1.0 1.0))))
+        (number "23" (effects (font (size 1.0 1.0))))
+      )
+      (pin input line (at 15.24 13.97 180) (length 3.81)
+        (name "P34" (effects (font (size 1.0 1.0))))
+        (number "24" (effects (font (size 1.0 1.0))))
+      )
+      (pin input line (at 15.24 11.43 180) (length 3.81)
+        (name "P35" (effects (font (size 1.0 1.0))))
+        (number "25" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 8.89 180) (length 3.81)
+        (name "P32" (effects (font (size 1.0 1.0))))
+        (number "26" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 6.35 180) (length 3.81)
+        (name "P33" (effects (font (size 1.0 1.0))))
+        (number "27" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 3.81 180) (length 3.81)
+        (name "P25" (effects (font (size 1.0 1.0))))
+        (number "28" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 1.27 180) (length 3.81)
+        (name "P26" (effects (font (size 1.0 1.0))))
+        (number "29" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 -1.27 180) (length 3.81)
+        (name "P27" (effects (font (size 1.0 1.0))))
+        (number "30" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 -3.81 180) (length 3.81)
+        (name "P14" (effects (font (size 1.0 1.0))))
+        (number "31" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 -6.35 180) (length 3.81)
+        (name "P12" (effects (font (size 1.0 1.0))))
+        (number "32" (effects (font (size 1.0 1.0))))
+      )
+      (pin power_in line (at 15.24 -8.89 180) (length 3.81)
+        (name "GND" (effects (font (size 1.0 1.0))))
+        (number "33" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 -11.43 180) (length 3.81)
+        (name "P13" (effects (font (size 1.0 1.0))))
+        (number "34" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 -13.97 180) (length 3.81)
+        (name "SD2" (effects (font (size 1.0 1.0))))
+        (number "35" (effects (font (size 1.0 1.0))))
+      )
+      (pin bidirectional line (at 15.24 -16.51 180) (length 3.81)
+        (name "SD3" (effects (font (size 1.0 1.0))))
+        (number "36" (effects (font (size 1.0 1.0))))
+      )
+      (pin power_in line (at 15.24 -19.05 180) (length 3.81)
+        (name "GND" (effects (font (size 1.0 1.0))))
+        (number "37" (effects (font (size 1.0 1.0))))
+      )
+      (pin power_in line (at 15.24 -21.59 180) (length 3.81)
+        (name "5V" (effects (font (size 1.0 1.0))))
+        (number "38" (effects (font (size 1.0 1.0))))
+      )
+    )
+  )
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:CONN_02")
+		(at 35.56 25.4 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "cd0d0a01-0cac-3117-ef1c-c76c17119d7b")
+		(property "Reference" "J1"
+			(at 27.94 21.59 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "24V IN (S-250-24)"
+			(at 27.94 31.749999999999996 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 35.56 25.4 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 35.56 25.4 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "0f3e2cca-3aae-40f7-f042-a94607ca16f7")
+		)
+		(pin "2"
+			(uuid "0d08472a-1d34-6ebb-4e63-88635fd65300")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+24V"
+		(at 40.64 25.4 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "b30ddffb-651d-6883-1e25-d0a95708d8d6")
-	)
-	(junction
-		(at 78.74 53.34)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "92107fd5-2011-586e-4c57-fc57dd12c08d")
-	)
-	(junction
-		(at 86.36 53.34)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a1c112c2-9174-a430-f06b-709286935915")
-	)
-	(junction
-		(at 40.64 80.01)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "bcf6ec16-58ec-4ef4-a469-068bfdfd2b48")
-	)
-	(no_connect
-		(at 88.9 96.52)
-		(uuid "e5f67ac1-7db2-1c7b-e17a-a749762e29d6")
-	)
-	(no_connect
-		(at 88.9 104.14)
-		(uuid "e6121d26-a3a5-0ca5-e091-8dc39272d63b")
-	)
-	(no_connect
-		(at 88.9 93.98)
-		(uuid "f8e83b27-987f-76db-02bc-0f888d36400f")
-	)
-	(wire
-		(pts
-			(xy 74.93 64.77) (xy 86.36 64.77)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "043f6990-71e7-4429-9d3a-a9c0cff76913")
-	)
-	(wire
-		(pts
-			(xy 74.93 53.34) (xy 74.93 54.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2ab0234d-92ee-62bb-8108-f6da3f54bcf0")
-	)
-	(wire
-		(pts
-			(xy 86.36 62.23) (xy 86.36 64.77)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3601532c-2b8d-4190-4423-99218eec933d")
-	)
-	(wire
-		(pts
-			(xy 86.36 53.34) (xy 91.44 53.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "502f1521-b07d-cb20-67c8-bdc1912880a2")
-	)
-	(wire
-		(pts
-			(xy 121.92 53.34) (xy 124.46 53.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "519bfab9-ab28-08c2-8ef6-b8d8e6b6f27a")
-	)
-	(wire
-		(pts
-			(xy 144.78 48.26) (xy 144.78 45.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6b3f897a-4ad3-3876-0a9a-3d76d792c3b9")
-	)
-	(wire
-		(pts
-			(xy 78.74 53.34) (xy 86.36 53.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "73396dc4-878d-7f98-b4e4-43903c73c332")
-	)
-	(wire
-		(pts
-			(xy 74.93 53.34) (xy 78.74 53.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7d2b5a80-6a14-443c-82ed-92eeba912d87")
-	)
-	(wire
-		(pts
-			(xy 86.36 53.34) (xy 86.36 57.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8b381582-0034-da7a-23ad-5fa7894e41dc")
-	)
-	(wire
-		(pts
-			(xy 41.91 80.01) (xy 40.64 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a0848a3e-6171-43cb-b6ad-5ad4f664014b")
-	)
-	(wire
-		(pts
-			(xy 144.78 58.42) (xy 144.78 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c2731b86-e2ff-bed2-9078-9489792f0910")
-	)
-	(wire
-		(pts
-			(xy 78.74 39.37) (xy 78.74 41.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d070177a-7ddb-09f1-f822-39cc4efd5065")
-	)
-	(wire
-		(pts
-			(xy 78.74 53.34) (xy 78.74 52.07)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f5b1ec41-2f07-4d31-ad66-20b3fee95352")
-	)
-	(wire
-		(pts
-			(xy 134.62 53.34) (xy 137.16 53.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fc08f229-9937-ec38-3077-f9501efb4341")
-	)
-	(label "TC_MISO"
-		(at 39.37 167.64 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "080328dd-9a33-6369-d990-2fbd7040dfef")
-	)
-	(label "SDA"
-		(at 114.3 114.3 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0820361e-f7c3-d58a-13cb-414ff646a0c5")
-	)
-	(label "+3V3"
-		(at 114.3 99.06 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0a1cd21d-169d-c997-c6f5-4da0504c325f")
-	)
-	(label "START_BTN"
-		(at 40.64 123.19 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0a98bac8-7558-7ad0-8ada-d3e9ddf795cd")
-	)
-	(label "CAN_RX"
-		(at 88.9 109.22 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "0fee52ed-724a-8d5b-262f-1a47ae06ccb9")
-	)
-	(label "START_BTN"
-		(at 88.9 101.6 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "1b903688-a44f-9ef1-7e00-59830a486fd8")
-	)
-	(label "+12V"
-		(at 40.64 31.75 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "206b8b8e-9e72-0c4c-e4c2-885b843af6ec")
-	)
-	(label "BUS_SENSE"
-		(at 88.9 99.06 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "24f0ee4c-db6d-0596-30fd-baaa77e1554a")
+		(uuid "695763fb-34e2-ed4b-9d2f-374963d09899")
 	)
 	(label "GND"
-		(at 40.64 140.97 0)
+		(at 40.64 27.939999999999998 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "3b59fd0b-25e8-d4f3-2cd4-41f8dd7332ce")
+		(uuid "73349358-f636-6c58-7ce4-d2180c3ed0c4")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:CONN_04")
+		(at 35.56 38.1 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "4bc1f06f-33df-ceda-89c4-6a02e9f2cfcc")
+		(property "Reference" "PS1"
+			(at 27.94 34.29 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "LM2596  24V->5V  logic"
+			(at 27.94 49.53 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 35.56 38.1 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 35.56 38.1 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "3ad0c634-e6a1-0471-2c82-6e3e7a8cbf4a")
+		)
+		(pin "2"
+			(uuid "c3051af8-a504-9e8f-d87a-c552feed30da")
+		)
+		(pin "3"
+			(uuid "894af14c-77d1-61e3-8a73-480e0326c866")
+		)
+		(pin "4"
+			(uuid "c351c4be-7c6a-91bb-2f38-8424acdfb0df")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "PS1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+24V"
+		(at 40.64 38.1 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b4a58f35-0cdc-20d5-a17c-cd7db62a4b61")
 	)
 	(label "GND"
-		(at 40.64 82.55 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3c01df4c-c81a-8a08-b1d0-adddcc3d4d88")
-	)
-	(label "SSR_DRV"
-		(at 114.3 109.22 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4139c273-4179-cd9d-ca63-97723cd381f5")
-	)
-	(label "CAN_TX"
-		(at 40.64 143.51 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4c48cec3-7ad7-8c68-1b60-3cf59823e048")
-	)
-	(label "GND"
-		(at 39.37 160.02 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "57c5be93-c3ec-6e3f-be74-3b682c78d3ad")
-	)
-	(label "SCL"
-		(at 114.3 111.76 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "633934f2-9866-763c-9782-d64f860b8bfa")
-	)
-	(label "TC_SCK"
-		(at 39.37 162.56 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "655fa240-9d95-e626-2057-dec2b77d35c2")
-	)
-	(label "+12V"
-		(at 40.64 45.72 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6c98983c-c8b9-f527-67b5-fe5e12fe3321")
-	)
-	(label "BUS_SENSE"
-		(at 91.44 53.34 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7721129d-8a9d-eaac-7083-ea3582e12727")
-	)
-	(label "SCL"
-		(at 39.37 187.96 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7f84a3b5-94b8-db68-c823-83d21c8dda64")
-	)
-	(label "TC_MISO"
-		(at 114.3 101.6 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "811f81ba-6c6c-bc38-290d-cf627df93bd1")
-	)
-	(label "GND"
-		(at 114.3 96.52 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8562a261-0dc3-d569-b56a-3662cf78f75a")
-	)
-	(label "+5V"
-		(at 114.3 93.98 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "947f0194-38fd-b983-a470-52c2f2adb93e")
-	)
-	(label "BUS_V+"
-		(at 78.74 39.37 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9c91c0f7-5a3d-de1d-f4a6-b0394ab13d70")
-	)
-	(label "GND"
-		(at 80.01 64.77 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "9d00c094-74e6-662b-1e50-475b62e5d9af")
-	)
-	(label "GND"
-		(at 144.78 60.96 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "a32d25cc-0d18-d928-eaac-d72ec0325500")
-	)
-	(label "FLOW_SW"
-		(at 40.64 95.25 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "a4bac8b3-1168-0bdd-4125-d1287fdd0ba1")
-	)
-	(label "BUS_V+"
-		(at 41.91 80.01 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "af24d585-5ba7-b0d6-4666-c4c87f43a5dc")
-	)
-	(label "GND"
-		(at 39.37 182.88 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b62f589d-3ccb-c27c-6c3e-534ad4e1a180")
-	)
-	(label "GND"
-		(at 40.64 53.34 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b753be8f-a382-51da-7439-10eb0427844c")
-	)
-	(label "TC_SCK"
-		(at 114.3 104.14 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "bcc83c3a-45a1-cf90-7fae-41400ebd13c4")
-	)
-	(label "GND"
-		(at 40.64 34.29 0)
+		(at 40.64 40.64 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1897,209 +1610,29 @@
 		)
 		(uuid "bd5c4337-74ae-3104-9fdd-4ab1e445a4ba")
 	)
-	(label "+12V"
-		(at 40.64 66.04 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "bebb8c0b-ea06-957f-192f-5763a6f20bbb")
-	)
-	(label "GND"
-		(at 40.64 111.76 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "c0be95ab-8a92-4cc2-9f6b-fb40aaabe05d")
-	)
-	(label "SDA"
-		(at 39.37 185.42 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "c342288c-67ce-16d7-15f4-8039e705ac16")
-	)
-	(label "+3V3"
-		(at 39.37 180.34 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "c45ce10c-af38-2707-89a4-9a91b3dd034c")
-	)
-	(label "FLOW_SW"
-		(at 88.9 111.76 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "c932bd41-2d2c-175a-6ac7-ccf65b30695f")
-	)
-	(label "SSR_K"
-		(at 144.78 45.72 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "cc578470-31a8-628b-fcc3-762c996c7072")
-	)
-	(label "TC_CS"
-		(at 114.3 106.68 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d09c9fa2-8790-5702-eab0-dc3fa8bd7bd4")
-	)
-	(label "+3V3"
-		(at 39.37 157.48 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d2095a02-209d-a7a9-8fa6-e13f039d392a")
-	)
-	(label "ESTOP_SENSE"
-		(at 40.64 109.22 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d38891a4-724b-838b-ab5d-e6dc9036546c")
-	)
-	(label "GND"
-		(at 40.64 48.26 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d3f55c1f-704c-7f45-6ddc-c749ce627edb")
-	)
 	(label "+5V"
-		(at 40.64 50.8 0)
+		(at 40.64 43.18 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "d6861d09-6fb1-5dbb-76e9-b851c7c16944")
-	)
-	(label "+3V3"
-		(at 40.64 92.71 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d8193c76-5860-4404-2532-ab1498fcf811")
-	)
-	(label "SSR_K"
-		(at 40.64 68.58 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d9223115-0350-aad5-e32f-b0f831a61de0")
-	)
-	(label "CAN_TX"
-		(at 88.9 106.68 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "daee7ccf-e0f3-69a5-362c-2f028c96867d")
-	)
-	(label "TC_CS"
-		(at 39.37 165.1 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "e0e03bf1-e528-c1c2-d5a4-f212fe2ad9df")
-	)
-	(label "SSR_DRV"
-		(at 121.92 53.34 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "eb69023f-806c-b1de-3394-9859c0ff5440")
-	)
-	(label "+3V3"
-		(at 40.64 138.43 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f8ecbd68-d16f-34e7-787f-589aee9b6cb6")
+		(uuid "a3579c0e-d0a7-61e9-c82a-8e5441cbcb15")
 	)
 	(label "GND"
-		(at 40.64 125.73 0)
+		(at 40.64 45.72 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "f988b66b-b17c-ac0a-5e2a-e4130e1a5a58")
-	)
-	(label "CAN_RX"
-		(at 40.64 146.05 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "fd73b7b1-f7fb-6eae-5704-c3a4b84cd4da")
-	)
-	(label "ESTOP_SENSE"
-		(at 88.9 114.3 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "fd804d3c-f262-29f0-fbaf-594ee027a5cb")
+		(uuid "539101e6-6800-6833-6dd4-f7da813fc86d")
 	)
 	(symbol
-		(lib_id "shrink-fit-controller:CONN_02")
-		(at 35.56 92.71 0)
+		(lib_id "shrink-fit-controller:CONN_04")
+		(at 35.56 55.88 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2107,9 +1640,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "11f33d28-807d-e2b7-4eb0-0b7d01609821")
-		(property "Reference" "J4"
-			(at 27.94 88.9 0)
+		(fields_autoplaced no)
+		(uuid "348a4646-a984-2420-1a9d-12678592a314")
+		(property "Reference" "PS2"
+			(at 27.94 52.07 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2119,8 +1653,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Flow switch"
-			(at 28.956 98.552 0)
+		(property "Value" "LM2596  24V->12V motors"
+			(at 27.94 67.31 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2131,9 +1665,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 35.56 92.71 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 55.88 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2143,8 +1677,92 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 92.71 0)
-			(hide yes)
+			(at 35.56 55.88 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "98eadef7-88ca-d8e9-876b-20c90eeb1ec5")
+		)
+		(pin "2"
+			(uuid "4283c314-2f96-2273-0c10-f49f6cd911e4")
+		)
+		(pin "3"
+			(uuid "29f2fa5c-258b-c180-2537-1e335d5b79d1")
+		)
+		(pin "4"
+			(uuid "ec06683c-e38a-9f6d-d764-8a00a02061ff")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "PS2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+24V"
+		(at 40.64 55.88 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8c051c0a-f39f-f042-c154-12d14b60709e")
+	)
+	(label "GND"
+		(at 40.64 58.42 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cca3f992-3f82-74df-5685-168d32bc59b1")
+	)
+	(label "+12V"
+		(at 40.64 60.96 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "de54bdc5-7411-7004-bde8-5ae5747ac584")
+	)
+	(label "GND"
+		(at 40.64 63.5 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "90519020-4fe3-2690-04bf-9da4296e071c")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:CONN_02")
+		(at 35.56 73.66 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "d1f7e934-9e23-914c-af4b-eb70afd8cb98")
+		(property "Reference" "J2"
+			(at 27.94 69.85 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2154,14 +1772,225 @@
 				(justify left)
 			)
 		)
-		(property "Description" ""
-			(at 35.56 92.71 0)
+		(property "Value" "SSR-100DD input"
+			(at 27.94 80.01 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 35.56 73.66 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 35.56 73.66 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "cb22639f-557e-4bf7-0622-2120bab6fc9f")
+		)
+		(pin "2"
+			(uuid "3f3c4c00-051e-2a8b-edd5-4dcf45818047")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+12V"
+		(at 40.64 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b117ba65-96b8-fcc4-1933-43b100e1a26c")
+	)
+	(label "SSR_K"
+		(at 40.64 76.2 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "53cc2682-795e-676c-5a2f-3e8dc6ccc607")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:CONN_02")
+		(at 35.56 83.82 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "698a263e-4a40-32da-ecdf-a28a869daf64")
+		(property "Reference" "J3"
+			(at 27.94 80.00999999999999 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Contactor drop relay"
+			(at 27.94 90.17 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 35.56 83.82 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 35.56 83.82 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "47ef641a-71bd-84aa-e0e5-3e873d2b8d25")
+		)
+		(pin "2"
+			(uuid "c96f1ddb-3797-3120-eb12-2dc69333f5eb")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+12V"
+		(at 40.64 83.82 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "99e8123a-01e3-3225-524a-ec1942251978")
+	)
+	(label "RELAY_K"
+		(at 40.64 86.36 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f07b0c8e-7c8a-48a1-875a-670738fcc509")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:CONN_03")
+		(at 35.56 93.98 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "11f33d28-807d-e2b7-4eb0-0b7d01609821")
+		(property "Reference" "J4"
+			(at 27.94 90.17 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Flow sensor (Hall, 0.3-3L)"
+			(at 27.94 102.87 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 35.56 93.98 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 35.56 93.98 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 		(pin "1"
@@ -2170,18 +1999,51 @@
 		(pin "2"
 			(uuid "bc687706-323b-7c45-09f9-2326771eb20e")
 		)
+		(pin "3"
+			(uuid "aceb0521-9ef5-dab2-6860-d7f23bace49b")
+		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
 					(reference "J4")
 					(unit 1)
 				)
 			)
 		)
 	)
+	(label "+5V"
+		(at 40.64 93.98 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0eabb91c-5882-bfa4-bb54-a23f1b8419c1")
+	)
+	(label "GND"
+		(at 40.64 96.52000000000001 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "835e5738-14c7-0997-25fe-33c23ca08f68")
+	)
+	(label "FLOW_PULSE"
+		(at 40.64 99.06 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6cdf107b-3907-371a-66c2-3ecc44725951")
+	)
 	(symbol
-		(lib_id "shrink-fit-controller:CONN_05")
-		(at 34.29 157.48 0)
+		(lib_id "shrink-fit-controller:CONN_02")
+		(at 35.56 106.68 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2189,9 +2051,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "2334eb90-d905-800d-4633-292a9518fb2e")
-		(property "Reference" "J8"
-			(at 26.67 153.67 0)
+		(fields_autoplaced no)
+		(uuid "256ffdcb-fc9c-9457-e178-2dd33ced0303")
+		(property "Reference" "J5"
+			(at 27.94 102.87 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2201,8 +2064,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MAX31855 (Phase 2)"
-			(at 26.67 171.45 0)
+		(property "Value" "E-stop sense"
+			(at 27.94 113.03000000000002 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2213,9 +2076,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 34.29 157.48 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 106.68 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2225,8 +2088,66 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 34.29 157.48 0)
-			(hide yes)
+			(at 35.56 106.68 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "e2d7552e-4379-2360-bd8c-0a2d39ccb85e")
+		)
+		(pin "2"
+			(uuid "67e8735e-304f-0e4d-6987-147f6a177b34")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "ESTOP_SENSE"
+		(at 40.64 106.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9312a0e7-7ef3-ec93-1cf5-2bfe65ea1658")
+	)
+	(label "GND"
+		(at 40.64 109.22000000000001 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8e144975-f060-0944-d480-6032a6173c35")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:CONN_02")
+		(at 35.56 116.84 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "f9a9e642-3942-3d0a-b839-89478fd0458e")
+		(property "Reference" "J6"
+			(at 27.94 113.03 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2236,14 +2157,225 @@
 				(justify left)
 			)
 		)
-		(property "Description" ""
-			(at 34.29 157.48 0)
+		(property "Value" "CYCLE START"
+			(at 27.94 123.19000000000001 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 35.56 116.84 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 35.56 116.84 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "c9de9f1d-8a5d-0566-25bd-8a28f9fd21bb")
+		)
+		(pin "2"
+			(uuid "d0a5d28f-10ea-e862-7153-2aeb68a56279")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "CYCLE_START"
+		(at 40.64 116.84 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e7a10f82-3b5c-3777-be06-831a99a17f76")
+	)
+	(label "GND"
+		(at 40.64 119.38000000000001 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4187f249-aac3-bd78-feb6-8a483e0a8205")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:CONN_02")
+		(at 35.56 127.0 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "3fd4c371-6558-1bd3-15c9-6a688d7ced9e")
+		(property "Reference" "J7"
+			(at 27.94 123.19 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "CYCLE STOP"
+			(at 27.94 133.35 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 35.56 127.0 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 35.56 127.0 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "21280a2e-605f-cb31-903f-620974334c6e")
+		)
+		(pin "2"
+			(uuid "52c40fb0-5af1-70a8-988d-aab021f88b4e")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "CYCLE_STOP"
+		(at 40.64 127.0 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "45865a85-953b-3928-a338-69c50428c129")
+	)
+	(label "GND"
+		(at 40.64 129.54 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "94aaf50d-ef6d-18d8-27d0-e20a94047a40")
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:CONN_05")
+		(at 35.56 137.16 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "2334eb90-d905-800d-4633-292a9518fb2e")
+		(property "Reference" "J8"
+			(at 27.94 133.35 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Encoder EC11"
+			(at 27.94 151.13 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 35.56 137.16 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 35.56 137.16 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 		(pin "1"
@@ -2263,259 +2395,66 @@
 		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
 					(reference "J8")
 					(unit 1)
 				)
 			)
 		)
 	)
-	(symbol
-		(lib_id "shrink-fit-controller:CONN_02")
-		(at 35.56 109.22 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "256ffdcb-fc9c-9457-e178-2dd33ced0303")
-		(property "Reference" "J5"
-			(at 27.94 105.41 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+	(label "+3V3"
+		(at 40.64 137.16 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Value" "E-stop sense"
-			(at 29.464 115.316 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 35.56 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" ""
-			(at 35.56 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 35.56 109.22 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "e2d7552e-4379-2360-bd8c-0a2d39ccb85e")
-		)
-		(pin "2"
-			(uuid "67e8735e-304f-0e4d-6987-147f6a177b34")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "J5")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "6ad84353-7241-3179-3833-b94da6cf0013")
 	)
-	(symbol
-		(lib_id "shrink-fit-controller:PWR_FLAG")
-		(at 40.64 34.29 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "2c17a110-0fe1-f7c7-f4ad-13bdc2dc46cb")
-		(property "Reference" "#FLG2"
-			(at 48.26 35.052 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+	(label "GND"
+		(at 40.64 139.7 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Value" "PWR_FLAG"
-			(at 46.482 32.766 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 40.64 34.29 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" ""
-			(at 40.64 34.29 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 40.64 34.29 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "89e4cb13-0aa4-8675-803c-533b163ec6e9")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "#FLG2")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "8c72686e-5d67-7f2f-0b0f-0c30524f0e35")
 	)
-	(symbol
-		(lib_id "shrink-fit-controller:R")
-		(at 129.54 53.34 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "3afd2e2e-846f-d132-9acf-775c79b62ab8")
-		(property "Reference" "R1"
-			(at 127 49.53 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+	(label "ENC_A"
+		(at 40.64 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Value" "1k"
-			(at 127 46.99 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+		(uuid "1d6ff2eb-9efd-fd15-dd1b-74451643e00a")
+	)
+	(label "ENC_B"
+		(at 40.64 144.78 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Footprint" ""
-			(at 129.54 53.34 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+		(uuid "eb571ec2-c862-fe8f-08b2-43e8dd00df8f")
+	)
+	(label "ENC_SW"
+		(at 40.64 147.32 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Datasheet" ""
-			(at 129.54 53.34 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 129.54 53.34 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3d462cc2-f6ac-2789-3914-0fde10506fb1")
-		)
-		(pin "2"
-			(uuid "849528aa-5978-e143-2e21-dcae76387060")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "R1")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "e60643e0-56d5-4819-3680-629c31ec5114")
 	)
 	(symbol
 		(lib_id "shrink-fit-controller:CONN_04")
-		(at 35.56 138.43 0)
+		(at 35.56 154.94 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2523,9 +2462,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3fd4c371-6558-1bd3-15c9-6a688d7ced9e")
-		(property "Reference" "J7"
-			(at 27.94 134.62 0)
+		(fields_autoplaced no)
+		(uuid "faa0f998-34c4-bc41-1eb8-3f9a1dcccd0f")
+		(property "Reference" "J9"
+			(at 27.94 151.13 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2535,8 +2475,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "CAN TTL (Phase 2)"
-			(at 27.94 149.86 0)
+		(property "Value" "CAN isolated stack"
+			(at 27.94 166.37 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2547,9 +2487,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 35.56 138.43 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 154.94 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2559,9 +2499,9 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 138.43 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 154.94 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2570,122 +2510,70 @@
 				(justify left)
 			)
 		)
-		(property "Description" ""
-			(at 35.56 138.43 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
-			(uuid "21280a2e-605f-cb31-903f-620974334c6e")
+			(uuid "f0daaff6-1f34-535e-0450-afed4a280073")
 		)
 		(pin "2"
-			(uuid "52c40fb0-5af1-70a8-988d-aab021f88b4e")
+			(uuid "a16d3c83-85bb-698d-2cd1-22d99ffb8808")
 		)
 		(pin "3"
-			(uuid "18a3feb1-7e1c-e8ee-917a-3d4a33fb0173")
+			(uuid "b262ece0-a047-92e9-e605-63a4a3ced5c4")
 		)
 		(pin "4"
-			(uuid "6e3d4c67-e3ab-ba06-74db-5cf3923783d3")
+			(uuid "01357608-176b-af66-b5c8-a0d09d58336a")
 		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "J7")
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J9")
 					(unit 1)
 				)
 			)
 		)
 	)
-	(symbol
-		(lib_id "shrink-fit-controller:R")
-		(at 78.74 46.99 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "42f5b120-bb73-d28a-5297-a41715fde1cf")
-		(property "Reference" "R2"
-			(at 81.28 45.72 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+	(label "+3V3"
+		(at 40.64 154.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Value" "220k"
-			(at 81.28 48.26 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+		(uuid "b511f6c4-813d-04e8-a0ff-4e771b87e38f")
+	)
+	(label "GND"
+		(at 40.64 157.48 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Footprint" ""
-			(at 78.74 46.99 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+		(uuid "76d65c3a-b63f-f622-36af-1d7a0543f990")
+	)
+	(label "CAN_TX"
+		(at 40.64 160.02 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Datasheet" ""
-			(at 78.74 46.99 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+		(uuid "b2cedf01-808d-afa7-fb5d-6ad581c20d3b")
+	)
+	(label "CAN_RX"
+		(at 40.64 162.56 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Description" ""
-			(at 78.74 46.99 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "5a923b00-ee39-6abb-becd-eec2fc809e21")
-		)
-		(pin "2"
-			(uuid "14182f9e-0c90-711a-658f-b0cb932fe6e3")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "R2")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "4b0ad449-8f60-1568-4098-319935c41165")
 	)
 	(symbol
 		(lib_id "shrink-fit-controller:CONN_04")
-		(at 35.56 45.72 0)
+		(at 35.56 172.72 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2693,9 +2581,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4bc1f06f-33df-ceda-89c4-6a02e9f2cfcc")
-		(property "Reference" "PS1"
-			(at 32.258 42.926 0)
+		(fields_autoplaced no)
+		(uuid "19d7b70d-7ec9-c367-caba-915043519a02")
+		(property "Reference" "J10"
+			(at 27.94 168.91 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2705,8 +2594,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "LM2596 module 12V->5V"
-			(at 27.94 57.15 0)
+		(property "Value" "INA228 I2C"
+			(at 27.94 184.15 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2717,9 +2606,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 35.56 45.72 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 172.72 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2729,9 +2618,9 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 45.72 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 172.72 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2740,40 +2629,70 @@
 				(justify left)
 			)
 		)
-		(property "Description" ""
-			(at 35.56 45.72 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
-			(uuid "3ad0c634-e6a1-0471-2c82-6e3e7a8cbf4a")
+			(uuid "0fd5a64b-00e0-5d56-cf78-c46c1ceafde0")
 		)
 		(pin "2"
-			(uuid "c3051af8-a504-9e8f-d87a-c552feed30da")
+			(uuid "452d02a1-7e37-0de9-e91f-9b8252a31beb")
 		)
 		(pin "3"
-			(uuid "894af14c-77d1-61e3-8a73-480e0326c866")
+			(uuid "accfc303-42ec-9a59-ce30-2458a7af58b7")
 		)
 		(pin "4"
-			(uuid "c351c4be-7c6a-91bb-2f38-8424acdfb0df")
+			(uuid "7b5ce344-a922-07cc-dd99-3bbf15d8f507")
 		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "PS1")
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J10")
 					(unit 1)
 				)
 			)
 		)
 	)
+	(label "+3V3"
+		(at 40.64 172.72 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ebf2ad75-1c16-4443-a7c4-a0417d6ae2b3")
+	)
+	(label "GND"
+		(at 40.64 175.26 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d62385bb-614d-86d9-b7c8-ba7b0e62ae18")
+	)
+	(label "SDA"
+		(at 40.64 177.8 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e0e89123-7fd6-83e1-d407-7a4465892620")
+	)
+	(label "SCL"
+		(at 40.64 180.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4eead728-971f-c1ab-aff9-b3c13d034bc9")
+	)
 	(symbol
-		(lib_id "shrink-fit-controller:Q_2N3904")
-		(at 142.24 53.34 0)
+		(lib_id "shrink-fit-controller:CONN_03")
+		(at 35.56 190.5 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2781,9 +2700,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4ebef351-0de9-b8d4-b8c0-c6a2ca29ad22")
-		(property "Reference" "Q1"
-			(at 146.05 52.07 0)
+		(fields_autoplaced no)
+		(uuid "1ac5b677-0167-3b68-c5c9-a527f8cb5265")
+		(property "Reference" "J11"
+			(at 27.94 186.69 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2793,8 +2713,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2N3904"
-			(at 146.05 54.61 0)
+		(property "Value" "DS18B20 1-Wire x2"
+			(at 27.94 199.39000000000001 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2805,9 +2725,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 142.24 53.34 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 190.5 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2817,9 +2737,9 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 142.24 53.34 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 190.5 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2828,37 +2748,57 @@
 				(justify left)
 			)
 		)
-		(property "Description" ""
-			(at 142.24 53.34 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
-			(uuid "8afd748c-4bb7-b5fa-24ee-83d5daf22192")
+			(uuid "31398d51-7fb6-c8f1-42f3-a6ab951f1c47")
 		)
 		(pin "2"
-			(uuid "7f5f7c7f-efc3-32c2-65c2-4a882fb90a86")
+			(uuid "d591a7e6-4a4d-fd9c-c912-2f41555d462e")
 		)
 		(pin "3"
-			(uuid "591caf01-ac31-034a-8cd9-36c3d6cf318a")
+			(uuid "e2836df7-8db5-04d2-1708-f4a8cdad3b73")
 		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "Q1")
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J11")
 					(unit 1)
 				)
 			)
 		)
 	)
+	(label "+3V3"
+		(at 40.64 190.5 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c2a1903e-6a8a-2ab8-9d9f-5012f7aa161d")
+	)
+	(label "GND"
+		(at 40.64 193.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "71e58151-c83b-2605-b5be-d8f1b47c81db")
+	)
+	(label "OW_DATA"
+		(at 40.64 195.58 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cf91fca2-c09e-5dc5-8672-6dd48e8bf7c1")
+	)
 	(symbol
-		(lib_id "shrink-fit-controller:CONN_02")
-		(at 35.56 80.01 0)
+		(lib_id "shrink-fit-controller:CONN_06")
+		(at 35.56 203.2 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2866,9 +2806,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "698a263e-4a40-32da-ecdf-a28a869daf64")
-		(property "Reference" "J3"
-			(at 27.94 76.2 0)
+		(fields_autoplaced no)
+		(uuid "576ed474-d6e5-ed9d-8c27-1e465683d548")
+		(property "Reference" "J12"
+			(at 27.94 199.39 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2878,8 +2819,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Bus sense DC+/DC-"
-			(at 27.686 84.836 0)
+		(property "Value" "Round TFT (SPI)"
+			(at 27.94 219.70999999999998 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2890,9 +2831,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 35.56 80.01 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 203.2 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2902,9 +2843,9 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 80.01 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 203.2 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2913,34 +2854,96 @@
 				(justify left)
 			)
 		)
-		(property "Description" ""
-			(at 35.56 80.01 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
-			(uuid "47ef641a-71bd-84aa-e0e5-3e873d2b8d25")
+			(uuid "c6198289-9a69-8425-19f0-c15379ca80da")
 		)
 		(pin "2"
-			(uuid "c96f1ddb-3797-3120-eb12-2dc69333f5eb")
+			(uuid "2d3338d3-ecb9-cfda-f47a-67d59e3c00b1")
+		)
+		(pin "3"
+			(uuid "76bf6739-79b4-83ef-fdf0-1508c25a9dbe")
+		)
+		(pin "4"
+			(uuid "62c1f9e0-2f38-2c08-de4b-b6d9bb156d1f")
+		)
+		(pin "5"
+			(uuid "f335adfc-256d-1cff-fa6d-b3d8e8ccd708")
+		)
+		(pin "6"
+			(uuid "98baf79f-b2ae-842a-4253-52fa489d16cc")
 		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "J3")
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J12")
 					(unit 1)
 				)
 			)
 		)
 	)
+	(label "+3V3"
+		(at 40.64 203.2 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9b36a941-fd2c-1607-239e-9e0d96e7d318")
+	)
+	(label "GND"
+		(at 40.64 205.73999999999998 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fbdb20db-d7c6-5a18-7d8f-7804f6429748")
+	)
+	(label "TFT_CS"
+		(at 40.64 208.28 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f03bbf38-f434-85b3-30f9-a67f7777b944")
+	)
+	(label "TFT_DC"
+		(at 40.64 210.82 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "66e643fd-cf14-9e1e-0a4b-cda079c6eac9")
+	)
+	(label "TFT_SCK"
+		(at 40.64 213.35999999999999 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "661c53a2-a4ec-9fe1-c4d5-92ec9050b523")
+	)
+	(label "TFT_MOSI"
+		(at 40.64 215.89999999999998 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a9dd0749-3ce9-d063-1050-4ca07131fc2c")
+	)
 	(symbol
-		(lib_id "shrink-fit-controller:PWR_FLAG")
-		(at 40.64 50.8 0)
+		(lib_id "shrink-fit-controller:CONN_04")
+		(at 35.56 226.06 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2948,9 +2951,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "70887c17-687e-8e9a-cc1f-dbeeb82785c5")
-		(property "Reference" "#FLG3"
-			(at 52.07 50.038 0)
+		(fields_autoplaced no)
+		(uuid "c94f8b29-e34d-8903-88ac-e915cea1eb30")
+		(property "Reference" "J13"
+			(at 27.94 222.25 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2960,8 +2964,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "PWR_FLAG"
-			(at 51.054 47.752 0)
+		(property "Value" "PCF8574 + lamp drivers"
+			(at 27.94 237.49 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2972,9 +2976,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 40.64 50.8 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 226.06 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -2984,124 +2988,81 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 40.64 50.8 0)
-			(hide yes)
-			(show_name no)
+			(at 35.56 226.06 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 40.64 50.8 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
-			(uuid "997462e1-7a43-d96f-3d76-2f813e19c3d5")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "#FLG3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "shrink-fit-controller:C")
-		(at 86.36 59.69 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "772a0560-1be1-fefe-698f-1392430ce37e")
-		(property "Reference" "C1"
-			(at 88.9 58.42 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "100nF"
-			(at 88.9 60.96 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 86.36 59.69 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" ""
-			(at 86.36 59.69 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 86.36 59.69 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "dc048a4d-89d7-21af-3989-d091755c6176")
+			(uuid "23989ba7-ecdd-26fc-7c21-af923145c5f6")
 		)
 		(pin "2"
-			(uuid "c263df96-7f00-4113-471e-2c2b42d31730")
+			(uuid "d255eeeb-fd91-12a3-0c0d-6c0b46d6e35f")
+		)
+		(pin "3"
+			(uuid "973e6742-af40-03f6-fdc1-a995e279a1b1")
+		)
+		(pin "4"
+			(uuid "4536c38a-5d42-19e3-aba3-ae8a45fc4d4a")
 		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "C1")
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "J13")
 					(unit 1)
 				)
 			)
 		)
 	)
+	(label "+3V3"
+		(at 40.64 226.06 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f88d8b12-6253-249c-1e19-74470cb841cb")
+	)
+	(label "GND"
+		(at 40.64 228.6 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "be6c019e-4537-a4dc-1ee5-6ae8ef60a89d")
+	)
+	(label "SDA"
+		(at 40.64 231.14000000000001 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "10d02e1e-fdbd-f0f2-8e6f-47594b570784")
+	)
+	(label "SCL"
+		(at 40.64 233.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "817020a3-5383-d602-c92c-32453b2423a7")
+	)
 	(symbol
 		(lib_id "shrink-fit-controller:PWR_FLAG")
-		(at 40.64 80.01 0)
+		(at 40.64 25.4 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3109,88 +3070,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "8b35ffca-6413-e2df-258b-fbb9adf56d04")
-		(property "Reference" "#FLG4"
-			(at 52.578 81.534 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "PWR_FLAG"
-			(at 50.8 78.74 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 40.64 80.01 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" ""
-			(at 40.64 80.01 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 40.64 80.01 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "a8cd8b5a-dd80-9424-d58e-bf6db217308c")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "#FLG4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "shrink-fit-controller:PWR_FLAG")
-		(at 40.64 31.75 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
+		(fields_autoplaced no)
 		(uuid "916f6e45-b49b-3630-4d22-fbeb750e2cfe")
 		(property "Reference" "#FLG1"
-			(at 47.498 29.21 0)
+			(at 43.18 22.86 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3201,7 +3084,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 45.974 26.924 0)
+			(at 43.18 24.13 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3212,9 +3095,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 40.64 31.75 0)
-			(hide yes)
-			(show_name no)
+			(at 40.64 25.4 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -3224,25 +3107,15 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 40.64 31.75 0)
-			(hide yes)
-			(show_name no)
+			(at 40.64 25.4 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 40.64 31.75 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -3250,7 +3123,7 @@
 		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
 					(reference "#FLG1")
 					(unit 1)
 				)
@@ -3258,8 +3131,8 @@
 		)
 	)
 	(symbol
-		(lib_id "shrink-fit-controller:ESP32-S3-SuperMini-HW747")
-		(at 101.6 104.14 0)
+		(lib_id "shrink-fit-controller:PWR_FLAG")
+		(at 40.64 27.94 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3267,9 +3140,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "b187cad1-8ec1-c607-2664-f3b140b02eaa")
-		(property "Reference" "U1"
-			(at 100.838 87.63 0)
+		(fields_autoplaced no)
+		(uuid "2c17a110-0fe1-f7c7-f4ad-13bdc2dc46cb")
+		(property "Reference" "#FLG2"
+			(at 43.18 25.400000000000002 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3279,8 +3153,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "ESP32-S3 Super Mini HW-747"
-			(at 95.25 120.65 0)
+		(property "Value" "PWR_FLAG"
+			(at 43.18 26.67 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3291,9 +3165,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 101.6 104.14 0)
-			(hide yes)
-			(show_name no)
+			(at 40.64 27.94 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -3303,8 +3177,43 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 101.6 104.14 0)
-			(hide yes)
+			(at 40.64 27.94 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "89e4cb13-0aa4-8675-803c-533b163ec6e9")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "#FLG2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:PWR_FLAG")
+		(at 40.64 43.18 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "70887c17-687e-8e9a-cc1f-dbeeb82785c5")
+		(property "Reference" "#FLG3"
+			(at 43.18 40.64 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3314,14 +3223,179 @@
 				(justify left)
 			)
 		)
-		(property "Description" ""
-			(at 101.6 104.14 0)
+		(property "Value" "PWR_FLAG"
+			(at 43.18 41.91 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 40.64 43.18 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 40.64 43.18 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "997462e1-7a43-d96f-3d76-2f813e19c3d5")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "#FLG3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:PWR_FLAG")
+		(at 40.64 60.96 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "8b35ffca-6413-e2df-258b-fbb9adf56d04")
+		(property "Reference" "#FLG4"
+			(at 43.18 58.42 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 43.18 59.69 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 40.64 60.96 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 40.64 60.96 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "a8cd8b5a-dd80-9424-d58e-bf6db217308c")
+		)
+		(instances
+			(project "shrink-fit-controller"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "#FLG4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "shrink-fit-controller:NodeMCU-32S")
+		(at 127.0 127.0 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "b187cad1-8ec1-c607-2664-f3b140b02eaa")
+		(property "Reference" "U1"
+			(at 113.0 97.0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "NodeMCU-32S (ESP32, 38-pin)"
+			(at 113.0 157.0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 127.0 127.0 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 127.0 127.0 0)
+
+			(hide yes)			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 		(pin "1"
@@ -3378,18 +3452,394 @@
 		(pin "18"
 			(uuid "03cb625c-4bf5-c8c2-b7a6-82c27e34ce2b")
 		)
+		(pin "19"
+			(uuid "ec6e51bd-b87c-1a6b-15f5-80a240b0c5c9")
+		)
+		(pin "20"
+			(uuid "399e884b-3b5d-320c-6e17-8684e3a8f707")
+		)
+		(pin "21"
+			(uuid "cbe00226-d434-8e66-24dc-69c51e2358f0")
+		)
+		(pin "22"
+			(uuid "0001c8a9-a667-c519-a5ce-698b870cab69")
+		)
+		(pin "23"
+			(uuid "aa8ff12f-8e4f-96b7-786f-3281620cd4dc")
+		)
+		(pin "24"
+			(uuid "f975a5e6-0345-a308-c7ce-d91a6333692b")
+		)
+		(pin "25"
+			(uuid "10c74178-e4bf-f1a3-ba9b-455117baa02c")
+		)
+		(pin "26"
+			(uuid "0ce8d613-0a0c-d27a-7fae-80f923d2872e")
+		)
+		(pin "27"
+			(uuid "ca88f62b-ae5e-5c44-5731-f3062c39f571")
+		)
+		(pin "28"
+			(uuid "c7cbebb1-1b90-436f-7401-c8046f0db69d")
+		)
+		(pin "29"
+			(uuid "5485bfc0-ce46-a726-6938-dbc8bf4a7d97")
+		)
+		(pin "30"
+			(uuid "d453b9d4-aa71-647e-22d9-8acc906af45a")
+		)
+		(pin "31"
+			(uuid "8ef17302-8900-7d5a-0531-7727aae87360")
+		)
+		(pin "32"
+			(uuid "f170c2a3-84f4-afac-9dd6-4054e53b39f2")
+		)
+		(pin "33"
+			(uuid "401d3d00-a04c-2e65-7c82-f3f869a254b0")
+		)
+		(pin "34"
+			(uuid "b5e971d1-9267-1a05-4c29-0946d80eff28")
+		)
+		(pin "35"
+			(uuid "b2453552-d5e5-f6b9-8050-1cd0f21034cc")
+		)
+		(pin "36"
+			(uuid "981162c8-aef9-ed47-d0a5-d1a55a266ee4")
+		)
+		(pin "37"
+			(uuid "6d63d2e1-61e7-ccd7-343a-c5adf7761718")
+		)
+		(pin "38"
+			(uuid "7d6c9eb6-61af-3b61-3f62-10fc6ac7a41e")
+		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
 					(reference "U1")
 					(unit 1)
 				)
 			)
 		)
 	)
+	(label "GND"
+		(at 111.76 102.87 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "ea14389f-c69a-5c4b-6f2c-fcde1de613f6")
+	)
+	(label "TFT_MOSI"
+		(at 111.76 105.41 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "82b72e01-cb95-6c80-9dde-f257a5684209")
+	)
+	(label "SCL"
+		(at 111.76 107.95 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b0f361ab-7171-8126-bf81-90709ff45c84")
+	)
+	(no_connect
+		(at 111.76 110.49)
+		(uuid "ffaa583e-24cc-9aae-c49a-7904b7d53e93")
+	)
+	(no_connect
+		(at 111.76 113.03)
+		(uuid "2b2d9324-0ccb-d8b5-443c-3c1ec5ab5edf")
+	)
+	(label "SDA"
+		(at 111.76 115.57 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f9ae86e0-5fd6-2a80-f63a-84bb5c31ce18")
+	)
+	(label "GND"
+		(at 111.76 118.11 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "ba96464b-577f-b963-b37e-56abc363916e")
+	)
+	(label "ENC_B"
+		(at 111.76 120.65 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "484d507d-32dc-371f-4e79-7a80d9fae991")
+	)
+	(label "TFT_SCK"
+		(at 111.76 123.19 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "88e46b31-d104-2e12-ea45-93f1659fd165")
+	)
+	(label "TFT_CS"
+		(at 111.76 125.73 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "42d2e366-8916-24db-851b-42ed8a69d66d")
+	)
+	(label "TFT_DC"
+		(at 111.76 128.27 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "22696d74-3ea3-cecb-69c5-e8eb0250bbc0")
+	)
+	(label "RELAY_K"
+		(at 111.76 130.81 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d4607a2e-1dec-ce08-6359-727c3c49c326")
+	)
+	(label "SSR_DRV"
+		(at 111.76 133.35 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e411e456-1595-e232-e06e-4374b8540299")
+	)
+	(no_connect
+		(at 111.76 135.89)
+		(uuid "fa809a7e-a90f-592d-40dd-c940dbd123e8")
+	)
+	(no_connect
+		(at 111.76 138.43)
+		(uuid "d6b508be-5695-4f9c-b9d5-d703889a4beb")
+	)
+	(label "ENC_SW"
+		(at 111.76 140.97 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "5f9f42df-1e8e-2741-7d6f-6010beb640f8")
+	)
+	(no_connect
+		(at 111.76 143.51)
+		(uuid "76e27fbd-4c3d-beed-e4a5-fc4fc2ee3ce6")
+	)
+	(no_connect
+		(at 111.76 146.05)
+		(uuid "5985efaa-d9d4-96f3-f194-8a054037fd70")
+	)
+	(no_connect
+		(at 111.76 148.59)
+		(uuid "13f81962-e414-68af-4508-f901dd98db84")
+	)
+	(label "+3V3"
+		(at 142.24 102.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e9ad92b8-0329-d7c3-6473-94a316bbc049")
+	)
+	(no_connect
+		(at 142.24 105.41)
+		(uuid "527ecaab-4fe7-c237-8d82-47c363d3b345")
+	)
+	(label "ESTOP_SENSE"
+		(at 142.24 107.95 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "077b7abe-f096-cc93-6867-90b4e176f7c7")
+	)
+	(label "FLOW_PULSE"
+		(at 142.24 110.49 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4f1f0768-7ee6-43af-942b-ff334eb5f9e4")
+	)
+	(label "CYCLE_START"
+		(at 142.24 113.03 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e7c71849-a811-9f76-d51e-376c39b762fc")
+	)
+	(label "CYCLE_STOP"
+		(at 142.24 115.57 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c8d0ab3f-5b0f-7d54-0200-be0d4994fda5")
+	)
+	(label "CAN_RX"
+		(at 142.24 118.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "824dba2e-baf4-4d27-c6c6-1aa5acce68e3")
+	)
+	(label "OW_DATA"
+		(at 142.24 120.65 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b707fb04-0ebd-fcee-5fb2-fe041cbbe628")
+	)
+	(no_connect
+		(at 142.24 123.19)
+		(uuid "9e8fc78a-f6b6-c4d1-f288-7ed80f3440b1")
+	)
+	(no_connect
+		(at 142.24 125.73)
+		(uuid "df27fe92-1394-79b9-9315-bb4eb9234af9")
+	)
+	(no_connect
+		(at 142.24 128.27)
+		(uuid "0c0cf45f-c9b3-4cda-ce38-7910ff1682af")
+	)
+	(label "CAN_TX"
+		(at 142.24 130.81 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e401cefd-5a95-568f-161b-645bd8f93583")
+	)
+	(no_connect
+		(at 142.24 133.35)
+		(uuid "0c07b5d3-a657-d4c0-6795-c099b93ca30d")
+	)
+	(label "GND"
+		(at 142.24 135.89 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "454b5d2c-652c-7fe6-3a25-3c76d243c3cf")
+	)
+	(label "ENC_A"
+		(at 142.24 138.43 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "28ae318d-4f99-f7bc-2ef3-9cbd931b4710")
+	)
+	(no_connect
+		(at 142.24 140.97)
+		(uuid "bc4faa99-4c57-92ad-3a69-5cef97744b72")
+	)
+	(no_connect
+		(at 142.24 143.51)
+		(uuid "095a44e4-ecb4-1823-4609-87a99381a87a")
+	)
+	(label "GND"
+		(at 142.24 146.05 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "47952c48-65a1-da77-02aa-4c24d73afde4")
+	)
+	(label "+5V"
+		(at 142.24 148.59 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "17b9f27a-a36d-6a15-ac3e-90b95b73b398")
+	)
+	(label "SSR_DRV"
+		(at 193.04 81.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "eb69023f-806c-b1de-3394-9859c0ff5440")
+	)
+	(wire
+		(pts
+			(xy 193.04 81.28) (xy 195.58 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "519bfab9-ab28-08c2-8ef6-b8d8e6b6f27a")
+	)
 	(symbol
 		(lib_id "shrink-fit-controller:R")
-		(at 74.93 59.69 0)
+		(at 200.66 81.28 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3397,9 +3847,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c252ea3c-eb8c-fed6-b801-58cbece91785")
-		(property "Reference" "R3"
-			(at 77.47 58.42 0)
+		(fields_autoplaced no)
+		(uuid "3afd2e2e-846f-d132-9acf-775c79b62ab8")
+		(property "Reference" "R1"
+			(at 198.12 77.47 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3409,8 +3860,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k"
-			(at 77.47 60.96 0)
+		(property "Value" "1k"
+			(at 198.12 74.93 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3421,9 +3872,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 74.93 59.69 0)
-			(hide yes)
-			(show_name no)
+			(at 200.66 81.28 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -3433,9 +3884,9 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 74.93 59.69 0)
-			(hide yes)
-			(show_name no)
+			(at 200.66 81.28 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -3444,116 +3895,34 @@
 				(justify left)
 			)
 		)
-		(property "Description" ""
-			(at 74.93 59.69 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
-			(uuid "2b93c7be-2423-b70a-67f2-222b2327f470")
+			(uuid "3d462cc2-f6ac-2789-3914-0fde10506fb1")
 		)
 		(pin "2"
-			(uuid "658e8f48-36e9-8c6a-cabe-aa2af0b68529")
+			(uuid "849528aa-5978-e143-2e21-dcae76387060")
 		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "R3")
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "R1")
 					(unit 1)
 				)
 			)
 		)
 	)
-	(symbol
-		(lib_id "shrink-fit-controller:CONN_02")
-		(at 35.56 31.75 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "cd0d0a01-0cac-3117-ef1c-c76c17119d7b")
-		(property "Reference" "J1"
-			(at 27.94 27.94 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
+	(wire
+		(pts
+			(xy 205.74 81.28) (xy 208.28 81.28)
 		)
-		(property "Value" "12V IN (kit wall wart)"
-			(at 27.94 38.1 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Footprint" ""
-			(at 35.56 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" ""
-			(at 35.56 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 35.56 31.75 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0f3e2cca-3aae-40f7-f042-a94607ca16f7")
-		)
-		(pin "2"
-			(uuid "0d08472a-1d34-6ebb-4e63-88635fd65300")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "J1")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "fc08f229-9937-ec38-3077-f9501efb4341")
 	)
 	(symbol
-		(lib_id "shrink-fit-controller:CONN_02")
-		(at 35.56 66.04 0)
+		(lib_id "shrink-fit-controller:Q_2N3904")
+		(at 213.36 81.28 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3561,9 +3930,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d1f7e934-9e23-914c-af4b-eb70afd8cb98")
-		(property "Reference" "J2"
-			(at 27.94 62.23 0)
+		(fields_autoplaced no)
+		(uuid "4ebef351-0de9-b8d4-b8c0-c6a2ca29ad22")
+		(property "Reference" "Q1"
+			(at 217.17 80.01 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3573,8 +3943,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "SSR-100DD input"
-			(at 27.178 71.882 0)
+		(property "Value" "2N3904"
+			(at 217.17 82.55 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3585,9 +3955,9 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 35.56 66.04 0)
-			(hide yes)
-			(show_name no)
+			(at 213.36 81.28 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
@@ -3597,211 +3967,173 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 66.04 0)
-			(hide yes)
-			(show_name no)
+			(at 213.36 81.28 0)
+
+			(hide yes)			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 35.56 66.04 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
-			(uuid "cb22639f-557e-4bf7-0622-2120bab6fc9f")
+			(uuid "8afd748c-4bb7-b5fa-24ee-83d5daf22192")
 		)
 		(pin "2"
-			(uuid "3f3c4c00-051e-2a8b-edd5-4dcf45818047")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "J2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "shrink-fit-controller:CONN_02")
-		(at 35.56 123.19 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "f9a9e642-3942-3d0a-b839-89478fd0458e")
-		(property "Reference" "J6"
-			(at 27.94 119.38 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Start button"
-			(at 27.94 129.54 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 35.56 123.19 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" ""
-			(at 35.56 123.19 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 35.56 123.19 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "c9de9f1d-8a5d-0566-25bd-8a28f9fd21bb")
-		)
-		(pin "2"
-			(uuid "d0a5d28f-10ea-e862-7153-2aeb68a56279")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "J6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "shrink-fit-controller:CONN_04")
-		(at 34.29 180.34 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "faa0f998-34c4-bc41-1eb8-3f9a1dcccd0f")
-		(property "Reference" "J9"
-			(at 26.67 176.53 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "INA228 I2C (Phase 2)"
-			(at 26.67 191.77 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 34.29 180.34 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" ""
-			(at 34.29 180.34 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" ""
-			(at 34.29 180.34 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f0daaff6-1f34-535e-0450-afed4a280073")
-		)
-		(pin "2"
-			(uuid "a16d3c83-85bb-698d-2cd1-22d99ffb8808")
+			(uuid "7f5f7c7f-efc3-32c2-65c2-4a882fb90a86")
 		)
 		(pin "3"
-			(uuid "b262ece0-a047-92e9-e605-63a4a3ced5c4")
-		)
-		(pin "4"
-			(uuid "01357608-176b-af66-b5c8-a0d09d58336a")
+			(uuid "591caf01-ac31-034a-8cd9-36c3d6cf318a")
 		)
 		(instances
 			(project "shrink-fit-controller"
-				(path "/c1b5ec9f-eb41-4b02-b5b6-09acb3d53fe0"
-					(reference "J9")
+				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
+					(reference "Q1")
 					(unit 1)
 				)
 			)
 		)
+	)
+	(wire
+		(pts
+			(xy 215.9 76.2) (xy 215.9 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6b3f897a-4ad3-3876-0a9a-3d76d792c3b9")
+	)
+	(label "SSR_K"
+		(at 215.9 73.66 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cc578470-31a8-628b-fcc3-762c996c7072")
+	)
+	(wire
+		(pts
+			(xy 215.9 86.36) (xy 215.9 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c2731b86-e2ff-bed2-9078-9489792f0910")
+	)
+	(label "GND"
+		(at 215.9 88.9 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a32d25cc-0d18-d928-eaac-d72ec0325500")
+	)
+	(text "WIRE BY PIN NAME, NEVER BY NUMBER. On this symbol pin NUMBER 26 is the pin NAMED P32 - numbers are header positions. Verify every net against the pad number in docs/pinmap.md after layout; ERC will not catch it."
+		(exclude_from_sim no)
+		(at 170.18 25.4 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "32fb1180-8424-9f45-9858-a913788c207c")
+	)
+	(text "FLASH PINS - NPTH, NO COPPER: pins 17,18,19,35,36 (SD1,SD0,CLK,SD2,SD3) are the internal SPI flash bus, GPIO6-11. Holes with no pad. Do NOT delete the holes or the module cannot seat."
+		(exclude_from_sim no)
+		(at 170.18 33.02 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "acba12c5-f40e-50d0-0170-185a80843e6d")
+	)
+	(text "34/35/36/39 (pins 24,25,22,23) are INPUT ONLY with NO internal pull-up. Every button and sensor on them needs an external 10k to 3V3 or it floats and reads randomly."
+		(exclude_from_sim no)
+		(at 170.18 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "898a291b-8fb5-2d49-8565-d4a957c1ad90")
+	)
+	(text "GND IS DC-. The controller floats with the bus. No USB while energised; no earthed scope ground clip - differential probe or a non-contact pickup loop only."
+		(exclude_from_sim no)
+		(at 170.18 48.26 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b9a36bd9-128c-f876-027c-2ed7643bc975")
+	)
+	(text "SSR-100DD input 3-32V from +12V, Q1 low-side. P4 delivers the voltage STEP (CR-05); the AC contactor never does - a Royer fed a slow ramp shoots through and kills the IRFP260Ns."
+		(exclude_from_sim no)
+		(at 170.18 55.88 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "eeeb1f9e-9e3f-8f8c-431b-6f7f00786ab3")
+	)
+	(text "LAMPS ARE NOT ON THE MCU. Three 12V panel lamps hang off a PCF8574 (J13) via 2N7002 MOSFETs. The expander sources only ~100uA when high, which is too little for a 2N3904 base - a MOSFET gate is voltage-driven and does not care."
+		(exclude_from_sim no)
+		(at 170.18 63.5 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "633fc3c8-6454-9af1-24de-bae3ac77300b")
+	)
+	(text "MAINS START IS NOT HERE. It is hardwired in the contactor coil circuit (requirements 6.9) and must never reach the MCU: firmware must not be able to energise mains by itself."
+		(exclude_from_sim no)
+		(at 170.18 71.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "12c3558f-848f-4541-9a83-c7402e13d56b")
+	)
+	(text "Bus voltage now comes from the INA228 (J10), not a discrete divider. The old 220k/10k and its filter cap are deleted."
+		(exclude_from_sim no)
+		(at 170.18 78.74 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7e5c47c3-e7ff-c2ce-c2d4-4721ef1a1ef5")
+	)
+	(text "SPARE: P25 (28), P26 (29), P27 (30) - freed by moving lamps to the expander. P0/P2/P12 are strapping pins, usable only with care."
+		(exclude_from_sim no)
+		(at 170.18 86.36 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2ba66d48-15d0-27f7-1ba2-1fb9639cce37")
 	)
 	(sheet_instances
 		(path "/"
