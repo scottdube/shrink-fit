@@ -1667,3 +1667,52 @@ was no CAN node on those wires because those wires are not CAN.
 
 **None of these block tools going into holders.** They block the machine becoming
 repeatable and self-protecting, which is Phase 2.
+
+### 6.14.3 What the official datasheet does and does not say
+
+**Vertiv R48-3000e3 datasheet (NetSure 731-A412 variant), "Control and Monitoring":**
+
+> *"Rectifier Alarm and Signaling — **Alarm and status reported via CAN bus to
+> system controller**"*
+
+**CAN is confirmed factory capability**, not a community discovery. It reaches the
+system controller through the card-edge connector — the only interface the module
+has.
+
+**Also from the spec table, and it corrects §6.14:**
+
+| | |
+|---|---|
+| Output current | **62.5 A @ −48 VDC** |
+| **Output current limit set point** | **0 to 62.5 A** |
+
+The label's 56.1 A and this 62.5 A are the same 3000 W at different voltages —
+it is a **constant-power** supply. **The CAN current-limit range is 0–62.5 A**,
+which is the scaling reference the set command needs, not the label figure.
+
+**What no document gives: the connector pinout.** Searched the Vertiv datasheet
+(both variants), the user manual host, ManualsLib, Scribd, both community repos
+(`anikrooz/Emerson-Vertiv-R48`, `PurpleAlien/R48_Rectifier`) and the Endless
+Sphere thread across pages. **Not published anywhere reachable.**
+
+### Why the forums do not have it either
+
+**Because nobody there needs it.** Every community implementation buys an adapter
+card that already brings CAN out to terminals, plugs in, and goes straight to
+protocol. The threads are entirely about message IDs and encodings — there is no
+pinout discussion because there is no pinout problem.
+
+**Our card is the cheap variant that omits the comms interface.** That is why we
+hit a wall the community never sees, and why the answer is a $6–10 part rather
+than reverse engineering.
+
+### Decision
+
+**Buy an adapter card that exposes CAN.** They exist on AliExpress and eBay
+(search "R48-3000e3 adapter board" / "interface board"), typically $6–15, and the
+listings that include comms say so. Verify before ordering that the listing shows
+**CAN terminals** — the one on Amazon (B0DMF91H91) states outright that it has
+"only the input and output interface."
+
+Do **not** probe the edge connector live: **AC mains enters through it**, and the
+pinout is unknown, so there is nothing to probe safely toward.
