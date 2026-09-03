@@ -1452,7 +1452,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x02_P2.54mm_Vertical_1.78pad"
 			(at 35.56 25.4 0)
 
 			(hide yes)			(show_name no)
@@ -1545,7 +1545,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x04_P2.54mm_Vertical_1.78pad"
 			(at 35.56 38.1 0)
 
 			(hide yes)			(show_name no)
@@ -1664,7 +1664,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x04_P2.54mm_Vertical_1.78pad"
 			(at 35.56 55.88 0)
 
 			(hide yes)			(show_name no)
@@ -1783,7 +1783,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x02_P2.54mm_Vertical_1.78pad"
 			(at 35.56 73.66 0)
 
 			(hide yes)			(show_name no)
@@ -1876,7 +1876,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x02_P2.54mm_Vertical_1.78pad"
 			(at 35.56 83.82 0)
 
 			(hide yes)			(show_name no)
@@ -1969,7 +1969,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x03_P2.54mm_Vertical_1.78pad"
 			(at 35.56 93.98 0)
 
 			(hide yes)			(show_name no)
@@ -2075,7 +2075,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x02_P2.54mm_Vertical_1.78pad"
 			(at 35.56 106.68 0)
 
 			(hide yes)			(show_name no)
@@ -2168,7 +2168,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x02_P2.54mm_Vertical_1.78pad"
 			(at 35.56 116.84 0)
 
 			(hide yes)			(show_name no)
@@ -2261,7 +2261,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x02_P2.54mm_Vertical_1.78pad"
 			(at 35.56 127.0 0)
 
 			(hide yes)			(show_name no)
@@ -2354,7 +2354,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x05_P2.54mm_Vertical_1.78pad"
 			(at 35.56 137.16 0)
 
 			(hide yes)			(show_name no)
@@ -2486,7 +2486,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x04_P2.54mm_Vertical_1.78pad"
 			(at 35.56 154.94 0)
 
 			(hide yes)			(show_name no)
@@ -2605,7 +2605,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x04_P2.54mm_Vertical_1.78pad"
 			(at 35.56 172.72 0)
 
 			(hide yes)			(show_name no)
@@ -2724,7 +2724,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x03_P2.54mm_Vertical_1.78pad"
 			(at 35.56 190.5 0)
 
 			(hide yes)			(show_name no)
@@ -2830,7 +2830,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x06_P2.54mm_Vertical_1.78pad"
 			(at 35.56 203.2 0)
 
 			(hide yes)			(show_name no)
@@ -2975,7 +2975,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:PinHeader_1x04_P2.54mm_Vertical_1.78pad"
 			(at 35.56 226.06 0)
 
 			(hide yes)			(show_name no)
@@ -3374,7 +3374,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "shrink-fit-controller:NodeMCU-32S_38pin_THT"
 			(at 127.0 127.0 0)
 
 			(hide yes)			(show_name no)
@@ -3871,7 +3871,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 			(at 200.66 81.28 0)
 
 			(hide yes)			(show_name no)
@@ -3954,7 +3954,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
 			(at 213.36 81.28 0)
 
 			(hide yes)			(show_name no)

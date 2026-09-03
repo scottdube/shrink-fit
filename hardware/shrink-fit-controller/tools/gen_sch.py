@@ -156,7 +156,7 @@ def inst_prop(name, value, x, y, hide=False, justify="left"):
             f'\t\t\t(show_name no)\n\t\t\t(do_not_autoplace no)\n'
             f'\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t\t(justify {justify})\n\t\t\t)\n\t\t)\n')
 
-def instance(libname, ref, value, x, y, rot, npins, rx, ry, vx, vy):
+def instance(libname, ref, value, x, y, rot, npins, rx, ry, vx, vy, fp=""):
     pins = "".join(f'\t\t(pin "{i}"\n\t\t\t(uuid "{uid(f"{ref}p{i}")}")\n\t\t)\n' for i in range(1,npins+1))
     out.append(
         f'\t(symbol\n\t\t(lib_id "shrink-fit-controller:{libname}")\n'
@@ -166,15 +166,17 @@ def instance(libname, ref, value, x, y, rot, npins, rx, ry, vx, vy):
         f'\t\t(uuid "{uid("sym"+ref)}")\n'
         + inst_prop("Reference", ref, rx, ry)
         + inst_prop("Value", value, vx, vy)
-        + inst_prop("Footprint", "", x, y, hide=True)
+        + inst_prop("Footprint", fp, x, y, hide=True)
         + inst_prop("Datasheet", "", x, y, hide=True)
         + pins +
         f'\t\t(instances\n\t\t\t(project "shrink-fit-controller"\n'
         f'\t\t\t\t(path "/{ROOT}"\n\t\t\t\t\t(reference "{ref}")\n\t\t\t\t\t(unit 1)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t)\n')
 
 # ---- left column: connectors. Pin i connects at (x+5.08, y+(i-1)*2.54) ----
+HDR = "shrink-fit-controller:PinHeader_1x{:02d}_P2.54mm_Vertical_1.78pad"
 def conn(ref, value, n, y0, nets):
-    instance(f"CONN_{n:02d}", ref, value, 35.56, y0, 0, n, 27.94, y0-3.81, 27.94, y0+(n-1)*2.54+3.81)
+    instance(f"CONN_{n:02d}", ref, value, 35.56, y0, 0, n, 27.94, y0-3.81,
+             27.94, y0+(n-1)*2.54+3.81, fp=HDR.format(n))
     for i, net in enumerate(nets, start=1):
         px, py = 40.64, y0+(i-1)*2.54
         if net:
@@ -240,7 +242,8 @@ assert len(GEO) == 38, f"expected 38 pins, parsed {len(GEO)}"
 # escaped the symbol again -- which it did once, silently, and ERC found it.
 assert all(abs(abs(x) - 15.24) < 0.01 for x, _ in GEO.values()), "GEO parse escaped the symbol"
 
-instance("NodeMCU-32S","U1","NodeMCU-32S (ESP32, 38-pin)",UX,UY,0,38,UX-14,UY-30,UX-14,UY+30)
+instance("NodeMCU-32S","U1","NodeMCU-32S (ESP32, 38-pin)",UX,UY,0,38,UX-14,UY-30,UX-14,UY+30,
+         fp="shrink-fit-controller:NodeMCU-32S_38pin_THT")
 for num,(name,net) in NET_BY_PIN.items():
     px,py = GEO[num]
     x, y  = UX + px, UY - py
@@ -251,9 +254,11 @@ for num,(name,net) in NET_BY_PIN.items():
 # ---- SSR driver : unchanged, 2N3904 off a real GPIO that can source ----------
 label("SSR_DRV",193.04,81.28,180)
 wire(193.04,81.28,195.58,81.28)
-instance("R","R1","1k",200.66,81.28,90,2,198.12,77.47,198.12,74.93)
+instance("R","R1","1k",200.66,81.28,90,2,198.12,77.47,198.12,74.93,
+         fp="Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal")
 wire(205.74,81.28,208.28,81.28)
-instance("Q_2N3904","Q1","2N3904",213.36,81.28,0,3,217.17,80.01,217.17,82.55)
+instance("Q_2N3904","Q1","2N3904",213.36,81.28,0,3,217.17,80.01,217.17,82.55,
+         fp="Package_TO_SOT_THT:TO-92_Inline")
 wire(215.9,76.2,215.9,73.66); label("SSR_K",215.9,73.66,90)
 wire(215.9,86.36,215.9,88.9); label("GND",215.9,88.9,270)
 
