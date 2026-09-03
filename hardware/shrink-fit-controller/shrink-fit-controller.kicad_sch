@@ -1156,6 +1156,191 @@
 		)
 		(embedded_fonts no)
 	)
+	(symbol "shrink-fit-controller:RotaryEncoder_EC11"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(duplicate_pin_numbers_are_jumpers yes)
+		(property "Reference" "SW"
+			(at 0 8.89 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "EC11 + switch"
+			(at 0 -11.43 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -13.97 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -16.51 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "EC11 rotary encoder with push switch"
+			(at 0 -19.05 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "RotaryEncoder_EC11_0_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -8.89)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "RotaryEncoder_EC11_1_1"
+			(pin passive line
+				(at -10.16 3.81 0)
+				(length 3.81)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "C"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "C"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -10.16 -3.81 0)
+				(length 3.81)
+				(name "B"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "B"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 10.16 2.54 180)
+				(length 3.81)
+				(name "S1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "S1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 10.16 -2.54 180)
+				(length 3.81)
+				(name "S2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "S2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0.0 -12.7 90)
+				(length 3.81)
+				(name "MP"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "MP"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
 	(symbol "shrink-fit-controller:PWR_FLAG"
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1417,6 +1602,35 @@
       )
     )
   )
+	(symbol "shrink-fit-controller:LM2596_Module" (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+    (property "Reference" "U4" (at 0 3.81 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "LM2596HVS" (at 0 -3.81 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+    (symbol "LM2596_Module_0_1"
+      (rectangle (start -7.62 7.62) (end 7.62 -7.62)
+        (stroke (width 0.254) (type default)) (fill (type background))
+      )
+    )
+    (symbol "LM2596_Module_1_1"
+      (pin power_in line (at -12.7 5.08 0) (length 3.81)
+        (name "IN+" (effects (font (size 1.0 1.0))))
+        (number "1" (effects (font (size 1.0 1.0))))
+      )
+      (pin power_in line (at -12.7 -5.08 0) (length 3.81)
+        (name "IN-" (effects (font (size 1.0 1.0))))
+        (number "2" (effects (font (size 1.0 1.0))))
+      )
+      (pin power_out line (at 12.7 5.08 180) (length 3.81)
+        (name "OUT+" (effects (font (size 1.0 1.0))))
+        (number "3" (effects (font (size 1.0 1.0))))
+      )
+      (pin passive line (at 12.7 -5.08 180) (length 3.81)
+        (name "OUT-" (effects (font (size 1.0 1.0))))
+        (number "4" (effects (font (size 1.0 1.0))))
+      )
+    )
+  )
 	)
 	(symbol
 		(lib_id "shrink-fit-controller:CONN_02")
@@ -1512,8 +1726,8 @@
 		(uuid "73349358-f636-6c58-7ce4-d2180c3ed0c4")
 	)
 	(symbol
-		(lib_id "shrink-fit-controller:CONN_04")
-		(at 35.56 38.1 0)
+		(lib_id "shrink-fit-controller:LM2596_Module")
+		(at 71.12 33.02 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1524,7 +1738,7 @@
 		(fields_autoplaced no)
 		(uuid "4bc1f06f-33df-ceda-89c4-6a02e9f2cfcc")
 		(property "Reference" "PS1"
-			(at 27.94 34.29 0)
+			(at 58.42 21.590000000000003 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1534,8 +1748,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "LM2596  24V->5V  logic"
-			(at 27.94 49.53 0)
+		(property "Value" "LM2596 24V->5V  logic"
+			(at 58.42 46.99 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1545,8 +1759,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "shrink-fit-controller:PinHeader_1x04_P2.54mm_Vertical_1.78pad"
-			(at 35.56 38.1 0)
+		(property "Footprint" "shrink-fit-controller:LM2596_Module_THT"
+			(at 71.12 33.02 0)
 
 			(hide yes)			(show_name no)
 			(do_not_autoplace no)
@@ -1558,7 +1772,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 38.1 0)
+			(at 71.12 33.02 0)
 
 			(hide yes)			(show_name no)
 			(do_not_autoplace no)
@@ -1591,48 +1805,48 @@
 		)
 	)
 	(label "+24V"
-		(at 40.64 38.1 0)
+		(at 58.42 27.940000000000005 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
-		(uuid "b4a58f35-0cdc-20d5-a17c-cd7db62a4b61")
+		(uuid "ee5e64a9-614b-98b1-6949-b1dfe3a05dd8")
 	)
 	(label "GND"
-		(at 40.64 40.64 0)
+		(at 58.42 38.1 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
-		(uuid "bd5c4337-74ae-3104-9fdd-4ab1e445a4ba")
+		(uuid "7e632840-61a2-283c-49c4-a676d8231ec6")
 	)
 	(label "+5V"
-		(at 40.64 43.18 0)
+		(at 83.82000000000001 27.940000000000005 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "a3579c0e-d0a7-61e9-c82a-8e5441cbcb15")
+		(uuid "e51f6c2b-7c01-4861-1dbc-a7eb83903a4f")
 	)
 	(label "GND"
-		(at 40.64 45.72 0)
+		(at 83.82000000000001 38.1 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "539101e6-6800-6833-6dd4-f7da813fc86d")
+		(uuid "b0a5d938-7b1f-ec5d-6a6d-d2c965b3febe")
 	)
 	(symbol
-		(lib_id "shrink-fit-controller:CONN_04")
-		(at 35.56 55.88 0)
+		(lib_id "shrink-fit-controller:LM2596_Module")
+		(at 71.12 58.42 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1643,7 +1857,7 @@
 		(fields_autoplaced no)
 		(uuid "348a4646-a984-2420-1a9d-12678592a314")
 		(property "Reference" "PS2"
-			(at 27.94 52.07 0)
+			(at 58.42 46.99 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1653,8 +1867,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "LM2596  24V->12V motors"
-			(at 27.94 67.31 0)
+		(property "Value" "LM2596 24V->12V motors"
+			(at 58.42 72.39 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1664,8 +1878,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "shrink-fit-controller:PinHeader_1x04_P2.54mm_Vertical_1.78pad"
-			(at 35.56 55.88 0)
+		(property "Footprint" "shrink-fit-controller:LM2596_Module_THT"
+			(at 71.12 58.42 0)
 
 			(hide yes)			(show_name no)
 			(do_not_autoplace no)
@@ -1677,7 +1891,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 55.88 0)
+			(at 71.12 58.42 0)
 
 			(hide yes)			(show_name no)
 			(do_not_autoplace no)
@@ -1710,44 +1924,44 @@
 		)
 	)
 	(label "+24V"
-		(at 40.64 55.88 0)
+		(at 58.42 53.34 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
-		(uuid "8c051c0a-f39f-f042-c154-12d14b60709e")
+		(uuid "28f47deb-613e-97fe-c603-bf1d7e3e839f")
 	)
 	(label "GND"
-		(at 40.64 58.42 0)
+		(at 58.42 63.5 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
-		(uuid "cca3f992-3f82-74df-5685-168d32bc59b1")
+		(uuid "9ae5c9ed-0482-3db7-599c-d4fc2680e5bb")
 	)
 	(label "+12V"
-		(at 40.64 60.96 0)
+		(at 83.82000000000001 53.34 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "de54bdc5-7411-7004-bde8-5ae5747ac584")
+		(uuid "1e351a87-fb65-3c52-797b-cf4ea00bef46")
 	)
 	(label "GND"
-		(at 40.64 63.5 0)
+		(at 83.82000000000001 63.5 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "90519020-4fe3-2690-04bf-9da4296e071c")
+		(uuid "ef2aa868-d2b2-708f-4ed5-245e6cbec8e3")
 	)
 	(symbol
 		(lib_id "shrink-fit-controller:CONN_02")
@@ -2321,8 +2535,8 @@
 		(uuid "94aaf50d-ef6d-18d8-27d0-e20a94047a40")
 	)
 	(symbol
-		(lib_id "shrink-fit-controller:CONN_05")
-		(at 35.56 137.16 0)
+		(lib_id "shrink-fit-controller:RotaryEncoder_EC11")
+		(at 66.04 140.97 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2331,9 +2545,9 @@
 		(in_pos_files yes)
 		(dnp no)
 		(fields_autoplaced no)
-		(uuid "2334eb90-d905-800d-4633-292a9518fb2e")
-		(property "Reference" "J8"
-			(at 27.94 133.35 0)
+		(uuid "030acc2e-23ff-cfed-8bed-9d3c02a37c8f")
+		(property "Reference" "SW1"
+			(at 58.040000000000006 128.97 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2343,8 +2557,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Encoder EC11"
-			(at 27.94 151.13 0)
+		(property "Value" "EC11 + switch"
+			(at 58.040000000000006 154.97 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2354,8 +2568,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "shrink-fit-controller:PinHeader_1x05_P2.54mm_Vertical_1.78pad"
-			(at 35.56 137.16 0)
+		(property "Footprint" "Rotary_Encoder:RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm"
+			(at 66.04 140.97 0)
 
 			(hide yes)			(show_name no)
 			(do_not_autoplace no)
@@ -2367,7 +2581,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 137.16 0)
+			(at 66.04 140.97 0)
 
 			(hide yes)			(show_name no)
 			(do_not_autoplace no)
@@ -2379,78 +2593,91 @@
 			)
 		)
 		(pin "1"
-			(uuid "f45a0c15-8042-1c97-2e8a-fc65e4ab094d")
+			(uuid "8df301c1-c307-154b-7ea8-a3f7149d6029")
 		)
 		(pin "2"
-			(uuid "105c2400-6635-12c3-606f-7c0931903080")
+			(uuid "f630b778-3053-9227-a292-f72ebf6bac47")
 		)
 		(pin "3"
-			(uuid "c85d04da-f2c0-dfc5-fcf8-33494e256488")
+			(uuid "b0bce80a-0c27-427d-f545-5ba03f7a0d2d")
 		)
 		(pin "4"
-			(uuid "385dee5a-88c1-992b-e41f-9f97f8d2965e")
+			(uuid "ba32b16b-34ca-8fd6-4a64-9c8e0cbb3e56")
 		)
 		(pin "5"
-			(uuid "d4b87014-9de6-069b-c04f-bf4fcf3bae65")
+			(uuid "1907bb24-cd9b-d95f-3c6d-dafa00187443")
+		)
+		(pin "6"
+			(uuid "7105715a-e228-b103-7f1e-afb14cdc3976")
 		)
 		(instances
 			(project "shrink-fit-controller"
 				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
-					(reference "J8")
+					(reference "SW1")
 					(unit 1)
 				)
 			)
 		)
 	)
-	(label "+3V3"
-		(at 40.64 137.16 0)
+	(label "ENC_A"
+		(at 55.88000000000001 137.16 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
-		(uuid "6ad84353-7241-3179-3833-b94da6cf0013")
+		(uuid "73c020ee-8364-926c-16e1-a10d417adb1b")
 	)
 	(label "GND"
-		(at 40.64 139.7 0)
+		(at 55.88000000000001 140.97 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
-		(uuid "8c72686e-5d67-7f2f-0b0f-0c30524f0e35")
-	)
-	(label "ENC_A"
-		(at 40.64 142.24 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1d6ff2eb-9efd-fd15-dd1b-74451643e00a")
+		(uuid "b56fe9d9-c5e2-f248-58c9-f879ca1cc813")
 	)
 	(label "ENC_B"
-		(at 40.64 144.78 0)
+		(at 55.88000000000001 144.78 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
-		(uuid "eb571ec2-c862-fe8f-08b2-43e8dd00df8f")
+		(uuid "b6e71bb5-16b3-bba3-049c-5bea6a9602c7")
 	)
 	(label "ENC_SW"
-		(at 40.64 147.32 0)
+		(at 76.2 138.43 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "e60643e0-56d5-4819-3680-629c31ec5114")
+		(uuid "2e609e5a-7ebc-2d28-d537-08160de4bae7")
+	)
+	(label "GND"
+		(at 76.2 143.51 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d55b2af5-cc1a-2807-c6e5-9a9e3f600c9b")
+	)
+	(label "GND"
+		(at 66.04 153.67 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "33ff50e9-aeb9-9caf-6582-9001695cc1fc")
 	)
 	(symbol
 		(lib_id "shrink-fit-controller:CONN_04")
@@ -3195,146 +3422,6 @@
 			(project "shrink-fit-controller"
 				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
 					(reference "#FLG2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "shrink-fit-controller:PWR_FLAG")
-		(at 40.64 43.18 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced no)
-		(uuid "70887c17-687e-8e9a-cc1f-dbeeb82785c5")
-		(property "Reference" "#FLG3"
-			(at 43.18 40.64 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "PWR_FLAG"
-			(at 43.18 41.91 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 40.64 43.18 0)
-
-			(hide yes)			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" ""
-			(at 40.64 43.18 0)
-
-			(hide yes)			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "1"
-			(uuid "997462e1-7a43-d96f-3d76-2f813e19c3d5")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
-					(reference "#FLG3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "shrink-fit-controller:PWR_FLAG")
-		(at 40.64 60.96 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced no)
-		(uuid "8b35ffca-6413-e2df-258b-fbb9adf56d04")
-		(property "Reference" "#FLG4"
-			(at 43.18 58.42 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "PWR_FLAG"
-			(at 43.18 59.69 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 40.64 60.96 0)
-
-			(hide yes)			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" ""
-			(at 40.64 60.96 0)
-
-			(hide yes)			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "1"
-			(uuid "a8cd8b5a-dd80-9424-d58e-bf6db217308c")
-		)
-		(instances
-			(project "shrink-fit-controller"
-				(path "/8f2a1c40-0000-4000-8000-5f7269746501"
-					(reference "#FLG4")
 					(unit 1)
 				)
 			)

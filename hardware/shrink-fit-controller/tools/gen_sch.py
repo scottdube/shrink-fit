@@ -85,6 +85,20 @@ for n in (2,3,4,5,6):
         rect(-5.08,1.27,2.54,-(n-1)*2.54-1.27),
         pins)
 
+
+LIB["RotaryEncoder_EC11"] = sym("RotaryEncoder_EC11",
+    prop("Reference","SW",8.89)+prop("Value","EC11 + switch",-11.43)
+    +prop("Footprint","",-13.97,hide=True)+prop("Datasheet","",-16.51,hide=True)
+    +prop("Description","EC11 rotary encoder with push switch",-19.05,hide=True),
+    rect(-6.35,6.35,6.35,-8.89),
+    lpin("passive",-10.16, 3.81,0,3.81,"A","A")
+   +lpin("passive",-10.16, 0.00,0,3.81,"C","C")
+   +lpin("passive",-10.16,-3.81,0,3.81,"B","B")
+   +lpin("passive", 10.16, 2.54,180,3.81,"S1","S1")
+   +lpin("passive", 10.16,-2.54,180,3.81,"S2","S2")
+   +lpin("passive", 0.00,-12.70,90,3.81,"MP","MP"),
+    extra='\t\t(duplicate_pin_numbers_are_jumpers yes)\n')
+
 LIB["PWR_FLAG"] = sym("PWR_FLAG",
     prop("Reference","#FLG",3.81,hide=True)+prop("Value","PWR_FLAG",2.54)+prop("Footprint","",-2.54,hide=True)
     +prop("Datasheet","",-5.08,hide=True)+prop("Description","ERC power-source marker",-7.62,hide=True),
@@ -106,6 +120,15 @@ for _j in range(_i, len(libfile)):
         if _d == 0: break
 MCU = "\t" + libfile[_i:_j+1] + "\n"
 
+_i = libfile.index('(symbol "LM2596_Module"')
+_d = 0
+for _j in range(_i, len(libfile)):
+    if libfile[_j] == '(': _d += 1
+    elif libfile[_j] == ')':
+        _d -= 1
+        if _d == 0: break
+BUCK = "\t" + libfile[_i:_j+1] + "\n"
+
 # append the new symbols to the project lib (skip ones already there)
 add = "".join(body for name, body in LIB.items() if f'(symbol "{name}"' not in libfile)
 libfile = libfile.rstrip()[:-1].rstrip() + "\n" + add + ")\n"
@@ -120,6 +143,7 @@ def prefixed(name, body):
     return body.replace(tag, f'(symbol "shrink-fit-controller:{name}"', 1)
 EMBED = "".join(prefixed(n, b) for n, b in LIB.items())
 EMBED += prefixed("NodeMCU-32S", MCU)
+EMBED += prefixed("LM2596_Module", BUCK)
 
 # ---------------- schematic (sheet coords, y DOWN) ----------------
 
@@ -174,24 +198,51 @@ def instance(libname, ref, value, x, y, rot, npins, rx, ry, vx, vy, fp=""):
 
 # ---- left column: connectors. Pin i connects at (x+5.08, y+(i-1)*2.54) ----
 HDR = "shrink-fit-controller:PinHeader_1x{:02d}_P2.54mm_Vertical_1.78pad"
+
+# The LM2596 modules mount ON the board: the proven LM2596_Module_THT footprint
+# exists (2.0 mm pads on a 1.0 mm drill = 0.410 mm annulus, comfortable) and it
+# deletes eight flying leads. Pin order is IN+, IN-, OUT+, OUT- -- confirmed from
+# the source symbol, because a swapped in/out on a buck destroys the module.
+def buck(ref, value, x, y, outnet):
+    # Pin geometry read from the symbol, not assumed: IN+ (-12.7, +5.08),
+    # IN- (-12.7, -5.08), OUT+ (12.7, +5.08), OUT- (12.7, -5.08). Guessing this
+    # from the connector layout is what produced 14 ERC violations first time.
+    instance("LM2596_Module", ref, value, x, y, 0, 4, x-12.7, y-11.43,
+             x-12.7, y+13.97, fp="shrink-fit-controller:LM2596_Module_THT")
+    label("+24V",  x-12.7, y-5.08, 180)
+    label("GND",   x-12.7, y+5.08, 180)
+    label(outnet,  x+12.7, y-5.08, 0)
+    label("GND",   x+12.7, y+5.08, 0)
+
 def conn(ref, value, n, y0, nets):
     instance(f"CONN_{n:02d}", ref, value, 35.56, y0, 0, n, 27.94, y0-3.81,
              27.94, y0+(n-1)*2.54+3.81, fp=HDR.format(n))
     for i, net in enumerate(nets, start=1):
-        px, py = 40.64, y0+(i-1)*2.54
         if net:
-            label(net, px, py, 0)
+            label(net, 40.64, y0+(i-1)*2.54, 0)
 
 conn("J1", "24V IN (S-250-24)",           2,  25.4,  ["+24V","GND"])
-conn("PS1","LM2596  24V->5V  logic",      4,  38.1,  ["+24V","GND","+5V","GND"])
-conn("PS2","LM2596  24V->12V motors",     4,  55.88, ["+24V","GND","+12V","GND"])
+buck("PS1","LM2596 24V->5V  logic",  71.12, 33.02, "+5V")
+buck("PS2","LM2596 24V->12V motors", 71.12, 58.42, "+12V")
 conn("J2", "SSR-100DD input",             2,  73.66, ["+12V","SSR_K"])
 conn("J3", "Contactor drop relay",        2,  83.82, ["+12V","RELAY_K"])
 conn("J4", "Flow sensor (Hall, 0.3-3L)",  3,  93.98, ["+5V","GND","FLOW_PULSE"])
 conn("J5", "E-stop sense",                2, 106.68, ["ESTOP_SENSE","GND"])
 conn("J6", "CYCLE START",                 2, 116.84, ["CYCLE_START","GND"])
 conn("J7", "CYCLE STOP",                  2, 127.0,  ["CYCLE_STOP","GND"])
-conn("J8", "Encoder EC11",                5, 137.16, ["+3V3","GND","ENC_A","ENC_B","ENC_SW"])
+# EC11 on the board, wired the way the part actually works: C is the common and
+# goes to GND, A and B are the quadrature contacts, S1/S2 are the push switch.
+# There is no +3V3 pin on an encoder -- the pull-ups are the MCU's internal ones
+# (GPIO 13/19/15 all support them; 34-39 would not have).
+SW1X, SW1Y = 66.04, 140.97
+instance("RotaryEncoder_EC11","SW1","EC11 + switch",SW1X,SW1Y,0,6,SW1X-8,SW1Y-12,SW1X-8,SW1Y+14,
+         fp="Rotary_Encoder:RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm")
+label("ENC_A", SW1X-10.16, SW1Y-3.81, 180)
+label("GND",   SW1X-10.16, SW1Y,      180)
+label("ENC_B", SW1X-10.16, SW1Y+3.81, 180)
+label("ENC_SW",SW1X+10.16, SW1Y-2.54, 0)
+label("GND",   SW1X+10.16, SW1Y+2.54, 0)
+label("GND",   SW1X,       SW1Y+12.70, 270)
 conn("J9", "CAN isolated stack",          4, 154.94, ["+3V3","GND","CAN_TX","CAN_RX"])
 conn("J10","INA228 I2C",                  4, 172.72, ["+3V3","GND","SDA","SCL"])
 conn("J11","DS18B20 1-Wire x2",           3, 190.5,  ["+3V3","GND","OW_DATA"])
@@ -199,8 +250,11 @@ conn("J12","Round TFT (SPI)",             6, 203.2,  ["+3V3","GND","TFT_CS","TFT
 conn("J13","PCF8574 + lamp drivers",      4, 226.06, ["+3V3","GND","SDA","SCL"])
 
 # ---- PWR_FLAGs so ERC sees a source on rails fed from off-board ----
-for i,(y,net) in enumerate([(25.4,"+24V"),(27.94,"GND"),(43.18,"+5V"),(60.96,"+12V")]):
+for i,(y,net) in enumerate([(25.4,"+24V"),(27.94,"GND")]):
     instance("PWR_FLAG", f"#FLG{i+1}", "PWR_FLAG", 40.64, y, 0, 1, 43.18, y-2.54, 43.18, y-1.27)
+# No PWR_FLAG on +5V or +12V: the LM2596 symbol declares OUT+ as a power OUTPUT,
+# so a flag there is a second source on the same net. ERC flagged it; the module
+# IS the source. Flags stay only on +24V and GND, which arrive from off-board.
 
 # ---- U1 : NodeMCU-32S -------------------------------------------------------
 # Nets are placed by PIN NUMBER from the symbol's own geometry, then rendered
