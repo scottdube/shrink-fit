@@ -186,6 +186,10 @@ PCF8574 Px ──[ gate ]  2N7002  ──┬── lamp cathode
 **Addressing:** PCF8574 sits at 0x20–0x27, PCF8574**A** at 0x38–0x3F. The INA228
 is at 0x40 — no collision either way. Five expander outputs remain spare.
 
-**To buy: 1× PCF8574** (~$3 [ESTIMATE, +40%]). Nothing else — the MOSFETs are in
+**Ordered 2026-09-02: Bridgold 5-pack, $8.69, ASIN B0GF1Q1GNG.** The listing
+contradicts itself — title says PCF8574**AP**, package contents say PCF8574**P**.
+**Read the marking on the chip before setting the firmware address**: P = 0x20
+(with A0–A2 grounded), AP = 0x38. Same pinout, same board, one constant differs.
+The `scan` command on the bring-up sketch reports whichever it actually is. Nothing else — the MOSFETs are in
 stock and the SSR keeps its proven 2N3904, since it is driven from a real GPIO
 that can source properly.
