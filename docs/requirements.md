@@ -1593,3 +1593,36 @@ acknowledges**, it retries to error-passive. A CAN node ACKs any well-formed
 frame regardless of ID, so **this is not the wrong-protocol symptom; it is the
 no-node-on-the-bus symptom.** Two independent faults: wrong language, and
 probably wrong wires.
+
+
+### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
+
+**R48 on mains, DC output open, transceiver unplugged, black probe on DC−:
+both JST pins float below 0.2 V.**
+
+A recessive CAN pair idles at **~2.5 V on both lines** — that is how the
+transceiver biases itself when nothing is transmitting. Two pins near zero means
+nothing is driving them. **It is not a CAN bus.**
+
+This kills the §2.1 assumption, which reasoned from "2-pin, on signal fingers, on
+a CAN-managed rectifier ⇒ almost certainly CAN-H/CAN-L" and said *confirm before
+connecting*. It was never confirmed, and firmware was written against it. The
+likely真 function is the **enable/inhibit line** — a forum report says grounding
+one of its wires turns the supply on.
+
+### Where CAN actually is
+
+**On the rectifier's edge connector, and the breakout card does not pick it up.**
+From the Endless Sphere thread: a user *"modified a connector unit to add a screw
+terminal block for the CAN."* People add the tap; the cards do not ship with it.
+
+**Procedure to find it:**
+1. Inspect the card's gold fingers under the microscope. Trace which run to the
+   mains block, the DC lugs and the JST. **Fingers with no trace leaving them are
+   the candidates.**
+2. R48 running, probe those fingers against DC−. **CAN is a pair sitting together
+   at ~2.5 V** — unmistakable once found, and absent everywhere else.
+3. Solder two wires to that pair. That is the whole modification.
+
+Back-probe from the card's solder side; the fingers are inside the connector once
+the card is seated.
