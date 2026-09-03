@@ -23,6 +23,7 @@
 #include <WiFi.h>
 #include <ArduinoOTA.h>
 #include <Preferences.h>
+#include <driver/twai.h>
 
 // Hostname deliberately DIFFERENT from the test rig's "shrinkfit-testrig" --
 // both are on the same network and an mDNS collision would send a flash to the
@@ -59,6 +60,18 @@ static void sayf(const char *fmt, ...) {
   va_end(ap);
   say(buf);
 }
+
+// --- CAN (R48 rectifier) -----------------------------------------------------
+// STAGE 1 ONLY: listen, plus the 1 Hz request frame the R48 needs before it will
+// answer. NO set commands in this build. Stage 2 adds them behind a 48 V clamp.
+// Protocol from craigpeacock/Huawei_R4850G2_CAN -- requirements.md 6.13.
+static const int  CAN_TX = 14;                 // pinmap.md: P14 = pin 31
+static const int  CAN_RX = 32;                 // pinmap.md: P32 = pin 26 -- NOT GPIO12
+static const uint32_t R48_REQ_ID  = 0x108040FE; // data request, 8 x 0x00, extended
+static const uint32_t R48_DATA_ID = 0x1081407F; // telemetry reply
+static bool     canUp = false, canRaw = false;
+static uint32_t canNextReq = 0, canRx = 0, canTx = 0, canRxErr = 0;
+static float    r48V = NAN, r48I81 = NAN, r48I82 = NAN, r48Vin = NAN, r48P = NAN;
 
 static const int PIN_SDA = 21;
 static const int PIN_SCL = 22;
@@ -164,6 +177,78 @@ static void dump() {
                 (long)vsh, shuntUV, (long)vbus, busV, dieC);
 }
 
+static void canBegin() {
+  // NORMAL mode, not listen-only: the request has to be transmitted, and a
+  // normal node ACKs frames, which some R48 firmware wants to see before it
+  // keeps talking. The request is a read -- all zeros -- and cannot change
+  // anything on the rectifier.
+  twai_general_config_t g = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)CAN_TX, (gpio_num_t)CAN_RX, TWAI_MODE_NORMAL);
+  g.rx_queue_len = 32;
+  twai_timing_config_t t = TWAI_TIMING_CONFIG_125KBITS();
+  twai_filter_config_t f = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+  if (twai_driver_install(&g, &t, &f) != ESP_OK) { sayfln("CAN: driver install FAILED"); return; }
+  if (twai_start() != ESP_OK) { sayfln("CAN: start FAILED"); twai_driver_uninstall(); return; }
+  canUp = true;
+  sayf("CAN: up, 125 kbps, TX=GPIO%d RX=GPIO%d. Requesting R48 telemetry at 1 Hz.\n", CAN_TX, CAN_RX);
+}
+
+static void canRequest() {
+  twai_message_t m = {};
+  m.extd = 1; m.identifier = R48_REQ_ID; m.data_length_code = 8;
+  if (twai_transmit(&m, pdMS_TO_TICKS(20)) == ESP_OK) canTx++;
+}
+
+static uint32_t be32(const uint8_t *d) {
+  return ((uint32_t)d[0] << 24) | ((uint32_t)d[1] << 16) | ((uint32_t)d[2] << 8) | d[3];
+}
+
+static void canService() {
+  if (!canUp) return;
+  if (millis() > canNextReq) { canNextReq = millis() + 1000; canRequest(); }
+
+  twai_message_t m;
+  while (twai_receive(&m, 0) == ESP_OK) {
+    canRx++;
+    bool known = false;
+    if (m.extd && m.identifier == R48_DATA_ID && m.data_length_code == 8) {
+      float v = be32(&m.data[4]) / 1024.0f;
+      known = true;
+      switch (m.data[1]) {
+        case 0x75: r48V   = v; break;          // output voltage
+        case 0x81: r48I81 = v; break;          // output current -- per the CODE
+        case 0x82: r48I82 = v; break;          // output current -- per the README
+        case 0x78: r48Vin = v; break;          // input voltage
+        case 0x73: r48P   = v; break;          // output power
+        default:   known = false;
+      }
+    }
+    if (canRaw || !known) {
+      sayf("CAN %s 0x%08lX dlc=%d :", m.extd ? "EXT" : "STD", (unsigned long)m.identifier, m.data_length_code);
+      for (int i = 0; i < m.data_length_code; i++) sayf(" %02X", m.data[i]);
+      sayfln();
+    }
+  }
+  twai_status_info_t st;
+  if (twai_get_status_info(&st) == ESP_OK) canRxErr = st.rx_error_counter;
+}
+
+static void canStatus() {
+  if (!canUp) { sayfln("CAN: not up"); return; }
+  twai_status_info_t st; twai_get_status_info(&st);
+  const char *state = st.state == TWAI_STATE_RUNNING ? "RUNNING" :
+                      st.state == TWAI_STATE_BUS_OFF ? "BUS-OFF" :
+                      st.state == TWAI_STATE_RECOVERING ? "RECOVERING" : "STOPPED";
+  sayf("CAN %s  tx=%lu rx=%lu  tx_err=%lu rx_err=%lu  bus_err=%lu\n", state,
+       (unsigned long)canTx, (unsigned long)canRx, (unsigned long)st.tx_error_counter,
+       (unsigned long)st.rx_error_counter, (unsigned long)st.bus_error_count);
+  sayf("R48  Vout %.2f V   Iout[0x81] %.2f A   Iout[0x82] %.2f A   Vin %.1f V   Pout %.0f W\n",
+       r48V, r48I81, r48I82, r48Vin, r48P);
+  if (st.state == TWAI_STATE_BUS_OFF)
+    sayfln("  BUS-OFF: tx errors exceeded 255. Check termination (220||270 across H/L),");
+  if (canRx == 0 && canTx > 3)
+    sayfln("  transmitting but hearing nothing: R48 on mains? CANH/CANL swapped? GND to DC-?");
+}
+
 void setup() {
   Serial.begin(115200);
   delay(400);
@@ -175,7 +260,8 @@ void setup() {
   scan();
   identify();
   otaBegin();
-  sayfln("\ncommands:  scan | id | r | stream | stop");
+  canBegin();
+  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw");
   sayfln("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
   sayfln("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
   sayfln("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
@@ -256,6 +342,8 @@ static void handleLine(const char *line) {
     prefs.putString("pass", s.substring(sp + 1));
     sayfln("saved — reboot to join  (use ssid/pass separately if either has a space)");
   }
+  else if (s == "can")    canStatus();
+  else if (s == "canraw") { canRaw = !canRaw; sayf("raw CAN dump %s\n", canRaw ? "ON" : "off"); }
   else if (s == "scan")   scan();
   else if (s == "id")     identify();
   else if (s == "r")      dump();
@@ -277,6 +365,7 @@ void loop() {
     // not commands, and echoing them back is how the console jammed.
   }
 
+  canService();
   if (otaReady) {
     ArduinoOTA.handle();
 
@@ -302,5 +391,5 @@ void loop() {
       // by the same filter that drops line noise on the UART.
     }
   }
-  if (streaming && millis() > nextRead) { nextRead = millis() + 500; dump(); }
+  if (streaming && millis() > nextRead) { nextRead = millis() + 500; dump(); if (canUp) sayf("  R48 %.2f V  %.2f A(81) %.2f A(82)\n", r48V, r48I81, r48I82); }
 }
