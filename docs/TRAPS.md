@@ -689,10 +689,24 @@ result, and attached it to the wrong cause — then wrote that cause down as fac
 within the minute. A correct experiment does not license a confident conclusion
 about *which* removed thing mattered when several were removed at once.
 
-## One dead transceiver clamps the bus and makes every node on it look dead
+## RETRACTED — "one dead transceiver clamps the bus" (I misread the measurement)
 
-2026-09-04, found after most of a day. The dev board's SN65HVD230 has a failed
-`CANH` driver. Isolated, powered at 3.3 V, with its input grounded to command a
+**This entry is wrong and is kept only as a record of how.** I read Scott's
+"three point three volts and zero volts at CANL and CANH" as *CANH 3.3 V, CANL
+0 V* — a driven dominant proving a good part. He was answering two questions at
+once: **3.3 V was the module's supply, and BOTH bus lines were at 0 V.** A fresh
+never-used module measured identically to the suspect one, so nothing was
+demonstrated to be dead. I announced a confirmed diagnosis, wrote it up and
+committed it, all on a misparsed sentence.
+
+The lesson is procedural: **when a reply carries fewer numbers than the question
+asked for, the mapping is an assumption.** Ask which pin each number belongs to
+before building on it. Everything below was written under the wrong reading.
+
+---
+
+2026-09-04. The dev board's SN65HVD230 was believed to have a failed `CANH`
+driver: isolated, powered at 3.3 V, with its input grounded to command a
 dominant, it reads **0 V on both `CANH` and `CANL`** — the low side pulls `CANL`
 down and `CANH` is dragged to meet it through the 120 Ω termination. A healthy
 module in the same state reads 1.4 V on both (recessive), and driven reads
@@ -710,7 +724,8 @@ same ~0.89 V no matter what was done to it. That single dead part produced:
   damaged parts) each tested against a bus that one device was pinning, and each
   producing a plausible, wrong answer
 
-**Rule: on a shared bus, isolate the device under test before diagnosing it.**
+**The one durable finding here, independent of the retraction: on a shared bus,
+isolate the device under test before diagnosing it.**
 A bus is a wired-OR: any node can dominate it, so a measurement taken with
 several attached is a measurement of the worst one, not of the one you are
 probing. Disconnect down to a single node plus its termination, confirm its
