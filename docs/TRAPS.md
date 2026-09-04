@@ -688,3 +688,35 @@ Second-order lesson, aimed at me: I proposed lifting the board, got the right
 result, and attached it to the wrong cause — then wrote that cause down as fact
 within the minute. A correct experiment does not license a confident conclusion
 about *which* removed thing mattered when several were removed at once.
+
+## One dead transceiver clamps the bus and makes every node on it look dead
+
+2026-09-04, found after most of a day. The dev board's SN65HVD230 has a failed
+`CANH` driver. Isolated, powered at 3.3 V, with its input grounded to command a
+dominant, it reads **0 V on both `CANH` and `CANL`** — the low side pulls `CANL`
+down and `CANH` is dragged to meet it through the 120 Ω termination. A healthy
+module in the same state reads 1.4 V on both (recessive), and driven reads
+**3.3 V / 0 V**.
+
+**A device holding `CANH` at ground clamps the bus for everyone on it.** With
+three modules bussed together, every measurement of every module returned the
+same ~0.89 V no matter what was done to it. That single dead part produced:
+
+- identical readings whatever was grounded, `CTX` or `CRX`
+- **a brand-new replacement module measuring exactly as dead** — it was wired
+  onto the same clamped bus
+- neither board ever hearing the other, with both apparently healthy
+- five successive theories (RS standby, low supply, dead drivers, reversed silk,
+  damaged parts) each tested against a bus that one device was pinning, and each
+  producing a plausible, wrong answer
+
+**Rule: on a shared bus, isolate the device under test before diagnosing it.**
+A bus is a wired-OR: any node can dominate it, so a measurement taken with
+several attached is a measurement of the worst one, not of the one you are
+probing. Disconnect down to a single node plus its termination, confirm its
+supply *at its own pins during the test*, then command it.
+
+The tell in hindsight: **0 V on both lines is neither recessive (~VCC/2) nor
+dominant (~3.0/0.3), and does not correspond to any state a working transceiver
+has.** A reading matching no valid state is a broken part, and it was visible
+long before it was believed.
