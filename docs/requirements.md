@@ -1762,3 +1762,41 @@ an enable line would be a few kΩ to one rail, not tens of kΩ across a pair.
 2. **Connect our powered transceiver and measure without transmitting.** The
    SN65HVD230 biases the pair to ~2.5 V. If it sits there cleanly, the lines are
    free; if something drags it toward zero, the R48 end is loading them.
+
+### 6.14.5 Documentation route CLOSED — and there is nothing to buy
+
+**NetSure 731 A41 shelf manual (38 pp, Vertiv-hosted) searched in full.** Its
+only connector table (Table 2-4) covers AC and DC distribution terminals. **The
+shelf manual treats the rectifier slot as a black box** — modules slide in and
+work; no backplane pin assignment appears anywhere.
+
+**The pinout is not published in any reachable document.** Both R48 datasheets,
+the module user manual (UM1R481000e3, 28 pp, full text), the NetSure shelf manual
+(38 pp, full text), four manual-hosting sites, both community repos, and two
+forums. It is not a search failure at this point; the document does not exist in
+public.
+
+**And there is nothing to order.** The eBay "R48-3000e3 tail adapter" ($10.88,
+3-week ship) is **the same power-only card Scott already has** — verified from
+its product photo: two DC screw terminals, a 3-position mains block, no comms.
+The Amazon equivalent states outright it has "only the input and output
+interface". **No CAN-bearing adapter has been found for sale.**
+
+### Which leaves exactly one path, and it is free
+
+**Test Scott's hypothesis that the JST pair IS CAN-H/CAN-L.** It has never been
+tested, only inferred against — and the inference was weak (see §6.14.4).
+
+1. **Scope the pair.** DHO914, probe one JST pin, ground clip to DC−, 20 µs/div,
+   AC coupled, R48 running. **Any activity means it is a live bus.** Flat means
+   nothing is transmitting — which still does not prove it is not CAN, only that
+   the rectifier is silent standalone.
+2. **Bias test.** Connect the powered SN65HVD230 and measure the pair **without
+   transmitting**. Ours pulls both lines to ~2.5 V. **Clean 2.5 V = the lines are
+   free.** Dragged toward 0 V = something at the R48 end is loading them, and
+   what that something is tells you what the pins are.
+
+If both come back negative, CAN is genuinely unreachable on this hardware and the
+throttle has to be abandoned or solved another way — a series resistor in the
+rectifier's own sense line, or accepting fixed 53.5 V and controlling energy
+purely by time.
