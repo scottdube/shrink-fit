@@ -80,6 +80,19 @@ static bool talker = true;
 static uint32_t seq = 0, sent = 0, echoed = 0, lost = 0, txFail = 0, lastTx = 0, lastReport = 0;
 static uint32_t txAt = 0; static bool waiting = false; static uint32_t waitSeq = 0;
 
+static const uint8_t SCAN[] = {4, 13, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 33};
+static const uint8_t SCAN_N = sizeof(SCAN);
+
+static void scanGrounded() {
+  Serial.print("   grounded pins:");
+  bool any = false;
+  for (uint8_t i = 0; i < SCAN_N; i++)
+    if (digitalRead(SCAN[i]) == LOW) { Serial.printf("  P%d", SCAN[i]); any = true; }
+  if (!any) Serial.print("  NONE -- nothing is pulling any GPIO low. Suspect the"
+                         " jumper wire itself, not the pin position.");
+  Serial.println();
+}
+
 static uint32_t be32(const uint8_t *d) {
   return ((uint32_t)d[0] << 24) | ((uint32_t)d[1] << 16) | ((uint32_t)d[2] << 8) | d[3];
 }
@@ -101,11 +114,24 @@ void setup() {
   pinMode(ROLE_PIN, INPUT_PULLUP);
   if (LED_PIN >= 0) pinMode(LED_PIN, OUTPUT);
   delay(10);
+  // Scan every safely-readable GPIO instead of trusting a pin count. Three
+  // attempts were spent on "the 9th pin from the USB end" with the board
+  // reporting nothing grounded; naming the pin the wire is ACTUALLY on settles
+  // wire-vs-position in one reading. Excluded: 14/32 (CAN, in use), 6-11 (SPI
+  // flash), 12 (MTDI strapping -- sets flash voltage at boot), and 34-39
+  // (input-only, no internal pullup, so they would float and read as noise).
+  for (uint8_t i = 0; i < SCAN_N; i++) pinMode(SCAN[i], INPUT_PULLUP);
+#ifdef ROLE_FIXED
+  talker = ROLE_FIXED;      // build-time role: no jumper, nothing to seat
+#else
   talker = digitalRead(ROLE_PIN);                     // HIGH (open) = talker
+#endif
 
   Serial.printf("\n=== CAN two-node bench test -- role: %s ===\n",
-                talker ? "TALKER (GPIO27 open) -- WATCH THIS PORT"
-                       : "LISTENER (GPIO27 to GND) -- echoes, no need to watch");
+                talker ? "TALKER -- WATCH THIS PORT" : "LISTENER -- echoes back");
+#ifdef ROLE_FIXED
+  Serial.println("role fixed at build time -- no jumper needed");
+#endif
   Serial.printf("%s  TX=GPIO%d RX=GPIO%d  125 kbps\n\n",
                 ESP.getChipModel(), (int)CAN_TX, (int)CAN_RX);
 
@@ -119,8 +145,26 @@ void setup() {
                         : "Echoing every frame. LED blinks on each one.\n");
 }
 
+// The role is re-read every pass rather than latched at boot. Two resets were
+// spent on a jumper that was never landing, and "add the jumper THEN reset" is
+// an instruction that silently produces two talkers when the second half is
+// forgotten. Now the board follows the wire, and says so the moment it moves.
+static void updateRole() {
+#ifdef ROLE_FIXED
+  return;                   // role is fixed at build time; ignore the pin
+#else
+  bool now = digitalRead(ROLE_PIN);
+  if (now == talker) return;
+  talker = now;
+  seq = sent = echoed = lost = txFail = 0; waiting = false;
+  Serial.printf("\n*** ROLE -> %s ***\n", talker ? "TALKER (P27 open)"
+                                                  : "LISTENER (P27 grounded)");
+#endif
+}
+
 void loop() {
   char c[96];
+  updateRole();
 
   if (talker && millis() - lastTx > 1000) {
     lastTx = millis();
@@ -148,7 +192,7 @@ void loop() {
     if (!talker && r.identifier == ID_PING) {         // LISTENER: bounce it back
       if (LED_PIN >= 0) digitalWrite(LED_PIN, !digitalRead(LED_PIN));
       twai_message_t e = r; e.identifier = ID_ECHO;
-      twai_transmit(&e, pdMS_TO_TICKS(50));
+      if (twai_transmit(&e, pdMS_TO_TICKS(50)) == ESP_OK) echoed++;
       Serial.printf("  heard seq=%lu, echoed\n", (unsigned long)be32(r.data));
     } else if (talker && r.identifier == ID_ECHO) {   // TALKER: it came home
       uint32_t got = be32(r.data), rtt = micros() - txAt;
@@ -159,10 +203,20 @@ void loop() {
     }
   }
 
+  if (!talker && millis() - lastReport > 5000) {
+    lastReport = millis();
+    twai_status_info_t s; twai_get_status_info(&s);
+    Serial.printf("[LISTENER] echoed %lu frames | rx_err=%lu bus_err=%lu\n",
+                  (unsigned long)echoed, (unsigned long)s.rx_error_counter,
+                  (unsigned long)s.bus_error_count);
+    scanGrounded();
+  }
+
   // Verdict every 5 s on the talker, so a failure does not need interpreting later.
   if (talker && millis() - lastReport > 5000) {
     lastReport = millis();
     twai_status_info_t s; twai_get_status_info(&s);
+    scanGrounded();
     if (echoed > 0 && lost == 0 && s.bus_error_count == 0) {
       Serial.printf("[PASS] %lu/%lu round trips, zero errors -- transceivers and "
                     "TWAI config are good.\n", (unsigned long)echoed, (unsigned long)sent);
