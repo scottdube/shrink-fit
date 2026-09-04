@@ -1,20 +1,20 @@
 # Return / defect report — SN65HVD230 CAN transceiver breakout modules
 
-**Status:** DRAFT — placeholders in `[brackets]` need the purchase record
-(InvenTree part 19) and the chip markings from the microscope.
+**Status:** purchase record filled from InvenTree part 19 / PO-0013. Remaining
+placeholders: IC marking lines 2–3 (microscope) and the three photos.
 
 ## Purchase
 
 | | |
 |---|---|
-| Vendor | `[VENDOR]` |
-| Order number | `[ORDER NUMBER]` |
-| Order date | `[DATE]` |
-| Listing title | `[LISTING TITLE]` |
-| Listing URL | `[URL]` |
-| Quantity ordered / on hand | `[N]` / 3 |
-| Unit price | `[PRICE]` |
-| InvenTree | part 19, "SN65HVD230 CAN Transceiver Module" |
+| Vendor | Amazon marketplace — seller **hiBCTR** |
+| Order number | **113-5416189-8729069** |
+| Order date | ordered **2026-08-15**, received **2026-08-18** |
+| Listing title | hiBCTR SN65HVD230 CAN Transceiver Module (pack of 3) |
+| Listing URL | https://www.amazon.com/dp/B0FDLDXCK9 (ASIN **B0FDLDXCK9**) |
+| Quantity ordered / on hand | 3 / 3 (all three being returned) |
+| Unit price | $2.66 (order total $7.98) |
+| InvenTree | part 19; PO-0013; stock items 80 (RB-25, allocated to BO-0002) and 83 (B3-R3C6) |
 
 ## Claim
 
@@ -78,8 +78,8 @@ the IC not being the part its marking claims.
 
 ## Requested
 
-Refund for `[N]` units. `[Replacement is not requested — a replacement from the
-same stock is not expected to differ.]`
+Refund for all 3 units ($7.98). Replacement is not requested — a replacement
+from the same stock is not expected to differ.
 
 ## Attachments
 
@@ -87,6 +87,23 @@ same stock is not expected to differ.]`
 2. `[photo — IC marking under magnification]`
 3. `[photo — bench setup: PSU readout and both meters during the 125 kHz test]`
 4. TI datasheet SLOS346O, §8.5 Electrical Characteristics: Driver
+
+## Manufacturer notification (TI) — suspected counterfeit
+
+TI's stated policy (ti.com anti-counterfeit page) is that verification and
+analysis are **not provided for parts bought through unauthorized sources** —
+brokers, independent distributors, third-party marketplace sellers. This purchase
+is exactly that, so a submission will almost certainly be *recorded* rather than
+*investigated*. It is still worth sending: TI collects these reports and the ASIN
+and seller identify a live source.
+
+- Address: **ti-counterfeit@list.ti.com**
+- Form: TI "Counterfeit Validation Form" (E2E) / "Product Verification Form"
+  SSDL004 — attach the measurement table above, the IC photo, and the listing.
+- Marking to report verbatim: `VP230` / `[LINE 2]` / `[LINE 3]`
+- Framing: **suspected**, not confirmed. The evidence is three units failing
+  identically with two DC parameters outside the SN65HVD230 datasheet; TI can
+  confirm or rule out the die. We cannot.
 
 ---
 
