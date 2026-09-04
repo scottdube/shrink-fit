@@ -634,3 +634,22 @@ to enter**. Ground to ground reads 0 V; a rail reads the supply. One measurement
 taken at the two points that actually matter, and it costs five seconds.
 
 The corollary is the rule: **never verify a wire at the end you can reach.**
+
+## On a NodeMCU-32S, GND is three holes from the SPI flash bus
+
+Counting from the USB end on the `3V3`/`5V` edge: `5V`(1), `CMD`(2), **`SD3`(3)**,
+**`SD2`(4)**, `P13`(5), `GND`(6). Positions 2–4 are the ESP32's SPI flash bus.
+
+A wire aimed at that `GND` and landed two holes early sits on `SD2`, and the
+board stops booting with `flash read err, 988` or `csum err` — diagnosed
+2026-09-04 after the dev board went from healthy to unbootable purely from
+wiring changes, and came back the instant every wire was pulled.
+
+**Use the `GND` between `P19` and `P21` on the opposite edge instead.** Both its
+neighbours are ordinary GPIOs, so an off-by-one costs nothing, and it is nowhere
+near flash. Identify it by the labels either side of it, never by counting holes
+from the end of the board — the counting is what fails, in a dim shop, on a black
+board with white silk.
+
+Related: `P12` is MTDI and sets flash voltage at boot. Grounded is the safe
+state; pulled high it stops the board booting. Never tie it to 3V3.
