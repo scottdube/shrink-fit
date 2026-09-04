@@ -1875,3 +1875,41 @@ on every variant listed.
 
 **Firmware clamp at 48.0 V stands** (§6.14) — the bus accepts 58.5 V, which is
 ~184 V peak on 200 V FETs before ringing.
+
+## 6.16 OPEN — INA228 input protection and ground reference
+
+Raised by Scott at the bench 2026-09-04, from a measurement, not from theory.
+
+**What was observed.** With the INA228 module's *signal* wires pulled but its
+`3V3` and `GND` still connected, a phantom voltage appeared between the ESP32's
+ground and the USB shell, and it vanished the moment the module was removed. A
+part that is "powered but not wired up" is still a connection.
+
+**The mechanism.** The INA228 has ESD diodes from `VIN+`/`VIN-` to its supply
+rails. With those inputs on the shunt and the logic rail down, the measured
+circuit conducts into the 3V3 rail through structures rated for static
+discharge, not sustained current. On the bench that was a stray millivolt
+reading. On the machine, with a 48 V bus and real current behind it, it is a
+failure — and the exposure is worst at exactly the moment nobody is watching:
+**bus live, logic supply off.**
+
+**Presumed answer, NOT yet a spec.** Matched series resistors on `VIN+`/`VIN-`
+to limit fault current through those diodes, plus deliberate power sequencing so
+logic 3V3 is up whenever the bus can be. The resistors must be matched — a
+mismatch becomes a measurement offset, which is the one error this instrument
+exists to avoid. A diode is *not* the fix and was considered and set aside: it
+does not address the common-mode question below, and it adds a drop in the
+sense path.
+
+**Two things to settle before this becomes a requirement:**
+
+1. **The INA228 common-mode input range.** Believed -0.3 V to +85 V. That is from
+   memory and nothing should be designed against it until the datasheet is read.
+2. **Is the DC bus negative the same node as logic ground?** *This is not
+   answered anywhere in these documents.* If it is, series resistors and
+   sequencing are sufficient. If the bus floats, the common-mode voltage is
+   unbounded, the answer is isolation rather than resistors, and that is a
+   different part and a different board layout.
+
+Item 2 gates item 1 and gates the board. It is the "what does this physically
+touch?" question, and it has to be answered before layout, not after.
