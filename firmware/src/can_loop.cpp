@@ -108,6 +108,39 @@ static void counters(char *out, size_t n) {
            (unsigned long)s.bus_error_count);
 }
 
+// Prove THIS node's whole path with no peer. NO_ACK drops the acknowledgement
+// requirement and the self flag keeps a copy -- but the frame still leaves via
+// CTX, is driven onto the real bus, and re-enters through the receiver on CRX.
+// Comes back = every local link works and the fault is elsewhere. Does not =
+// the fault is here, which no amount of testing against another board reveals.
+static void selfTest() {
+  Serial.println("\nself-test: NO_ACK mode, no peer needed ...");
+  twai_general_config_t g = TWAI_GENERAL_CONFIG_DEFAULT(CAN_TX, CAN_RX, TWAI_MODE_NO_ACK);
+  g.rx_queue_len = 8;
+  twai_timing_config_t t = TWAI_TIMING_CONFIG_125KBITS();
+  twai_filter_config_t f = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+  if (twai_driver_install(&g, &t, &f) != ESP_OK) { Serial.println("  install FAILED"); return; }
+  if (twai_start() != ESP_OK) { Serial.println("  start FAILED"); twai_driver_uninstall(); return; }
+
+  twai_message_t m = {};
+  m.identifier = 0x556; m.data_length_code = 2; m.data[0] = 0x5A; m.data[1] = 0xA5;
+  m.self = 1;
+  bool queued = (twai_transmit(&m, pdMS_TO_TICKS(200)) == ESP_OK);
+  Serial.printf("  queued: %s\n", queued ? "yes" : "NO");
+
+  bool got = false; uint32_t t0 = millis();
+  while (millis() - t0 < 600 && !got) {
+    twai_message_t r;
+    if (twai_receive(&r, pdMS_TO_TICKS(50)) == ESP_OK && r.identifier == 0x556) got = true;
+  }
+  twai_status_info_t st; twai_get_status_info(&st);
+  Serial.printf("  own frame back: %s   tx_err=%lu bus_err=%lu\n", got ? "YES" : "no",
+                (unsigned long)st.tx_error_counter, (unsigned long)st.bus_error_count);
+  Serial.println(got ? "  [PASS] CTX -> driver -> bus -> receiver -> CRX all work HERE."
+                     : "  [FAIL] own frame never returned -- the break is on THIS board.");
+  twai_stop(); twai_driver_uninstall();
+}
+
 void setup() {
   Serial.begin(115200);
   delay(400);
@@ -134,6 +167,8 @@ void setup() {
 #endif
   Serial.printf("%s  TX=GPIO%d RX=GPIO%d  125 kbps\n\n",
                 ESP.getChipModel(), (int)CAN_TX, (int)CAN_RX);
+
+  selfTest();                      // before normal mode: proves this board alone
 
   twai_general_config_t g = TWAI_GENERAL_CONFIG_DEFAULT(CAN_TX, CAN_RX, TWAI_MODE_NORMAL);
   g.rx_queue_len = 16;
@@ -189,6 +224,13 @@ void loop() {
 
   twai_message_t r;
   while (twai_receive(&r, 0) == ESP_OK) {
+    if (r.identifier != ID_PING && r.identifier != ID_ECHO) {
+      // Anything at all arriving proves the bus carries traffic between the
+      // boards, even when it is not part of the ping protocol. Silence here
+      // while the peer transmits is itself the finding.
+      Serial.printf("  HEARD id=0x%03lX dlc=%d\n",
+                    (unsigned long)r.identifier, r.data_length_code);
+    }
     if (!talker && r.identifier == ID_PING) {         // LISTENER: bounce it back
       if (LED_PIN >= 0) digitalWrite(LED_PIN, !digitalRead(LED_PIN));
       twai_message_t e = r; e.identifier = ID_ECHO;

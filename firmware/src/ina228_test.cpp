@@ -293,6 +293,52 @@ static void canService() {
   if (twai_get_status_info(&st) == ESP_OK) canRxErr = st.rx_error_counter;
 }
 
+// Self-test: prove THIS node's whole path with no peer involved. NO_ACK mode
+// drops the acknowledgement requirement, and the self-reception flag makes the
+// controller keep a copy of what it sent -- but the frame still has to go out
+// through CTX, be driven onto the real bus by the transceiver, come back through
+// its receiver and re-enter on CRX. If it returns, every link in the local chain
+// works and the fault is the peer or the wire between. If it does not, the fault
+// is here, and no amount of testing against another board will show that.
+static void canSelfTest() {
+  sayfln("self-test: NO_ACK mode, no peer needed ...");
+  if (canUp) { twai_stop(); twai_driver_uninstall(); canUp = false; }
+
+  twai_general_config_t g = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)CAN_TX,
+                                                        (gpio_num_t)CAN_RX,
+                                                        TWAI_MODE_NO_ACK);
+  g.rx_queue_len = 8;
+  twai_timing_config_t t = TWAI_TIMING_CONFIG_125KBITS();
+  twai_filter_config_t f = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+  if (twai_driver_install(&g, &t, &f) != ESP_OK) { sayfln("  install FAILED"); canBegin(); return; }
+  if (twai_start() != ESP_OK) { sayfln("  start FAILED"); twai_driver_uninstall(); canBegin(); return; }
+
+  twai_message_t m = {};
+  m.identifier = 0x555; m.data_length_code = 2;
+  m.data[0] = 0xA5; m.data[1] = 0x5A;
+  m.self = 1;
+  bool queued = (twai_transmit(&m, pdMS_TO_TICKS(200)) == ESP_OK);
+  sayf("  queued: %s\n", queued ? "yes" : "NO -- controller will not accept the frame");
+
+  bool got = false;
+  uint32_t t0 = millis();
+  while (millis() - t0 < 600 && !got) {
+    twai_message_t r;
+    if (twai_receive(&r, pdMS_TO_TICKS(50)) == ESP_OK && r.identifier == 0x555) got = true;
+  }
+  twai_status_info_t st; twai_get_status_info(&st);
+  sayf("  own frame back: %s   tx_err=%lu bus_err=%lu\n", got ? "YES" : "no",
+       (unsigned long)st.tx_error_counter, (unsigned long)st.bus_error_count);
+  if (got)
+    sayfln("  [PASS] CTX -> driver -> bus -> receiver -> CRX all work on THIS board.");
+  else
+    sayfln("  [FAIL] our own frame never came back. The break is on THIS board, not "
+           "the peer -- driver not driving, or CTX/CRX not doing what the meter says.");
+
+  twai_stop(); twai_driver_uninstall(); canUp = false;
+  canBegin();
+}
+
 static void canStatus() {
   if (!canUp) { sayfln("CAN: not up"); return; }
   twai_status_info_t st; twai_get_status_info(&st);
@@ -315,7 +361,9 @@ static void canStatus() {
     else if (pingEcho > 0)
       sayfln("  [MARGINAL] echoes but with losses -- check 121R termination at both ends.");
     else if (pingSent > 3 && st.tx_error_counter >= 128)
-      sayfln("  [FAIL] nothing acknowledging. Peer unpowered, GPIO27 not grounded on it,");
+      sayfln("  [FAIL] our transceiver drives, nothing ACKs. CANH/CANL not across "
+             "between the boards, or swapped. (Role jumpers are gone -- the peer's "
+             "role is fixed at build time.)");
     else if (pingSent > 3)
       sayfln("  [FAIL] no echoes. Is the second board powered and running can_loop?");
     else if (pingTxFail > 3)
@@ -339,7 +387,7 @@ void setup() {
   identify();
   otaBegin();
   canBegin();
-  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | ping");
+  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | ping | selftest");
   sayfln("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
   sayfln("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
   sayfln("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
@@ -422,6 +470,7 @@ static void handleLine(const char *line) {
   }
   else if (s == "can")    canStatus();
   else if (s == "canreset") canReset();
+  else if (s == "selftest") canSelfTest();
   else if (s == "canraw") { canRaw = !canRaw; sayf("raw CAN dump %s\n", canRaw ? "ON" : "off"); }
   else if (s == "ping") {
     pingMode = !pingMode;
@@ -433,7 +482,7 @@ static void handleLine(const char *line) {
     // escape, so entering ping mode always starts from a clean controller.
     canReset();
     sayf("ping mode %s -- %s\n", pingMode ? "ON" : "off",
-         pingMode ? "sending 0x123 at 1 Hz; peer must run can_loop as LISTENER (GPIO27 to GND)"
+         pingMode ? "sending 0x123 at 1 Hz; peer must run the can_loop LISTENER build"
                   : "back to the R48 request frame");
   }
   else if (s == "scan")   scan();
