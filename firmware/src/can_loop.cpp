@@ -37,9 +37,15 @@
 //   CANH <-> CANH,  CANL <-> CANL,  and GND <-> GND between the boards.
 //   (Both boards in the same Mac already share ground through USB, but wire it
 //   anyway -- a missing ground is the classic silent CAN failure.)
-//   120 ohm across CANH/CANL at EACH end -> 220R || 270R = 121 ohm from the
-//   EAONE kit; two pairs, one per board. The SN65HVD230 modules have NO onboard
-//   termination -- their three resistors are marked 01C = 10k (EIA-96).
+//   NO EXTERNAL TERMINATION. The blue SN65HVD230 modules already carry it: R2
+//   is marked 121 = 120 ohm and sits directly across the CANH/CANL traces, and
+//   R1 (103 = 10k) is the fixed RS slope resistor, which is why there is no RS
+//   pin to tie down. Two modules = 120 ohm at each end = the 60 ohm a CAN bus
+//   wants. Adding a 220||270 pair on top makes a THIRD terminator, ~40 ohm,
+//   which loads the drivers.
+//   (This comment previously claimed the opposite. It was wrong: an ambiguous
+//   "01C" read off one resistor became a confident conclusion that the modules
+//   were unterminated. Read R2 on the module in front of you.)
 //
 // PASS = the talker prints "echo OK" every second with all error counters at 0.
 

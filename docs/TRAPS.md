@@ -581,3 +581,28 @@ was fine the whole time.
 Set `dtr = False` and `rts = False` **both before and after `open()`**, and do not
 pulse RTS unless a reset is actually wanted. `pio device monitor` already does
 this; hand-rolled readers do not.
+
+## The SN65HVD230 modules ARE terminated — we assumed they were not
+
+The blue breakout carries **`R2` = `121` = 120 Ω directly across CANH/CANL**, and
+`R1` = `103` = 10 kΩ as the fixed RS slope resistor — which is why the board has
+no `RS` pin and sits in slope-control mode rather than standby. Two modules on a
+bench link therefore give 120 Ω at each end already: a correct 60 Ω bus, with
+nothing to add.
+
+**We believed the opposite for a full evening.** An ambiguous `01C` read off one
+resistor became "the modules have no onboard termination", and that conclusion
+was written into `can_loop.cpp`, `status.md` and a commit message before anyone
+looked at the part with the labels facing up. Nothing measured it; a marking
+report was promoted to a fact and then cited as one.
+
+**Consequence for the R48 work:** the 220 ∥ 270 = 121 Ω pair built for that test
+was a *second* terminator at our end — about 60 Ω from our side alone, and ~40 Ω
+if the rectifier terminates too. That is below spec and loads the drivers. It
+does not explain `tx_err=128` on its own (an absent peer gives that anyway), but
+it means the R48 attempt had a confound in it that we did not know about, and
+any retry has to remove the pair first.
+
+**Rule: read the resistor markings on the actual module before specifying
+termination.** A 3-digit `121` is 120 Ω and is the giveaway; position across the
+CANH/CANL pins confirms it without needing the code at all.

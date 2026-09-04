@@ -1191,7 +1191,7 @@ Kelvin leads out, then INA228 calibration at the bench supply in CC mode.
 | SN65HVD230 **CRX** | NodeMCU **GPIO 32** (P32, pin 26) — **not GPIO 12**, which must be LOW at boot and would never start |
 | SN65HVD230 3V3 / GND | NodeMCU 3V3 / GND |
 | CANH / CANL | PSU breakout **2-pin JST** |
-| **220 Ω ∥ 270 Ω = 121 Ω** | across CANH–CANL at the module (no 120 Ω in stock; the module's three `01C` parts are 10 kΩ, not termination) |
+| ~~**220 Ω ∥ 270 Ω = 121 Ω**~~ | **WRONG — not needed.** The SN65HVD230 module has 120 Ω onboard: `R2` = `121`, across CANH–CANL. `R1` = `103` = 10 kΩ is the RS slope resistor. Fitting the pair as well gives a third terminator (~40 Ω). See TRAPS. |
 | transceiver **GND** | R48 **DC−** — the JST carries only H and L, and the transceiver needs a common-mode reference |
 | NodeMCU power | **USB wall wart, not the laptop** — telnet is the console |
 
