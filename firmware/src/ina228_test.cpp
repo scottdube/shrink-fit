@@ -80,7 +80,7 @@ static uint32_t canNextReq = 0, canRx = 0, canTx = 0, canRxErr = 0;
 // boards instead would exonerate hardware that was never accused.
 static const uint32_t PING_ID = 0x123, ECHO_ID = 0x124;
 static bool     pingMode = false, pingWait = false;
-static uint32_t pingSeq = 0, pingSent = 0, pingEcho = 0, pingLost = 0;
+static uint32_t pingSeq = 0, pingSent = 0, pingEcho = 0, pingLost = 0, pingTxFail = 0;
 static uint32_t pingWaitSeq = 0, pingTxAt = 0;
 static float    r48V = NAN, r48I81 = NAN, r48I82 = NAN, r48Vin = NAN, r48P = NAN;
 
@@ -211,7 +211,7 @@ static void canBegin() {
 static void canReset() {
   if (canUp) { twai_stop(); twai_driver_uninstall(); canUp = false; }
   canTx = canRx = canRxErr = 0;
-  pingSent = pingEcho = pingLost = pingSeq = 0; pingWait = false;
+  pingSent = pingEcho = pingLost = pingSeq = pingTxFail = 0; pingWait = false;
   r48V = r48I81 = r48I82 = r48Vin = r48P = NAN;
   canBegin();
 }
@@ -227,18 +227,28 @@ static uint32_t be32(const uint8_t *d) {
 }
 
 static void canPing() {
-  if (pingWait) {                                   // last one never came home
-    pingLost++;
-    sayf("ping seq=%lu  NO ECHO\n", (unsigned long)pingWaitSeq);
-  }
   twai_message_t m = {};
   m.extd = 0; m.identifier = PING_ID; m.data_length_code = 4;
   m.data[0] = pingSeq >> 24; m.data[1] = pingSeq >> 16;
   m.data[2] = pingSeq >> 8;  m.data[3] = pingSeq;
+
+  // Retire the previous frame only once a NEW one actually goes out. Measured
+  // on the bench: when nothing ACKs, frame N retries forever and every later
+  // transmit returns queue-full -- and reporting the loss up front reprinted
+  // "seq=5 NO ECHO" once a second, which reads as five separate losses instead
+  // of one stuck frame. A jam is a different fault from a lost frame and has to
+  // count as one.
   if (twai_transmit(&m, pdMS_TO_TICKS(20)) == ESP_OK) {
+    if (pingWait) {
+      pingLost++;
+      sayf("ping seq=%lu  NO ECHO\n", (unsigned long)pingWaitSeq);
+    }
     canTx++; pingSent++; pingWait = true; pingWaitSeq = pingSeq; pingTxAt = micros();
     pingSeq++;
-  } else sayfln("ping: TX queue failed");
+  } else if (++pingTxFail == 4) {
+    sayfln("ping: TX queue full -- frame still retrying because nothing ACKed it."
+           " Further failures counted silently; see 'can'.");
+  }
 }
 
 static void canService() {
@@ -297,8 +307,9 @@ static void canStatus() {
   if (st.state == TWAI_STATE_BUS_OFF)
     sayfln("  BUS-OFF: tx errors exceeded 255. Check termination (220||270 across H/L),");
   if (pingMode) {
-    sayf("PING mode: %lu sent, %lu echoed, %lu lost\n",
-         (unsigned long)pingSent, (unsigned long)pingEcho, (unsigned long)pingLost);
+    sayf("PING mode: %lu sent, %lu echoed, %lu lost, %lu tx-queue-full\n",
+         (unsigned long)pingSent, (unsigned long)pingEcho, (unsigned long)pingLost,
+         (unsigned long)pingTxFail);
     if (pingEcho > 0 && pingLost == 0 && st.bus_error_count == 0)
       sayfln("  [PASS] round trips clean -- THIS board's transceiver, wiring and TWAI");
     else if (pingEcho > 0)
@@ -307,6 +318,9 @@ static void canStatus() {
       sayfln("  [FAIL] nothing acknowledging. Peer unpowered, GPIO27 not grounded on it,");
     else if (pingSent > 3)
       sayfln("  [FAIL] no echoes. Is the second board powered and running can_loop?");
+    else if (pingTxFail > 3)
+      sayfln("  [FAIL] cannot even queue a frame -- frame 1 is still retrying because"
+             " nothing ACKed it. Bus wired to a dead/absent peer. Check H/L and GND.");
     return;
   }
   if (canRx == 0 && canTx > 3)
@@ -411,7 +425,13 @@ static void handleLine(const char *line) {
   else if (s == "canraw") { canRaw = !canRaw; sayf("raw CAN dump %s\n", canRaw ? "ON" : "off"); }
   else if (s == "ping") {
     pingMode = !pingMode;
-    pingSent = pingEcho = pingLost = 0; pingWait = false;
+    // Restart the controller on every toggle. Measured on the bench: after the
+    // rectifier attempt the controller sits error-passive with frame N still
+    // retrying, so twai_transmit only ever returns "queue full" and ping
+    // reports nothing sent -- a failure caused by the PREVIOUS test, not by the
+    // peer. A test that cannot tell those apart is the thing we are trying to
+    // escape, so entering ping mode always starts from a clean controller.
+    canReset();
     sayf("ping mode %s -- %s\n", pingMode ? "ON" : "off",
          pingMode ? "sending 0x123 at 1 Hz; peer must run can_loop as LISTENER (GPIO27 to GND)"
                   : "back to the R48 request frame");
