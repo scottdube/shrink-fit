@@ -606,3 +606,31 @@ any retry has to remove the pair first.
 **Rule: read the resistor markings on the actual module before specifying
 termination.** A 3-digit `121` is 120 Ω and is the giveaway; position across the
 CANH/CANL pins confirms it without needing the code at all.
+
+## A wire has two ends; verifying one proves nothing
+
+Cost most of an evening on 2026-09-04. The bench CAN test put the second ESP32
+into a hard boot loop the moment the two boards were "grounded" together. The
+ground wire's far end was in the dev board's **positive rail**, not its ground.
+
+Every diagnostic pointed the wrong way because each was individually sound:
+
+- **DC volts between the two grounds read 0 V.** True and useless — both grounds
+  *were* at the same potential. The wire was not on one of them.
+- **Continuity from the landing point to a known ground beeped.** Also true: that
+  was the *near* end, which was fine the whole time. The far end was never tested.
+- Disconnecting fixed it and reconnecting broke it again, which "confirmed" a
+  ground-bonding theory (floating bench supply, Y-cap leakage) that was wrong.
+
+**The tell was in the errors and we read past it.** `csum err` on every boot with
+a *different* computed value each time — `0x64`, `0xbc`, `0x1b`, `0xe7` against a
+constant expected `0x6b`. Corrupt flash gives the *same* wrong answer every time.
+A different one each read means the flash bus is being electrically disturbed,
+which points at injected current, not at a data problem.
+
+**Procedure that catches it, before the wire goes in:** land one end, leave the
+other free, and **measure DC volts between the free end and the hole it is about
+to enter**. Ground to ground reads 0 V; a rail reads the supply. One measurement,
+taken at the two points that actually matter, and it costs five seconds.
+
+The corollary is the rule: **never verify a wire at the end you can reach.**
