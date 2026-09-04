@@ -529,3 +529,21 @@ ifconfig | grep "inet " | grep -v 127.0.0.1     # laptop
 
 If that subnet does not match the address the board printed at boot, stop —
 there is no fault to find.
+
+## An ESP32-S3 cannot use GPIO 26–32, and GPIO 32 is our CAN RX
+
+The classic ESP32 exposes GPIO 32 as an ordinary pin; on the **S3 that range is
+the SPI flash / PSRAM bus**. Our CAN RX sits on GPIO 32, so firmware that runs on
+a NodeMCU-32S will build for an S3, flash, boot — and never receive a frame,
+because the pin it is listening on is wired to the flash chip.
+
+Nothing warns you. TWAI routes through the GPIO matrix, so the driver installs
+happily and reports `RUNNING`; you get `tx_err` climbing with `rx_err` at zero,
+which reads exactly like *the other node is absent*. That is the same signature
+the rectifier gave us, which is precisely the confusion this test exists to
+resolve — so getting it from our own wiring would have been expensive.
+
+`env:can_loop_s3` therefore moves the bus to **GPIO 4/5** and the role jumper to
+**GPIO 6**. Rule: **any pin assignment carried from a classic ESP32 to an S3 has
+to be re-checked against 26–32 before it is trusted**, and this applies to the
+whole controller pinmap, not just CAN.
