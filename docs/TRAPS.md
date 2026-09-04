@@ -773,3 +773,39 @@ wiring, all reading dead, all fine.
   demonstrably running.
 - For bring-up, run supply pins as **direct jumpers from board pin to device
   pin**. Every breadboard contact in a supply path is a candidate for this.
+
+## FOUND — the transceiver supply folds under load (the day's root cause)
+
+Measured 2026-09-04 by watching the module's `3V3` pin **while** the driver was
+commanded dominant: it **dropped to 0 V, recovered, dropped again**, cycling for
+the whole 25 s hold. That is a relaxation oscillation through series resistance
+in the supply path — the chip loads it, it collapses, the chip browns out and
+stops drawing, it recovers, the chip restarts, repeat.
+
+Every symptom of the day was this one fault at different load levels:
+
+| Wiring | Recessive (10 mA) | Dominant (~30 mA) |
+|---|---|---|
+| original breadboard path | **collapsed → 0 V both lines** ("dead chip") | collapsed |
+| direct `3V3`/`GND` jumpers | **held → 1.5 V bias, chip alive** | **collapsed → 0 V both lines** |
+
+The rewire improved the path by roughly one contact's worth — enough for the
+bias current, not enough for the driver. So "the chip is dead", "the driver is
+dead", "three modules are dead", and "the wiring is fine because it reads 3.3 V"
+were all the same thing seen from different sides.
+
+**Why it hid for a day:** a voltmeter draws ~1 µA. Tens or hundreds of ohms in
+the path is invisible to it and reads a flawless 3.3 V at the module's own pins —
+which I took as proof of power at least four times. It is not `EN`: a load on
+`EN` holds the board in reset, and the board answered commands throughout.
+
+**The measurement that found it:** meter on the supply pin *during* the load, not
+before it. Should have been the second measurement of the day, not the last.
+
+**Fix:** replace the `3V3` (and `GND`) run with a fresh wire, and put **10–100 µF
+across the module's `3V3`/`GND` at its pins** to carry the dominant transient.
+Verify by the driver producing 3.0/1.0 V, not by the supply reading 3.3 V.
+
+**Rule:** for anything with a driver — transceiver, motor, LED string, radio —
+**read the supply pin while the part is driving.** Unloaded voltage is a
+statement about the meter, not the supply.

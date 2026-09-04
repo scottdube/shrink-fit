@@ -143,6 +143,22 @@ static void selfTest() {
 
 void setup() {
   Serial.begin(115200);
+#ifdef HOLD_DOMINANT
+  // Bench jig only: hold the transceiver's D input LOW as a plain GPIO and do
+  // nothing else -- no TWAI, no protocol. Exists to run the one comparison never
+  // made: the SAME module on TWO different boards' wiring. If it drives here and
+  // not on the dev board, the fault is that board's wiring however well it
+  // measures; if it drives on neither, it is the parts.
+  pinMode(PIN_CAN_TX, OUTPUT);
+  digitalWrite(PIN_CAN_TX, LOW);
+  delay(400);
+  Serial.printf("\n=== JIG: D (GPIO%d) held LOW -- transceiver commanded DOMINANT ===\n",
+                PIN_CAN_TX);
+  Serial.printf("pin readback: %d (should be 0)\n", digitalRead(PIN_CAN_TX));
+  Serial.println("Datasheet: CANH 2.45 V min, CANL 0.5-1.25 V, differential 1.5-3 V.");
+  Serial.println("Measure CANH to CANL at the module. Nothing else runs in this build.");
+  while (true) delay(1000);
+#endif
   delay(400);
   pinMode(ROLE_PIN, INPUT_PULLUP);
   if (LED_PIN >= 0) pinMode(LED_PIN, OUTPUT);
