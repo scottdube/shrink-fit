@@ -735,3 +735,41 @@ The tell in hindsight: **0 V on both lines is neither recessive (~VCC/2) nor
 dominant (~3.0/0.3), and does not correspond to any state a working transceiver
 has.** A reading matching no valid state is a broken part, and it was visible
 long before it was believed.
+
+## A supply that reads 3.3 V and cannot power anything
+
+2026-09-04. The whole CAN bring-up failed on this and it took most of a day,
+because the fault presents as a dead component and survives replacing it.
+
+The dev board's transceiver measured **3.3 V between the module's own `3V3` and
+`GND` pins** and shared a **0 Ω ground** with the MCU. Its `D` input was driven
+low through a wire measured at 0 Ω, with the MCU pin read back as `0` in
+firmware and confirmed at 0 V *against the module's own ground*. Genuine part,
+marked `VP230`. Correct 120 Ω termination, no shorts. Every precondition the
+datasheet requires.
+
+It produced **0 V on both `CANH` and `CANL` in BOTH commanded states.**
+
+That is the diagnostic tell: a powered transceiver biases the bus to roughly
+VCC/2 when recessive (~1.4 V measured on a good one) and splits it when
+dominant. **Producing neither is not a broken driver — it is a chip that is not
+running.** A reading that matches no valid state of the part means it has no
+working supply, whatever the voltmeter says.
+
+**A voltmeter draws about a microamp.** A contact resistance of tens or hundreds
+of ohms is invisible to it and reads a flawless 3.3 V, then collapses under the
+~10 mA the chip needs to bias and the ~70 mA to drive. The measurement that would
+have caught it is a **load** test, not a voltage one.
+
+Cost: a brand-new never-used module tested identically dead, which sent us
+chasing damaged parts. Three modules were swapped through the same faulty
+wiring, all reading dead, all fine.
+
+**Rules:**
+- **Voltage present is not power available.** Confirm a supply under its real
+  load, or by the powered device behaving, never by an unloaded reading.
+- **A reading that matches no valid state of the part indicts the supply or the
+  measurement, not the function.** Do not diagnose a driver until the device is
+  demonstrably running.
+- For bring-up, run supply pins as **direct jumpers from board pin to device
+  pin**. Every breadboard contact in a supply path is a candidate for this.

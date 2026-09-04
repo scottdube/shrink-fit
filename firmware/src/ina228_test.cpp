@@ -387,7 +387,7 @@ void setup() {
   identify();
   otaBegin();
   canBegin();
-  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | ping | selftest");
+  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | ping | selftest | dominant | recessive");
   sayfln("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
   sayfln("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
   sayfln("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
@@ -471,6 +471,22 @@ static void handleLine(const char *line) {
   else if (s == "can")    canStatus();
   else if (s == "canreset") canReset();
   else if (s == "selftest") canSelfTest();
+  // Drive the transceiver's D input directly as a plain GPIO, bypassing TWAI.
+  // A hand jumper to GND depends on a contact we cannot verify; the P14 wire has
+  // been measured at 0 ohms, so this commands the driver through known-good
+  // copper. Datasheet: D LOW = dominant, HIGH = recessive.
+  else if (s == "dominant" || s == "recessive") {
+    bool dom = (s == "dominant");
+    if (canUp) { twai_stop(); twai_driver_uninstall(); canUp = false; }
+    pinMode(CAN_TX, OUTPUT);
+    digitalWrite(CAN_TX, dom ? LOW : HIGH);
+    delay(5);
+    sayf("D (GPIO%d) held %s -> transceiver commanded %s.\n", CAN_TX,
+         dom ? "LOW" : "HIGH", dom ? "DOMINANT" : "RECESSIVE");
+    sayf("  readback of the pin: %d  (should be %d)\n", digitalRead(CAN_TX), dom ? 0 : 1);
+    sayfln("  measure CANH and CANL now. DOMINANT should be about 3.0 V and 1.0 V,");
+    sayfln("  RECESSIVE about 2.3 V on both. 'canreset' returns to normal CAN.");
+  }
   else if (s == "canraw") { canRaw = !canRaw; sayf("raw CAN dump %s\n", canRaw ? "ON" : "off"); }
   else if (s == "ping") {
     pingMode = !pingMode;
