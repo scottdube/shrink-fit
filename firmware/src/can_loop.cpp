@@ -71,7 +71,7 @@ static const uint32_t ID_PING = 0x123;
 static const uint32_t ID_ECHO = 0x124;
 
 static bool talker = true;
-static uint32_t seq = 0, sent = 0, echoed = 0, lost = 0, lastTx = 0, lastReport = 0;
+static uint32_t seq = 0, sent = 0, echoed = 0, lost = 0, txFail = 0, lastTx = 0, lastReport = 0;
 static uint32_t txAt = 0; static bool waiting = false; static uint32_t waitSeq = 0;
 
 static uint32_t be32(const uint8_t *d) {
@@ -118,19 +118,22 @@ void loop() {
 
   if (talker && millis() - lastTx > 1000) {
     lastTx = millis();
-    if (waiting) {                                    // previous ping never came home
-      lost++;
-      counters(c, sizeof c);
-      Serial.printf("seq=%-4lu NO ECHO   | %s\n", (unsigned long)waitSeq, c);
-    }
     twai_message_t m = {};
     m.identifier = ID_PING; m.data_length_code = 4;
     m.data[0] = seq >> 24; m.data[1] = seq >> 16; m.data[2] = seq >> 8; m.data[3] = seq;
+    // Retire the pending frame only when a NEW one actually goes out. Reporting
+    // it up front reprinted the same seq once a second, which reads as many
+    // losses when it is one stuck frame -- a jam and a lost frame are different
+    // faults and the log has to say which.
     if (twai_transmit(&m, pdMS_TO_TICKS(50)) == ESP_OK) {
+      if (waiting) {
+        lost++;
+        counters(c, sizeof c);
+        Serial.printf("seq=%-4lu NO ECHO   | %s\n", (unsigned long)waitSeq, c);
+      }
       sent++; waiting = true; waitSeq = seq; txAt = micros(); seq++;
-    } else {
-      counters(c, sizeof c);
-      Serial.printf("TX QUEUE FAILED | %s\n", c);
+    } else if (++txFail == 3) {
+      Serial.println("TX queue full -- frame 1 is still pending. Counted from here on.");
     }
   }
 
@@ -160,6 +163,15 @@ void loop() {
     } else if (echoed == 0 && s.tx_error_counter >= 128) {
       Serial.println("[FAIL] transmitting, nothing acknowledging. Listener not powered/"
                      "running, CANH-CANL swapped between boards, or no common GND.");
+    } else if (echoed == 0 && txFail > 2 && s.tx_error_counter == 0 && s.bus_error_count == 0) {
+      // Measured on a bare board: with NO transceiver wired, GPIO32 floats and
+      // the controller never sees bus-idle, so it waits instead of erroring.
+      // Every counter stays 0 and the queue fills. That is a DIFFERENT fault
+      // from an unacknowledged bus (tx_err=128, bus_err climbing) and must not
+      // be read as one -- it means the transceiver is not connected at all.
+      Serial.println("[FAIL] queue full with every counter still 0 -- the controller is "
+                     "waiting for a bus that never goes idle. Transceiver not wired: "
+                     "check 3V3, GND, GPIO14->CTX, GPIO32->CRX.");
     } else if (echoed == 0) {
       Serial.println("[FAIL] no echoes yet. Is the second board powered and is its "
                      "GPIO27 actually grounded?");

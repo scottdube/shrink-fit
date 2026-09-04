@@ -547,3 +547,37 @@ resolve — so getting it from our own wiring would have been expensive.
 **GPIO 6**. Rule: **any pin assignment carried from a classic ESP32 to an S3 has
 to be re-checked against 26–32 before it is trusted**, and this applies to the
 whole controller pinmap, not just CAN.
+
+## Two CAN failures that look alike and are not: jammed vs unacknowledged
+
+Measured on the bench 2026-09-04 with both boards in front of us. `twai_transmit`
+returning queue-full has two completely different causes, and the counters tell
+them apart:
+
+| Counters | Meaning |
+|---|---|
+| `tx_err=0 rx_err=0 bus_err=0`, queue fills | **No transceiver wired.** GPIO32 floats, the controller never sees bus-idle, so it *waits* rather than erroring. Nothing is wrong with the bus because there is no bus. |
+| `tx_err=128`, `bus_err` climbing fast | **Transceiver wired, nothing acknowledging.** Frames go out and are never ACKed. |
+
+The first was the bare new board; the second is what the dev board shows against
+the R48. Both present as "it won't transmit", and reading either as the other
+sends you to the wrong end of the problem — which is the whole failure mode this
+two-node test exists to escape. Both firmwares now print the distinction rather
+than the raw counters.
+
+Corollary: **a frame that never leaves is not a lost frame.** Both firmwares
+originally retired the pending sequence number on every attempt, so one stuck
+frame reprinted `seq=5 NO ECHO` once a second and read as five losses. The
+pending frame is now retired only when a new one actually goes out.
+
+## pyserial asserts DTR and RTS on open — which is EN and GPIO0
+
+Opening an ESP32's port with default pyserial settings drives the auto-reset
+transistors and holds the chip in reset or download mode. The symptom is a
+screenful of repeating binary garbage that looks exactly like a baud mismatch or
+a boot loop, and it sent us to `esptool flash_id` to check the crystal — the chip
+was fine the whole time.
+
+Set `dtr = False` and `rts = False` **both before and after `open()`**, and do not
+pulse RTS unless a reset is actually wanted. `pio device monitor` already does
+this; hand-rolled readers do not.
