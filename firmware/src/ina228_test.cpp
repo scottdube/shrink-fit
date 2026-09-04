@@ -71,6 +71,17 @@ static const uint32_t R48_REQ_ID  = 0x108040FE; // data request, 8 x 0x00, exten
 static const uint32_t R48_DATA_ID = 0x1081407F; // telemetry reply
 static bool     canUp = false, canRaw = false;
 static uint32_t canNextReq = 0, canRx = 0, canTx = 0, canRxErr = 0;
+
+// "ping" -- bench bisection against a second ESP32 running can_loop.cpp as
+// LISTENER. THIS board stays the node under test: it is the one whose
+// transceiver, wiring and TWAI config have never been proved against a
+// known-good peer, and tx_err=128 with rx_err=0 is equally consistent with our
+// transceiver not driving as with the rectifier being absent. Testing two fresh
+// boards instead would exonerate hardware that was never accused.
+static const uint32_t PING_ID = 0x123, ECHO_ID = 0x124;
+static bool     pingMode = false, pingWait = false;
+static uint32_t pingSeq = 0, pingSent = 0, pingEcho = 0, pingLost = 0;
+static uint32_t pingWaitSeq = 0, pingTxAt = 0;
 static float    r48V = NAN, r48I81 = NAN, r48I82 = NAN, r48Vin = NAN, r48P = NAN;
 
 static const int PIN_SDA = 21;
@@ -200,6 +211,7 @@ static void canBegin() {
 static void canReset() {
   if (canUp) { twai_stop(); twai_driver_uninstall(); canUp = false; }
   canTx = canRx = canRxErr = 0;
+  pingSent = pingEcho = pingLost = pingSeq = 0; pingWait = false;
   r48V = r48I81 = r48I82 = r48Vin = r48P = NAN;
   canBegin();
 }
@@ -214,15 +226,42 @@ static uint32_t be32(const uint8_t *d) {
   return ((uint32_t)d[0] << 24) | ((uint32_t)d[1] << 16) | ((uint32_t)d[2] << 8) | d[3];
 }
 
+static void canPing() {
+  if (pingWait) {                                   // last one never came home
+    pingLost++;
+    sayf("ping seq=%lu  NO ECHO\n", (unsigned long)pingWaitSeq);
+  }
+  twai_message_t m = {};
+  m.extd = 0; m.identifier = PING_ID; m.data_length_code = 4;
+  m.data[0] = pingSeq >> 24; m.data[1] = pingSeq >> 16;
+  m.data[2] = pingSeq >> 8;  m.data[3] = pingSeq;
+  if (twai_transmit(&m, pdMS_TO_TICKS(20)) == ESP_OK) {
+    canTx++; pingSent++; pingWait = true; pingWaitSeq = pingSeq; pingTxAt = micros();
+    pingSeq++;
+  } else sayfln("ping: TX queue failed");
+}
+
 static void canService() {
   if (!canUp) return;
-  if (millis() > canNextReq) { canNextReq = millis() + 1000; canRequest(); }
+  if (millis() > canNextReq) {
+    canNextReq = millis() + 1000;
+    if (pingMode) canPing(); else canRequest();
+  }
 
   twai_message_t m;
   while (twai_receive(&m, 0) == ESP_OK) {
     canRx++;
     bool known = false;
-    if (m.extd && m.identifier == R48_DATA_ID && m.data_length_code == 8) {
+    if (!m.extd && m.identifier == ECHO_ID && m.data_length_code == 4) {
+      uint32_t got = be32(m.data), rtt = micros() - pingTxAt;
+      known = true;
+      if (pingWait && got == pingWaitSeq) { pingEcho++; pingWait = false; }
+      twai_status_info_t st; twai_get_status_info(&st);
+      sayf("ping seq=%lu  ECHO OK  rtt %lu us  tx_err=%lu rx_err=%lu bus_err=%lu\n",
+           (unsigned long)got, (unsigned long)rtt, (unsigned long)st.tx_error_counter,
+           (unsigned long)st.rx_error_counter, (unsigned long)st.bus_error_count);
+    }
+    else if (m.extd && m.identifier == R48_DATA_ID && m.data_length_code == 8) {
       float v = be32(&m.data[4]) / 1024.0f;
       known = true;
       switch (m.data[1]) {
@@ -257,6 +296,19 @@ static void canStatus() {
        r48V, r48I81, r48I82, r48Vin, r48P);
   if (st.state == TWAI_STATE_BUS_OFF)
     sayfln("  BUS-OFF: tx errors exceeded 255. Check termination (220||270 across H/L),");
+  if (pingMode) {
+    sayf("PING mode: %lu sent, %lu echoed, %lu lost\n",
+         (unsigned long)pingSent, (unsigned long)pingEcho, (unsigned long)pingLost);
+    if (pingEcho > 0 && pingLost == 0 && st.bus_error_count == 0)
+      sayfln("  [PASS] round trips clean -- THIS board's transceiver, wiring and TWAI");
+    else if (pingEcho > 0)
+      sayfln("  [MARGINAL] echoes but with losses -- check 121R termination at both ends.");
+    else if (pingSent > 3 && st.tx_error_counter >= 128)
+      sayfln("  [FAIL] nothing acknowledging. Peer unpowered, GPIO27 not grounded on it,");
+    else if (pingSent > 3)
+      sayfln("  [FAIL] no echoes. Is the second board powered and running can_loop?");
+    return;
+  }
   if (canRx == 0 && canTx > 3)
     sayfln("  transmitting but hearing nothing: R48 on mains? CANH/CANL swapped? GND to DC-?");
 }
@@ -273,7 +325,7 @@ void setup() {
   identify();
   otaBegin();
   canBegin();
-  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset");
+  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | ping");
   sayfln("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
   sayfln("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
   sayfln("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
@@ -357,6 +409,13 @@ static void handleLine(const char *line) {
   else if (s == "can")    canStatus();
   else if (s == "canreset") canReset();
   else if (s == "canraw") { canRaw = !canRaw; sayf("raw CAN dump %s\n", canRaw ? "ON" : "off"); }
+  else if (s == "ping") {
+    pingMode = !pingMode;
+    pingSent = pingEcho = pingLost = 0; pingWait = false;
+    sayf("ping mode %s -- %s\n", pingMode ? "ON" : "off",
+         pingMode ? "sending 0x123 at 1 Hz; peer must run can_loop as LISTENER (GPIO27 to GND)"
+                  : "back to the R48 request frame");
+  }
   else if (s == "scan")   scan();
   else if (s == "id")     identify();
   else if (s == "r")      dump();
