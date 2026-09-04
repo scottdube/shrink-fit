@@ -205,11 +205,32 @@ void loop() {
 
   if (!talker && millis() - lastReport > 5000) {
     lastReport = millis();
+
+    // SELF-TEST. A listener that hears nothing is silent whether its
+    // transceiver is connected or not -- identical counters both ways, which
+    // makes 'is this end even alive?' unanswerable at exactly the moment it
+    // matters. So it sends one frame of its own and reads the result: the
+    // transmit path exercises the same transceiver the receive path uses.
+    twai_message_t p = {};
+    p.identifier = 0x7FF; p.data_length_code = 1; p.data[0] = 0xA5;
+    bool queued = (twai_transmit(&p, pdMS_TO_TICKS(50)) == ESP_OK);
+
     twai_status_info_t s; twai_get_status_info(&s);
-    Serial.printf("[LISTENER] echoed %lu frames | rx_err=%lu bus_err=%lu\n",
+    Serial.printf("[LISTENER] echoed %lu | rx_err=%lu bus_err=%lu tx_err=%lu\n",
                   (unsigned long)echoed, (unsigned long)s.rx_error_counter,
-                  (unsigned long)s.bus_error_count);
-    scanGrounded();
+                  (unsigned long)s.bus_error_count,
+                  (unsigned long)s.tx_error_counter);
+    if (echoed > 0)
+      Serial.println("  [OK] frames received and echoed -- this end is working.");
+    else if (!queued && s.tx_error_counter == 0 && s.bus_error_count == 0)
+      Serial.println("  [NO TRANSCEIVER] cannot queue, every counter 0 -- the "
+                     "controller never sees bus-idle. Check 3V3, GND, "
+                     "P14->CTX, P32->CRX.");
+    else if (s.tx_error_counter > 0 || s.bus_error_count > 0)
+      Serial.println("  [TRANSCEIVER OK, BUS QUIET] our probe goes out and is not "
+                     "acknowledged. This end is fine; nothing is answering yet.");
+    else
+      Serial.println("  [waiting] probe queued, no result yet.");
   }
 
   // Verdict every 5 s on the talker, so a failure does not need interpreting later.
