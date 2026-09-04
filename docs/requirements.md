@@ -1716,3 +1716,49 @@ listings that include comms say so. Verify before ordering that the listing show
 
 Do **not** probe the edge connector live: **AC mains enters through it**, and the
 pinout is unknown, so there is nothing to probe safely toward.
+
+### 6.14.4 The module manual confirms the CAN feature set — and explains the missing pinout
+
+**Vertiv eSure Rectifier Module User Manual (UM1R481000e3, same family), Table 1.7
+"Exchange of Information between Rectifier and Controller":**
+
+| Commands the rectifier ACCEPTS | Telemetry it REPORTS |
+|---|---|
+| **Turn On/Off** | Input voltage, **output voltage**, **output current** |
+| Current Walk-in On/Off | **Current limit setting**, over-voltage setting |
+| HVSD (High Voltage Shutdown) Reset | Temperature, on/off status |
+| **Current Limit Adjustment** | Fault alarms (HVSD, fan fail), protection alarms |
+| **Voltage Regulation** | Thermal/AC derating, AC fail, address, code, versions |
+
+**Everything CR-11 wants is a documented factory feature** — voltage regulation
+and current limit adjustment are both in the accepted-command list. This is not a
+community hack on an undocumented interface.
+
+**Why no pinout exists in this manual:** §2.1 says *"Refer to the system
+documentation supplied with the system the rectifier is installed in."* **The
+module plugs into a NetSure shelf; the backplane pinout belongs to the shelf's
+documentation, not the module's.** That is the structural reason this has been so
+hard to find, and it means the remaining document to chase is the **NetSure
+731-A412 (or similar shelf) manual**, not anything with "R48" in the title.
+
+### Searched and exhausted
+Vertiv datasheets (both variants), UM1R481000e3 full text (28 pp), ManualsLib,
+Scribd, Manualzz, 48vrectifier.com, `anikrooz/Emerson-Vertiv-R48`,
+`PurpleAlien/R48_Rectifier`, Endless Sphere thread (multiple pages), DIY Solar
+forum. **No backplane pin assignment published anywhere reachable.**
+
+### Scott's hypothesis is still open and still untested
+
+**That the JST's two pins ARE CAN-H/CAN-L**, with the rectifier's transceiver
+inactive standalone. **My "both pins below 0.2 V, therefore not CAN" was
+over-concluded** — an unpowered or standby transceiver releases its bias and
+floats near zero. And the **55 kΩ measured across the pair in August is
+consistent with a CAN transceiver's differential input** (typically 20–40 kΩ);
+an enable line would be a few kΩ to one rail, not tens of kΩ across a pair.
+
+**The test that settles it, and it costs nothing:**
+1. **Scope the pair** — DHO914, probe one JST pin, ground to DC−, 20 µs/div,
+   R48 running. Any traffic at all means it is a live bus.
+2. **Connect our powered transceiver and measure without transmitting.** The
+   SN65HVD230 biases the pair to ~2.5 V. If it sits there cleanly, the lines are
+   free; if something drags it toward zero, the R48 end is loading them.
