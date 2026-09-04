@@ -653,3 +653,30 @@ board with white silk.
 
 Related: `P12` is MTDI and sets flash voltage at boot. Grounded is the safe
 state; pulled high it stops the board booting. Never tie it to 3V3.
+
+## Suspect the breadboard before the wiring
+
+2026-09-04. An evening of CAN bring-up produced: floating voltages between pins
+that should have been shorted, `flash read err, 988`, repeated boot loops that
+appeared and vanished with wire changes, and readings that moved when nothing
+electrical had. Every one of those was diagnosed as a wiring error, and each
+diagnosis was individually plausible.
+
+**Scott lifted the ESP32 off the breadboard and the anomalous readings went
+away.** The breadboard was bridging or leaking — the classic failure of a cheap
+one, a contaminated or bent contact intermittently shorting adjacent rows.
+
+Why it evaded us for hours: an intermittent bridge is *indistinguishable* from a
+mis-landed wire, and it moves when you touch things, so every "fix" appeared to
+work or fail at random. It also perfectly mimics the flash-pin fault, because
+bridging onto an `SD*`/`CLK`/`CMD` row IS a flash-pin fault — just one nobody
+wired.
+
+**Rule: when a board misbehaves in ways that change as wires are moved, lift it
+off the breadboard and re-measure before diagnosing the wiring.** One removal
+falsifies or confirms the entire board in a few seconds, and it comes before
+counting pins, not after.
+
+For bring-up of anything with an SPI-flash-bus MCU, prefer direct
+male-to-female jumpers module-to-board over a breadboard entirely. Fewer
+contacts, nothing shared, and the silk stays readable.
