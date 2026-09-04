@@ -1800,3 +1800,78 @@ If both come back negative, CAN is genuinely unreachable on this hardware and th
 throttle has to be abandoned or solved another way — a series resistor in the
 rectifier's own sense line, or accepting fixed 53.5 V and controlling energy
 purely by time.
+
+## 6.15 R48 CAN protocol — CORRECTED and verified (supersedes §6.14's encodings)
+
+Source: **Endless Sphere thread 114785, post #3 by "dominik h"** — commands lifted
+from an **Emerson 820 controller**, plus some found by trial. Far more complete
+than the GitHub repo, and it **corrects the encoding**.
+
+### The encoding is IEEE-754 FLOAT, not a scaled integer
+
+§6.14 recorded `(volts×10 − 320) × 0x40000 / 10` from the repo. **Wrong.** Values
+are **32-bit big-endian floats**. Decoded and verified against the post's own
+stated limits:
+
+| Bytes | Float | Post says |
+|---|---|---|
+| `42 24 00 00` | **41.0** | minimum voltage ✓ |
+| `42 50 00 00` | **52.0** | example ✓ |
+| `42 6A 00 00` | **58.5** | maximum voltage ✓ |
+| `3D CC CC CD` | **0.1** | 10% of rated current ✓ |
+| `3F 9A E1 48` | **1.21** | 121% of rated current ✓ |
+| `40 A0 00 00` | **5.0** | AC input limit 5 A ✓ |
+
+**All six decode exactly.** This is settled.
+
+### Frame: ID `0x0607FF83` (or `0x06080783`), 125 kbps, 8 bytes
+
+`03 F0 00 <cmd> <float, 4 bytes big-endian>`
+
+| `<cmd>` | Function | Range |
+|---|---|---|
+| **0x21** | **Voltage, ONLINE** — lost after 30 s | 41 – 58.5 V |
+| **0x24** | Voltage, OFFLINE (permanent) | 41 – 58.5 V |
+| **0x22** | **Current limit, ONLINE** | 0.1 – 1.21 (fraction of rated) |
+| 0x19 | Current limit, OFFLINE | 0.1 – 1.21 |
+| **0x30** | **DC output**: `00 00 00 00` = ON, `00 01 00 00` = OFF | — |
+| 0x32 | Walk-in on/off | |
+| 0x29 | Walk-in ramp time | |
+| 0x1A | AC input current limit ("diesel power limit") | amps |
+| 0x33 | Fan: `00 01 00 00` full, `00 00 00 00` auto | |
+| 0x39 | Restart after overvoltage on/off | |
+
+### Current is a FRACTION of rated, and 121% is the datasheet number
+
+*"The output current is set in percent to the rated value... **The rated current
+written in the datasheet is 121%.**"*
+
+So the datasheet's **62.5 A is the 1.21 value**, making the 100% base ≈ **51.7 A**
+— which matches the datasheet's own output-voltage-vs-current graph, whose curve
+is annotated **51.7** and **62.5**. **Commanding 30 A means sending 30/51.7 =
+0.58**, not 30/62.5. §6.14's scaling note is superseded.
+
+### ONLINE settings expire — repeat every 15–30 s
+
+*"online commands working only when permanently send via CAN (every 15 seconds)"*
+and *"online-voltage value gets lost after 30 seconds"*.
+
+**This is the same watchdog behaviour recorded in §6.14, from a second
+independent source.** A controller that stops talking loses its setpoint. For
+CR-01 that is a free interlock and a hard constraint: **the CAN task must not
+stall during a cycle.**
+
+### Model caveat — ours is not in either list
+
+*"The r48-1000e3, the R48-2000e3 built before 2020, the R48-3500e3 and the
+R48-4300E3 can only be set permanent (offline) voltage between 48–58 V. 42–48 is
+only possible with online voltage... The R48-2000e3 built 2020 and 2022 can be
+set permanent from 41–58.5 V."*
+
+**The R48-3000e3 appears in neither group.** Its offline range is unknown.
+**Use ONLINE commands (0x21 / 0x22) during bring-up regardless** — they expire on
+their own, so a mistake cannot persist, and they cover the full 41–58.5 V range
+on every variant listed.
+
+**Firmware clamp at 48.0 V stands** (§6.14) — the bus accepts 58.5 V, which is
+~184 V peak on 200 V FETs before ringing.
