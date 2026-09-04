@@ -209,6 +209,7 @@ static void canBegin() {
 // was just fixed cannot deliver until the controller transmits again. A reboot
 // clears it too, but that loses the telnet session and the evidence.
 static void canReset() {
+  ledcDetachPin(CAN_TX);                  // in case 'toggle' left PWM on the pin
   if (canUp) { twai_stop(); twai_driver_uninstall(); canUp = false; }
   canTx = canRx = canRxErr = 0;
   pingSent = pingEcho = pingLost = pingSeq = pingTxFail = 0; pingWait = false;
@@ -387,7 +388,7 @@ void setup() {
   identify();
   otaBegin();
   canBegin();
-  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | ping | selftest | dominant | recessive");
+  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | ping | selftest | dominant | recessive | toggle");
   sayfln("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
   sayfln("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
   sayfln("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
@@ -475,6 +476,20 @@ static void handleLine(const char *line) {
   // A hand jumper to GND depends on a contact we cannot verify; the P14 wire has
   // been measured at 0 ohms, so this commands the driver through known-good
   // copper. Datasheet: D LOW = dominant, HIGH = recessive.
+  // 125 kHz 50% square wave on D -- a CAN-shaped signal. The DC 'dominant'
+  // hold is NOT how CAN works: a real dominant bit is 8 us at 125 kbps, and a
+  // transceiver with a dominant-state timeout disables its driver after ~1 ms
+  // of continuous low. If that is what this chip does, the DC test fails a
+  // perfectly good driver every time, and this one does not.
+  else if (s == "toggle") {
+    if (canUp) { twai_stop(); twai_driver_uninstall(); canUp = false; }
+    ledcSetup(0, 125000, 4);              // ch0, 125 kHz, 4-bit resolution
+    ledcAttachPin(CAN_TX, 0);
+    ledcWrite(0, 8);                      // 8/16 = 50% duty
+    sayfln("D (GPIO14): 125 kHz square wave, 50% duty -- CAN-shaped drive.");
+    sayfln("  A working driver averages CANH ~2.6 V and CANL ~1.6 V (meter smooths it).");
+    sayfln("  Recessive-only averages ~1.5 V on both. 'canreset' to stop.");
+  }
   else if (s == "dominant" || s == "recessive") {
     bool dom = (s == "dominant");
     if (canUp) { twai_stop(); twai_driver_uninstall(); canUp = false; }

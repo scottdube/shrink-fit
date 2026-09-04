@@ -809,3 +809,52 @@ Verify by the driver producing 3.0/1.0 V, not by the supply reading 3.3 V.
 **Rule:** for anything with a driver — transceiver, motor, LED string, radio —
 **read the supply pin while the part is driving.** Unloaded voltage is a
 statement about the meter, not the supply.
+
+## The blue "VP230" modules do not drive the bus — measured at the chip leads
+
+2026-09-04, end of a full day. Three SN65HVD230 breakout modules (one never in
+service), one at a time on a bench supply that held 3.3 V steady under load,
+every input measured **directly at the SOIC lead**, not at the module pin:
+
+| Lead | Pin | Idle | Driven |
+|---|---|---|---|
+| `D` | 1 | 3.3 V | 26 mV (DC hold) / **1.65 V avg (125 kHz square wave)** |
+| `GND` | 2 | 0 V | 0 V |
+| `VCC` | 3 | 3.3 V | 3.3 V, steady |
+| `R` | 4 | 2.2 V | 0.2 V — receiver reports dominant |
+| `RS` | 8 | 0.6 V | — (slope control; standby needs > 2.5 V) |
+| `CANH` / `CANL` | 7 / 6 | 1.5 V / 1.5 V | **1.5 V / 1.5 V — no change** |
+| supply current | | 13 mA | 13 mA (square wave), 9 mA (DC hold) |
+
+The chip is alive, biases the bus, sees `D`, and its receiver follows `D`. **The
+output stage never engages.** Datasheet dominant is `CANH` ≥ 2.45 V, `CANL`
+0.5–1.25 V, ~30 mA. Not once, on any module, at any pulse width.
+
+**Two invalid tests were removed on the way, and both are worth keeping:**
+
+1. **The DC hold is not a CAN test.** Holding `D` low for 40 s is nothing like an
+   8 µs dominant bit, and a transceiver with a dominant-state timeout would fail
+   it while being perfectly good. The 125 kHz square wave is the right stimulus
+   and a meter reads its average cleanly: a working driver shows `CANH` ~2.6 V /
+   `CANL` ~1.6 V; this shows 1.5/1.5.
+2. **The ESP32 TWAI no-ACK self-test does not reach the transceiver.** Both boards
+   passed it while their transceivers demonstrably could not drive. It is
+   satisfied inside the controller. Never cite it as hardware verification.
+
+**Two anomalies that point at the chip, not the wiring:**
+- `R` idles at **2.2 V** with only a GPIO input attached; datasheet minimum is 2.4 V
+  *under an 8 mA load*.
+- Bus-pin input resistance measures **14 kΩ** to ground; datasheet minimum is 20 kΩ.
+
+Both are consistent with a die that is not what the `VP230` marking claims — these
+breakouts are a known counterfeit target — and with a **5 V transceiver die**
+whose receiver limps along at 3.3 V while its driver lacks the headroom to work.
+
+**Untested, deliberately:** the modules at 5 V. Abs-max `VCC` is 6 V, so a genuine
+part survives it; a counterfeit 5 V die would start driving. It has to be done
+with `CRX` disconnected from the ESP32 first, because `R` would swing to 5 V and
+the ESP32 is not 5 V tolerant.
+
+**Rule from the day, restated once:** test the part in isolation, at its own
+leads, with a stimulus shaped like the real signal, and read the supply *during*
+the load. Every hour lost today was one of those four skipped.
