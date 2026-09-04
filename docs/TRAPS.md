@@ -654,7 +654,7 @@ board with white silk.
 Related: `P12` is MTDI and sets flash voltage at boot. Grounded is the safe
 state; pulled high it stops the board booting. Never tie it to 3V3.
 
-## Suspect the breadboard before the wiring
+## Suspect what is still CONNECTED before the wiring (it was not the breadboard)
 
 2026-09-04. An evening of CAN bring-up produced: floating voltages between pins
 that should have been shorted, `flash read err, 988`, repeated boot loops that
@@ -663,8 +663,14 @@ electrical had. Every one of those was diagnosed as a wiring error, and each
 diagnosis was individually plausible.
 
 **Scott lifted the ESP32 off the breadboard and the anomalous readings went
-away.** The breadboard was bridging or leaking — the classic failure of a cheap
-one, a contaminated or bent contact intermittently shorting adjacent rows.
+away.** I concluded the breadboard was leaking. Wrong: he then found the INA228
+module was still connected to 3V3 and GND with only its signal wires pulled, and
+removing *it* is what cleared the phantom voltage. The breadboard was fine.
+
+The mechanism is the INA228's ESD diodes from `VIN+`/`VIN-` to its supply rails.
+With those inputs still on the shunt, the module conducts from the measured
+circuit into the logic 3V3 rail and ground through diodes never intended to carry
+it. A part that is "powered but not wired up" is still a connection.
 
 Why it evaded us for hours: an intermittent bridge is *indistinguishable* from a
 mis-landed wire, and it moves when you touch things, so every "fix" appeared to
@@ -672,11 +678,13 @@ work or fail at random. It also perfectly mimics the flash-pin fault, because
 bridging onto an `SD*`/`CLK`/`CMD` row IS a flash-pin fault — just one nobody
 wired.
 
-**Rule: when a board misbehaves in ways that change as wires are moved, lift it
-off the breadboard and re-measure before diagnosing the wiring.** One removal
-falsifies or confirms the entire board in a few seconds, and it comes before
-counting pins, not after.
+**Rule: when a board misbehaves in ways that change as wires are moved, remove
+things one at a time and re-measure, before diagnosing the wiring.** Removal
+falsifies a whole subsystem in seconds and belongs before pin-counting, not
+after. Pulling the signal wires off a module does NOT remove it from the circuit
+— its power pins and its input ESD diodes are both still connections.
 
-For bring-up of anything with an SPI-flash-bus MCU, prefer direct
-male-to-female jumpers module-to-board over a breadboard entirely. Fewer
-contacts, nothing shared, and the silk stays readable.
+Second-order lesson, aimed at me: I proposed lifting the board, got the right
+result, and attached it to the wrong cause — then wrote that cause down as fact
+within the minute. A correct experiment does not license a confident conclusion
+about *which* removed thing mattered when several were removed at once.
