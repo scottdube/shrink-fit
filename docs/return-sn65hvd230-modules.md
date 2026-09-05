@@ -88,6 +88,18 @@ from the same stock is not expected to differ.
 3. `[photo — bench setup: PSU readout and both meters during the 125 kHz test]`
 4. TI datasheet SLOS346O, §8.5 Electrical Characteristics: Driver
 
+## Corroboration — the clone market for this exact part number
+
+LCSC's search for `SN65HVD230DR` on 2026-09-04 returns the genuine TI part
+(C12084, 57,042 in stock, $0.70 @1) **and six third-party parts carrying the
+same number**: JSMSEMI `SN65HVD230DR-JSM`, Tudi `SN65HVD230DR-TUDI`, Tokmas
+`SN65HVD230DR`, XINLUDA `XL65HVD230DR`, LKWIC `LKI65HVD230S`, ZHHXDZ
+`HX65HVD230-S`, priced $0.20–0.50. Their published specs differ from TI's — one
+lists 70 mA supply / 950 µA quiescent, another 5 Mbps / 2 mA — i.e. different
+dies. A module retailing at $2.66 for a populated board cannot contain a $0.70
+genuine die plus PCB, passives, headers and margin; it is built from this tier.
+That is consistent with, though not proof of, what the measurements show.
+
 ## Manufacturer notification (TI) — suspected counterfeit
 
 TI's stated policy (ti.com anti-counterfeit page) is that verification and
