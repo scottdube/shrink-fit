@@ -90,7 +90,7 @@ from the same stock is not expected to differ.
 
 ## Corroboration — genuine parts on the same wiring, next day
 
-2026-09-05: two **Waveshare** SN65HVD230 boards (Amazon, sold by Waveshare's own
+2026-09-06: two **Waveshare** SN65HVD230 boards (Amazon, sold by Waveshare's own
 store) were fitted to the **same ESP32s, same pins, same wiring, same firmware**
 that all three hiBCTR modules had failed on. Under the identical 125 kHz drive
 test both Waveshares drove the bus (2.8/1.6 V and 2.7/1.6 V split); the two-node

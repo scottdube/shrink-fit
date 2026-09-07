@@ -1595,7 +1595,7 @@ no-node-on-the-bus symptom.** Two independent faults: wrong language, and
 probably wrong wires.
 
 
-### 6.14.0 The frames the source actually sends — filled in 2026-09-04
+### 6.14.0 The frames the source actually sends — filled in 2026-09-06
 
 §6.14 above recorded the reply IDs but not what triggers them. Read from
 `VertivPsu.cpp` directly and now implemented in `ina228_test.cpp` (Stage 1,
@@ -1633,7 +1633,7 @@ frame with its ID; `r48init` starts the handshake and keep-alive; `r48stop`
 returns to listen. Set commands exist only behind `-DR48_STAGE2`, with the
 48.0 V clamp applied before encoding and OFFLINE (`0x24`) deliberately absent.
 
-### 6.14.0a FIRST CONTACT — 2026-09-05, ~12:40. The R48 talks.
+### 6.14.0a FIRST CONTACT — 2026-09-07, ~12:40. The R48 talks.
 
 Dev ESP32 + Waveshare on a USB brick, driven over telnet, `CANH`/`CANL` only to
 the JST, **no ground wire**. 60 s in LISTEN: silence — **the rectifier does not
@@ -1669,7 +1669,7 @@ before anything else.**
 `GND` was left unconnected and the link is clean. The earlier `DC−` tie was for
 a transceiver assumed to sit on the output ground — it does not.
 
-### 6.14.0b TELEMETRY DECODE VERIFIED under load — 2026-09-05 ~13:20
+### 6.14.0b TELEMETRY DECODE VERIFIED under load — 2026-09-07 ~13:20
 
 ZVS short cycle (2 blinks = 10 s) on the shrink-fit coil, R48 feeding it, DC
 clamp on the bus, status frames captured at ~2.5/s over telnet.
@@ -1693,7 +1693,7 @@ clamp on the bus, status frames captured at ~2.5/s over telnet.
   figure is ~8 % under what it actually delivers, on both instruments.
 - Ramp: 0 → 68 A in ~4 s; Vout collapses within the first second.
 
-### 6.14.0c STAGE 2 — ONLINE voltage command and its timeout, measured 2026-09-05 ~14:00
+### 6.14.0c STAGE 2 — ONLINE voltage command and its timeout, measured 2026-09-07 ~14:00
 
 R48 unloaded, meter on `DC+`/`DC−`, session in `RUN`, keep-alive every 6 s.
 
@@ -1725,7 +1725,7 @@ R48 unloaded, meter on `DC+`/`DC−`, session in `RUN`, keep-alive every 6 s.
   state. That reads as Vertiv's "alarm logged and cleared" indication, not an
   active fault; the exact meaning is an open item for the manual.
 
-### 6.14.0d STAGE 2 — ONLINE current limit under load, measured 2026-09-05 ~14:40
+### 6.14.0d STAGE 2 — ONLINE current limit under load, measured 2026-09-07 ~14:40
 
 `r48i 50` → `0x0607FF83` `03 F0 00 22 3F 77 95 0B` (0.967 of a 51.7 A base),
 then one ZVS cycle (2 blinks), DC clamp on the bus, meter on the output.
@@ -1781,10 +1781,29 @@ loop hunts. Fine power control below that point comes from **duty cycle**
 (on-time per CR-01 dose), not from the current setpoint. The current limit is a
 ceiling and a coarse knob, not a fine one.
 
-**Stage 2 is verified for voltage, hold, revert, clamp, and current limit —
-every one on the wire, on telemetry, and on a meter. Current scale ≈ 57 A ± 1.5.**
+**Third point, `r48i 62` (f = 1.088) — clean:** telemetry **60.1 A**, clamp
+**60 A**, bus **17 V**, steady, no hunting. Base from this point 55.1 A.
 
-### 6.14.0e The R48 JST harness — wire colours, recorded 2026-09-05
+**Calibration, final:** stable points at f = 0.967 → 55.6/55 A and f = 1.088 →
+60.1/60 A, plus the uncommanded limit 68 A = 1.21. Base estimates 55.1–57.5; a
+line through two points only 12 % apart amplifies noise into a spurious offset,
+so: **base = 56 ± 1.5 A, linear to ~3 A over 45–62 A, no demonstrated offset.**
+68/1.21 = 56.2 is the cleanest single measurement and equals 3000 W / 53 V.
+`R48_I_BASE = 56.0` in source — **not yet on the board** (the OTA was aborted
+mid-invitation; see TRAPS). Flashes by USB.
+
+**CC-loop stability range, measured:** steady at 17 V / 60 A, hunting at 9 V /
+45 A into this coil. **The current limit is a usable knob from ~50 A up to the
+68 A default — bus 15–20 V, roughly 750–1360 W. Below that, duty cycle.**
+
+**Stage 2 is verified for voltage, hold, revert, clamp, and current limit —
+every one on the wire, on telemetry, and on a meter.**
+
+**Controller footprint (C6), Scott 2026-09-07:** leaning **SOIC on the PCB** —
+the Waveshare's 4-and-2 pin arrangement will not sit cleanly on a board. Decision
+deferred until the design is closer; the LCSC order follows the decision.
+
+### 6.14.0e The R48 JST harness — wire colours, recorded 2026-09-07
 
 Scott made a harness for the rectifier's 2-pin JST. **The polarity that works
 is the one measured today** (reversed gives bus-off, §6.14.0a):
@@ -1830,7 +1849,7 @@ terminal block for the CAN."* People add the tap; the cards do not ship with it.
 Back-probe from the card's solder side; the fingers are inside the connector once
 the card is seated.
 
-### 6.14.1a Third measurement, 2026-09-05 — the JST floats relative to the output
+### 6.14.1a Third measurement, 2026-09-07 — the JST floats relative to the output
 
 R48 on mains, output up at **53.4 V** (`DC−`→`DC+`), **nothing** attached to the
 JST. Both JST pins read **0 V against `DC−` AND 0 V against `DC+`.** Two points
@@ -1855,7 +1874,7 @@ an **isolated** adapter with *only* `CANH`/`CANL` attached — the CANable — w
 floating CAN side settles at the rectifier's reference through its own input
 resistors. The dev ESP32 does not go near it until that reference is known.
 
-### 6.14.1b RESOLVED 2026-09-05 — the JST is CAN, on an isolated ground
+### 6.14.1b RESOLVED 2026-09-07 — the JST is CAN, on an isolated ground
 
 Tests from 6.14.1a, R48 off: **55 kΩ across the pair in both polarities, OL both
 ways in diode mode.** Symmetric and resistive — a CAN transceiver's differential

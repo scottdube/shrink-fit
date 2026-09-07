@@ -858,3 +858,16 @@ the ESP32 is not 5 V tolerant.
 **Rule from the day, restated once:** test the part in isolation, at its own
 leads, with a stimulus shaped like the real signal, and read the supply *during*
 the load. Every hour lost today was one of those four skipped.
+
+## An abandoned OTA invitation freezes the board's main loop
+
+2026-09-07. `pio run -t upload` over espota from the main LAN to a board on the
+IoT VLAN: the invitation reaches the board, the board acknowledges and starts
+waiting for the data stream, the host's reverse connection cannot cross the
+VLAN, the host gives up — and **the board's ArduinoOTA handler keeps waiting.**
+It pings, it accepts TCP on 23, and it never services the loop again. Telnet
+connects and prints nothing. The only way out is a power-cycle.
+
+**Rule: never start an OTA unless the Mac is on the IoT network.** A failed OTA
+is not a no-op; it takes the board off the air until someone walks to it. Check
+the network first — the failure mode costs a trip across the shop.

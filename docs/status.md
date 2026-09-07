@@ -1205,7 +1205,7 @@ tracks the DC clamp later is the real current sub-ID; the other is discarded.
 - `tx` climbing, `rx` stuck at 0 → R48 not on mains, H/L swapped, or no GND to DC−.
 - Nothing at all → transceiver RS pin; the module's 10 kΩ to GND should hold it in high-speed mode.
 
-## 2026-09-04 — CAN two-node loopback PASSES on Waveshare transceivers
+## 2026-09-06 — CAN two-node loopback PASSES on Waveshare transceivers
 
 **16/16 round trips, ~1.4 ms RTT, zero errors, first attempt** — once both
 ends were verified *before* the bus went between them.
@@ -1231,7 +1231,7 @@ passive `canraw` listen needs no protocol and is the zero-risk first step.
 `P14`/`P32`) and new board (`usbserial-0001`, `can_loop_listener`, Waveshare).
 Blue modules 1–3 marked and set aside for return.
 
-## 2026-09-04 evening — Vertiv protocol rewritten; NOT yet flashed
+## 2026-09-06 evening — Vertiv protocol rewritten; NOT yet flashed
 
 `ina228_test.cpp` now speaks the R48-3000e3's actual protocol (§6.14.0 / §6.15).
 Huawei constants removed. Builds clean in both Stage 1 and `-DR48_STAGE2`.
@@ -1241,7 +1241,7 @@ meaningful until it is flashed.
 
 ### Tomorrow, in order
 
-1. ~~**Flash the dev board.**~~ **DONE 2026-09-05 ~noon** — boots `R48 mode: LISTEN`, tx=0, on `usbserial-0001` today (port names shifted). Original text: USB: `pio run -e ina228_esp32 -t upload`. Or OTA
+1. ~~**Flash the dev board.**~~ **DONE 2026-09-07 ~noon** — boots `R48 mode: LISTEN`, tx=0, on `usbserial-0001` today (port names shifted). Original text: USB: `pio run -e ina228_esp32 -t upload`. Or OTA
    once it is powered and on WiFi: `pio run -e ina228_ota -t upload`. Confirm
    the boot banner says `R48 mode: LISTEN`.
 2. **Decide where CAN physically is on the R48.** §6.14.1 measured the 2-pin JST
@@ -1264,7 +1264,7 @@ undecided) · InvenTree PO for the two Waveshares · TI notification yes/no ·
 quarantine stock 80/83 yes/no · controller footprint: SOIC-8 on PCB vs module
 header · IC marking lines 2–3 for the return report.
 
-### 2026-09-04 evening — USB-CAN sniffer identified and working on the Mac
+### 2026-09-06 evening — USB-CAN sniffer identified and working on the Mac
 
 PO-0160 "Jhoinrch Isolation USB to CAN FD Adapter" is a **CANable 2.0 clone**
 running the open-source slcan firmware (`V` → `16e7497-dirty
@@ -1279,14 +1279,14 @@ natively. It was invisible at first only because Parallels had claimed it.
   **Switch it OFF before it joins any bus** — the R48 bus already has the
   Waveshare's 120 Ω plus the rectifier's own, and even the loopback pair would
   make it a third terminator (the 40 Ω trap from 09-04 morning).
-- Received into InvenTree 2026-09-04 as stock item 791 @ Electronics Bench, with
+- Received into InvenTree 2026-09-06 as stock item 791 @ Electronics Bench, with
   the identification in its notes. PO-0160 line 1/1; order left PLACED for Scott
   to complete.
 
 Tomorrow it goes on the R48 bus in parallel with the dev Waveshare — the one
 observer that neither ESP32 can influence, and the arbiter if the two disagree.
 
-### 2026-09-05 — R48 JST resolved as isolated CAN; contact sequence
+### 2026-09-07 — R48 JST resolved as isolated CAN; contact sequence
 
 1. **Sniffer verification** on the loopback pair — CANable `CANH`/`CANL` across
    the two Waveshares, **switch OFF** (pair already has two terminators). Dev
@@ -1308,7 +1308,7 @@ brick with telnet was built for exactly this: it goes to the R48 alone and is
 driven over WiFi from the bench. The Mac stays put. The CANable needs the Mac
 and therefore only travels if a second trip is justified by an ambiguous result.
 
-### 2026-09-05 — CANable sniffer: OPEN, set aside
+### 2026-09-07 — CANable sniffer: OPEN, set aside
 
 Transceiver powered (2.8 V bias on both lines, isolated side), `S4` = 125 kbps
 confirmed in `inc/can.h`, tried both H/L polarities, isolated `GND` tied to the
@@ -1318,7 +1318,7 @@ is worth an hour: flash candleLight (gs_usb) via canable.io/updater and drive it
 with python-can over libusb, which removes slcan and this firmware from the
 question.
 
-## 2026-09-05 ~12:40 — ✅ R48 CAN COMMUNICATION ACHIEVED
+## 2026-09-07 ~12:40 — ✅ R48 CAN COMMUNICATION ACHIEVED
 
 Rectifier answers the Vertiv handshake and streams telemetry: 160 frames/40 s,
 zero errors, `Vout 53.10 V` vs 53.4 V on the meter. Details in §6.14.0a.
@@ -1335,7 +1335,7 @@ polarity** — reversed gives bus-off, not silence.
 4. Stage 2 — set commands behind the 48.0 V clamp. Not before 1–3.
 5. CANable sniffer — parked, open.
 
-## 2026-09-05 ~14:15 — ✅ STAGE 2 VERIFIED: the rectifier is under ONLINE control
+## 2026-09-07 ~14:15 — ✅ STAGE 2 VERIFIED: the rectifier is under ONLINE control
 
 All five steps passed on telemetry and meter (§6.14.0c): 45 V obeyed with a
 2.5 V/s walk-in; held under the 10 s refresh; **silence reverts it in ~37 s,
@@ -1354,7 +1354,7 @@ ZVS cycle with the clamp meter watching.
 controller build with the safety chain · the deferred list (return report,
 parts order, TI notification, quarantine, controller footprint, PO).
 
-### 2026-09-05 ~14:40 — ✅ `r48i` verified under load; Stage 2 complete
+### 2026-09-07 ~14:40 — ✅ `r48i` verified under load; Stage 2 complete
 
 50 A commanded → 55 A delivered (telemetry and clamp agree) → the 100 % base is
 ~57 A, not 51.7. Firmware corrected. §6.14.0d. **Every Stage 2 property is now
@@ -1367,3 +1367,22 @@ the base is a gain rather than an offset.
 clears on the next command. Next point, if any, goes UP (62 A), never down.
 
 **R48 JST harness:** yellow = CAN H, blue = CAN L, no ground. §6.14.0e.
+
+### 2026-09-07 ~13:55 — testing complete; housekeeping
+
+- **62 A point clean** (60/60 A, 17 V, steady). **Base = 56 ± 1.5 A**, linear.
+  CC loop steady at 17 V, hunts at 9 V → **current knob usable ~50–68 A; duty
+  cycle below.** §6.14.0d.
+- `R48_I_BASE = 56.0` in source, **not flashed** — OTA aborted (Mac had left
+  IoT) and the board stalled in the OTA handler. **Needs a power-cycle, then a
+  USB flash at the bench.** TRAPS has the rule.
+- **90 s hold test still owed**: step 2 held 35 s against a 37 s timeout and so
+  never proved the refresh. After the power-cycle: `r48v 45`, read the meter at
+  2 min.
+- **InvenTree:** stock 80/83 (hiBCTR modules) → REJECTED, one BO-0002 allocation
+  released, part 19 noted. **PO-0159** is the two Waveshares (2/2 received,
+  PLACED) and **PO-0160** the CANable — both one click from Complete.
+- Footprint (C6): leaning SOIC on PCB, deferred. TI notification, marking
+  lines, photos: dropped. LCSC order: follows the footprint decision.
+- **Dates in all docs corrected to the git calendar** (bench day 09-04,
+  Waveshares/loopback/sniffer 09-06, R48 contact and Stage 2 09-07).
