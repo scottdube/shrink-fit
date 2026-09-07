@@ -1665,6 +1665,31 @@ terminal block for the CAN."* People add the tap; the cards do not ship with it.
 Back-probe from the card's solder side; the fingers are inside the connector once
 the card is seated.
 
+### 6.14.1a Third measurement, 2026-09-05 — the JST floats relative to the output
+
+R48 on mains, output up at **53.4 V** (`DC−`→`DC+`), **nothing** attached to the
+JST. Both JST pins read **0 V against `DC−` AND 0 V against `DC+`.** Two points
+53 V apart cannot both be at the JST's potential; the only reading that
+satisfies it is a **floating, high-impedance node** that follows the meter's
+other lead. Anything referenced to the output — a CAN transceiver in standby
+included — would read ~0 to one rail and ~53 V to the other through its own
+input resistors. The JST is **not referenced to the DC output.**
+
+This is a *different* fact from 6.14.1's "not an active bus" (which was measured
+through a transceiver later shown unable to transmit, and proves nothing). It
+leaves two candidates: an enable/inhibit line (per the forum report), or CAN on
+an **isolated** control ground that is not brought to the breakout. The
+discriminators are (A) resistance and diode-mode across the pair, both
+polarities, R48 off — symmetric ~55 kΩ fits a CAN differential input,
+asymmetric with a diode drop fits an opto — and (B) shorting the pair with the
+R48 on: an inhibit drops the output; a CAN pair shorted is merely recessive.
+
+**Consequence either way:** there is no output rail the Waveshare's `GND` can
+safely be tied to. If the JST is isolated CAN, the only safe first contact is
+an **isolated** adapter with *only* `CANH`/`CANL` attached — the CANable — whose
+floating CAN side settles at the rectifier's reference through its own input
+resistors. The dev ESP32 does not go near it until that reference is known.
+
 ### 6.14.2 ROOT CAUSE — the breakout card omits the comms interface by design
 
 An Amazon listing for the same class of R48-3000e3 adapter says it plainly:
