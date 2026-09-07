@@ -189,10 +189,34 @@ the button failed at my B5. **The rest of Edge B is still inferred** — treat B
 |---|---|---|---|---|
 | Status LED (+330 Ω) | 25 | A | 11 | working |
 | Duration button | 15 | B | **4** | working |
-| START button (+10 k to 3V3) | 34 | A | 15 | pull-up good, **switch not closing** |
-| STOP button (+10 k to 3V3) | 35 | A | 14 | pull-up good, **switch not closing** |
+| START button (no resistor) | **27** | A | **9** | moved off 34 — see below |
+| STOP button (no resistor) | **26** | A | **10** | moved off 35 — see below |
 | SSR | 4 | B | **7** | not wired |
 | 3V3 / GND for pull-ups | — | A | 19 / 6 | — |
+
+### The bench rig diverges from this map on START/STOP — deliberately
+
+**PCB: keep 34/35.** The reasoning in the Inputs table stands — input-only pins
+are exactly right for buttons on a board where the pull-ups are printed in copper,
+and it preserves the flexible pins.
+
+**Breadboard: 27 and 26.** On a bench rig those same pins cost an afternoon:
+
+- No internal pull-up, so an unconnected pin **floats LOW and reads as pressed** —
+  it fired a 10 s cycle by itself the first time the board armed.
+- They cannot be identified by grounding them, so the `pins` command is blind to
+  them and every mapping question had to be answered by meter and inference.
+- A pull-up landing on the **switch side** of the wire rather than at the pin
+  turns *disconnecting the wire* into *starting a cycle*, which is a genuinely
+  confusing symptom to debug.
+
+GPIO 26 and 27 are free by design (lamps moved to the PCF8574), have real internal
+pull-ups, and take a button straight to GND with no resistor — the same
+arrangement as the duration button on GPIO 15, which worked first try.
+
+**When the PCB is laid out, change `START_BUTTON_PIN`/`STOP_BUTTON_PIN` in
+config.h back to 34/35 and fit the pull-ups in copper.** The divergence is in
+config.h with this reasoning beside it, not hidden.
 
 ### Verification before copper
 

@@ -26,9 +26,20 @@
 #define ESTOP_SENSE_PIN    36     // input-only; read-only status. The trip is hardwired.
 
 // ---- Operator inputs ----------------------------------------------------------
-// 34/35/36/39 have NO internal pull-ups. Each button needs an external 10 k to 3V3.
-#define START_BUTTON_PIN   34     // CYCLE START, momentary to GND
-#define STOP_BUTTON_PIN    35     // CYCLE STOP — a firmware abort, NOT the E-stop
+// BENCH RIG DIVERGES FROM pinmap.md HERE, deliberately (Scott, 2026-09-07).
+// pinmap.md puts START/STOP on 34/35 to keep the flexible pins free, which is
+// right for the PCB where the pull-ups are printed on the board. On a breadboard
+// those input-only pins cost an afternoon: no internal pull-up, so they float LOW
+// and fake a press, they cannot be probed by grounding, and a pull-up landing on
+// the switch side of the wire turns "disconnect" into "start a cycle".
+//
+// 26 and 27 are free by design (pinmap.md moved the lamps to the PCF8574), have
+// real internal pull-ups, and need no external resistor — the same arrangement as
+// the duration button, which worked on the first try.
+//   GPIO 27 = Edge A position 9      GPIO 26 = Edge A position 10
+// Button straight from pin to GND. Nothing else.
+#define START_BUTTON_PIN   27     // CYCLE START, momentary to GND, internal pull-up
+#define STOP_BUTTON_PIN    26     // CYCLE STOP — a firmware abort, NOT the E-stop
 #define ENC_A_PIN          13     // rotary encoder, PCNT quadrature
 #define ENC_B_PIN          19
 #define ENC_SW_PIN         15     // strapping pin: must be HIGH at boot. A pulled-up

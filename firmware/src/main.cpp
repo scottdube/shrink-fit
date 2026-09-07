@@ -336,6 +336,8 @@ static void handleLine(const char* line) {
   // pin the chip calls LOW proves that pin is not that GPIO.
   else if (s == "pins") {
     static const uint8_t PU[] = {4,13,15,16,17,18,19,21,22,23,25,26,27,32,33};
+    // 26/27 are the buttons now and 15 the duration switch: a LOW on those
+    // three during a scan is a PRESS, not the pin you are grounding.
     static const uint8_t IO[] = {34,35,36,39};
     for (uint8_t i = 0; i < sizeof(PU); i++) pinMode(PU[i], INPUT_PULLUP);
     delay(5);
@@ -350,13 +352,16 @@ static void handleLine(const char* line) {
       sayf("  GPIO%u=%s", IO[i], digitalRead(IO[i]) ? "HIGH" : "LOW");
     sayfln("");
     pinMode(SSR_PIN, OUTPUT); ssr(false);          // restore what we borrowed
+    pinMode(START_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(STOP_BUTTON_PIN,  INPUT_PULLUP);
     pinMode(STATUS_LED2_PIN, OUTPUT);
     pinMode(ENC_SW_PIN, INPUT_PULLUP);
     sayfln("(SSR and LED pins restored)");
   }
   else if (s.startsWith("watch")) {
     watchUntil = millis() + 30000; wS = wT = wD = -1;
-    sayfln("watching START(34) STOP(35) DUR(15) for 30 s — press them now.");
+    sayf("watching START(%d) STOP(%d) DUR(%d) for 30 s — press them now.\n",
+         START_BUTTON_PIN, STOP_BUTTON_PIN, DURATION_BUTTON_PIN);
   }
   else if (s == "start") {
     if (state != St::IDLE) sayf("refused: state is %s, not IDLE\n", stName());
@@ -478,8 +483,8 @@ void setup() {
   pinMode(SSR_PIN, OUTPUT);        ssr(false);
   pinMode(MAINS_DROP_PIN, OUTPUT); digitalWrite(MAINS_DROP_PIN, LOW);
   pinMode(ESTOP_SENSE_PIN,  INPUT);   // 34–39: no internal pull-ups; external 10 k required
-  pinMode(START_BUTTON_PIN, INPUT);
-  pinMode(STOP_BUTTON_PIN,  INPUT);
+  pinMode(START_BUTTON_PIN, INPUT_PULLUP);   // 26/27 have real internal pull-ups
+  pinMode(STOP_BUTTON_PIN,  INPUT_PULLUP);
   pinMode(ENC_SW_PIN,       INPUT_PULLUP);   // duration button now, encoder push later
   pinMode(STATUS_LED_PIN,   OUTPUT);
   pinMode(STATUS_LED2_PIN,  OUTPUT);
@@ -525,10 +530,11 @@ void setup() {
   // missing external resistor is visible at boot rather than as a phantom press.
   {
     bool st_ = digitalRead(START_BUTTON_PIN), sp_ = digitalRead(STOP_BUTTON_PIN);
-    sayf("inputs: START %s   STOP %s   (HIGH = pull-up present and not pressed)\n",
-         st_ ? "HIGH" : "LOW <-- floating or held", sp_ ? "HIGH" : "LOW <-- floating or held");
+    sayf("inputs: START(%d) %s   STOP(%d) %s   (HIGH = not pressed)\n",
+         START_BUTTON_PIN, st_ ? "HIGH" : "LOW <-- held or shorted",
+         STOP_BUTTON_PIN,  sp_ ? "HIGH" : "LOW <-- held or shorted");
     if (!st_ || !sp_)
-      sayfln("WARNING: a LOW here with nothing pressed means NO external 10k to 3V3.");
+      sayfln("WARNING: a LOW with nothing pressed means the button is stuck or miswired.");
   }
 
   wifiBegin();
