@@ -259,7 +259,7 @@ static void doPrecheck() {
 
 static void doHeating() {
   uint32_t el = millis() - tHeatStart;
-  if (!BENCH_MODE && stopPressed())  { ssr(false); logCycle(false); enter(St::SETTLE); return; }
+  if (stopPressed())                 { ssr(false); logCycle(false); enter(St::SETTLE); return; }
   if (!plausible())                  return fault(faultMsg, true);
   if (!flowProven())                 return fault("flow lost mid-cycle");
   if (!estopClosed())                return fault("E-stop opened mid-cycle");
@@ -310,7 +310,7 @@ static void status() {
                   (unsigned long)DUR_LADDER_S[durIx]);
   if (state == St::FAULT) sayf("  FAULT: %s   ('ack' to clear)\n", faultMsg ? faultMsg : "?");
 #if BENCH_MODE
-  sayfln("  *** BENCH MODE — arming gate and interlocks BYPASSED, buttons ignored ***");
+  sayfln("  *** BENCH MODE — arming gate and interlocks BYPASSED (buttons live) ***");
 #endif
   sayf("  fitted: E-stop %s  contactor %s  flow %s  shunt %s\n",
        ESTOP_FITTED ? "yes" : "NO", CONTACTOR_FITTED ? "yes" : "NO",
@@ -477,13 +477,24 @@ void setup() {
   sayfln("WARNING: NO AC CONTACTOR — firmware cannot remove mains. Opening the SSR is");
   sayfln("         the ONLY protective action. (ZVS fed straight off the R48.)");
 #endif
-  sayfln("\n*** BENCH MODE ***  arming gate BYPASSED, interlocks BYPASSED, buttons IGNORED.");
+  sayfln("\n*** BENCH MODE ***  arming gate and interlocks BYPASSED. Buttons ARE live.");
   sayfln("    SSR pin GPIO 4 still drives — put an LED on it, not a coil.");
+  sayfln("    Buttons ARE read: they need their external 10k pull-ups to 3V3.");
 #endif
   sayfln("commands: st | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
 
   if (!rect.begin(CAN_TX_PIN, CAN_RX_PIN, CAN_BITRATE_KBPS))
     sayfln("WARN: TWAI init failed — rectifier link unavailable");
+
+  // Input-only pins with no internal pull-ups: report their idle level so a
+  // missing external resistor is visible at boot rather than as a phantom press.
+  {
+    bool st_ = digitalRead(START_BUTTON_PIN), sp_ = digitalRead(STOP_BUTTON_PIN);
+    sayf("inputs: START %s   STOP %s   (HIGH = pull-up present and not pressed)\n",
+         st_ ? "HIGH" : "LOW <-- floating or held", sp_ ? "HIGH" : "LOW <-- floating or held");
+    if (!st_ || !sp_)
+      sayfln("WARNING: a LOW here with nothing pressed means NO external 10k to 3V3.");
+  }
 
   wifiBegin();
 
@@ -521,7 +532,7 @@ void loop() {
         lastDurLevel = d;
         // Edge, not level: after COOLDOWN a still-held button would otherwise
         // start another cycle the moment the state returns to IDLE.
-        bool now_s = BENCH_MODE ? false : startPressed();
+        bool now_s = startPressed();
         if (now_s && !lastStartLevel) enter(St::PRECHECK);
         lastStartLevel = now_s;
         break;
