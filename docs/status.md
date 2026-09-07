@@ -1360,3 +1360,9 @@ parts order, TI notification, quarantine, controller footprint, PO).
 ~57 A, not 51.7. Firmware corrected. §6.14.0d. **Every Stage 2 property is now
 a measurement.** Optional: one more point (`r48i 30`, expect ~30 A) to prove
 the base is a gain rather than an offset.
+
+### ~15:00 — linearity point at 45 A: inconclusive; bus folded to 9 V
+
+Telemetry 48 A vs clamp 44 A at 9–11 V bus — first disagreement of the day.
+57 A base stands; linearity unproven. Amber LED confirmed as an event latch that
+clears on the next command. Next point, if any, goes UP (62 A), never down.

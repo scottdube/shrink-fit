@@ -1748,8 +1748,27 @@ then one ZVS cycle (2 blinks), DC clamp on the bus, meter on the output.
 - Telemetry current filter on the fall again: ~3 s from 55 to 0 after the bus
   had recovered.
 
-**Stage 2 is therefore fully verified: voltage, hold, revert, clamp, and
-current limit — every one on the wire, on telemetry, and on a meter.**
+**Second point, `r48i 45` (f = 0.789 of the 57 A base) — NOT clean:**
+
+| | Telemetry | Clamp | Bus |
+|---|---|---|---|
+| Plateau | 44.5 → **48.2 A**, rising through the cycle | **"44ish"** | **9–11 V** |
+
+- Telemetry and clamp disagree by ~9 % here, where they agreed within 1 % at
+  68 A / 20 V and 55 A / 15 V. Either the clamp was read early in the plateau
+  (44.5 at t+1.5 s, 48.0 at t+5 s — the telemetry filter settles slowly), or the
+  rectifier's current telemetry over-reads at low output voltage. Unresolved.
+- Implied base: **61.1 A** from telemetry, **55.8 A** from the clamp. Three of the
+  four estimates now cluster at 56–57.5; the telemetry one at 48 A is the outlier.
+  A two-point line through the telemetry values gives a +15 A offset, which is
+  not physical. **The 57 A base stands as the best single estimate; linearity is
+  unproven.**
+- **The bus folded to 9 V** — below the ~12 V floor set for the ZVS gate drive.
+  It ran, but this is the regime to stay out of. Any further point goes *up*
+  (`r48i 62`, f = 1.09, bus ~17 V), never down.
+
+**Stage 2 is verified for voltage, hold, revert, clamp, and the current command
+taking effect. The current-command *scale* is a single-point calibration.**
 
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
