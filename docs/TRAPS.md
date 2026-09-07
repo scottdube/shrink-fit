@@ -871,3 +871,30 @@ connects and prints nothing. The only way out is a power-cycle.
 **Rule: never start an OTA unless the Mac is on the IoT network.** A failed OTA
 is not a no-op; it takes the board off the air until someone walks to it. Check
 the network first — the failure mode costs a trip across the shop.
+
+## Two pin-numbering systems, and confusing them costs an afternoon
+
+This project has **two different numbering schemes for the same physical module**
+and they disagree by design:
+
+| | Used for | Example |
+|---|---|---|
+| **KiCad symbol pin number** | the schematic and netlist | `P32` is **pad 26** |
+| **Physical position from the USB end** | wiring at the bench | `P32` is **Edge A position 13** |
+
+Neither is wrong; they answer different questions. But "pin 26" means two
+different holes depending on who is speaking, and on 2026-09-07 an hour went into
+a duration button that would not work because a bench instruction was given in
+symbol numbers and executed in physical ones — compounded by my Edge B table
+carrying a phantom `GND` at the front, which made every Edge B position one too
+high. The SSR would have been specified onto GPIO 16, the mains-drop pin.
+
+**Rules:**
+- **State which system you are using, every time.** "Edge A position 13" and
+  "symbol pad 26" are both unambiguous; "pin 26" is not.
+- **`pinmap.md` now carries both tables**, marked by how each entry was
+  established — measured or inferred. Trust the measured ones.
+- **The board can settle it.** The `pins` console command pulls up every safely
+  readable GPIO and names whichever one is being grounded. Input-only pins
+  (34–39) have no internal pull-up and are invisible to it — a 3.3 V meter
+  reading on a pin the chip calls LOW proves that pin is not that GPIO.
