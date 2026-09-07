@@ -1298,3 +1298,12 @@ observer that neither ESP32 can influence, and the arbiter if the two disagree.
 4. **ESP32 joins** (USB brick, telnet, Waveshare `GND` left unconnected):
    Waveshare `CANH`/`CANL` in parallel on the JST pair. `canraw`, then
    `r48init`. Watch telnet and the sniffer together — the sniffer is the arbiter.
+
+### Bench logistics — the R48 is NOT at the electronics bench
+
+The R48 lives across the shop on its own mains supply; the bench has the
+ESP32s, the CANable and the Mac. Every R48 step is a trip, so R48 work is
+**batched into one trip, not requested piecemeal.** The dev board on a USB
+brick with telnet was built for exactly this: it goes to the R48 alone and is
+driven over WiFi from the bench. The Mac stays put. The CANable needs the Mac
+and therefore only travels if a second trip is justified by an ambiguous result.
