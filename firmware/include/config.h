@@ -1,186 +1,200 @@
 // config.h — pin map, limits, and the energy preset table.
-// Machine: BT30 induction shrink-fit, R48-3000e3 + WMY TECH ZVS stage.
+// Machine: BT30 induction shrink-fit, Vertiv R48-3000e3 + WMY TECH ZVS stage.
+// Board:   NodeMCU-32S (38-pin, classic ESP32) — requirements.md §6.12.
+//
+// PINS COME FROM docs/pinmap.md AND NOWHERE ELSE. That document carries the
+// board's rules (flash pins 6–11 unusable, 34–39 input-only with no pull-ups,
+// 0/2/12/15 strapping, ADC2 dead under WiFi) and the header-position table that
+// prevents the wrong-pad failure. Change it there first, then here.
+//
 // Requirement IDs refer to ../../docs/requirements.md.
 #pragma once
 #include <Arduino.h>
 
-// ---- CAN to the R48-3000e3 rectifier (CR-11) --------------------------------
-// Board: ESP32-S3 Super Mini (HW-747). Uses the S3's built-in **TWAI** peripheral
-// — no MCP2515. This sidesteps the 3.3 V MCP2515 trouble the R48 community
-// reported, and drops the SPI wiring and level shifting entirely.
-//
-// Transceiver: SN65HVD230 breakout, 3.3 V native.
-//
-// VERIFY ON ARRIVAL — the following is read from a stock listing photo, not the
-// shipped board:
-//   R1 expected 103 (10 kΩ) → Rs slope control. Keep it if present: slower edges,
-//     less RF pickup near the tank, no downside at 125 kbps. Rs tied straight to
-//     GND instead = high-speed mode, also fine.
-//   R2 expected 121 (120 Ω) → bus termination. Measure CANH–CANL unpowered; ~120 Ω
-//     confirms it. This must be the bus's ONLY termination — the rectifier measured
-//     55 kΩ (unterminated). Use exactly one module; two would put 60 Ω across it.
-//   IC marking — confirm it is actually an SN65HVD230. Cheap modules sometimes ship
-//     a substituted TJA1050 or MCP2551, both 5 V parts that misbehave on 3.3 V.
-//
-// TWAI routes through the GPIO matrix, so these pins are free choices.
-#define CAN_TX_PIN         GPIO_NUM_4
-#define CAN_RX_PIN         GPIO_NUM_5
-#define CAN_BITRATE_KBPS   125     // VERIFY: measure the narrowest bit time on the
-                                   // scope (1/t_bit) before trusting the libraries
-#define CAN_POLL_MS        500
+// =============================================================================
+// PINS — NodeMCU-32S
+// =============================================================================
 
-// CAN idle is RECESSIVE = TX high. If CAN_TX_PIN sits low before the TWAI driver
-// installs, the transceiver drives dominant and jams the bus. First thing to check
-// if the bus looks dead at power-up.
+// ---- The step and the mains path (CR-05 rev. §6.10, §6.9) --------------------
+// The DC SSR delivers the hard voltage step a Royer needs to commutate. The AC
+// contactor is NOT the cycle switch any more: it feeds the rectifier, latches on
+// its own aux contact from a hardwired MAINS START, and the E-stop drops its coil
+// in hardware. Firmware has ONE path to mains — the drop relay — and no path to
+// energise it. GPIO 16 can only ever open the contactor.
+#define SSR_PIN            4      // via 2N3904, pattern proven on the test rig
+#define MAINS_DROP_PIN     16     // controller's path to kill mains; active HIGH = drop
+#define ESTOP_SENSE_PIN    36     // input-only; read-only status. The trip is hardwired.
 
-// ---- INA228 on the 100 A shunt (CR-01) --------------------------------------
-// INA228 chosen over INA226: 85 V common-mode limit clears the 53.5 V bus.
-// SR-11 bonds DC− to earth, so low-side sensing sits near zero common mode.
-#define I2C_SDA_PIN        8
-#define I2C_SCL_PIN        9
+// ---- Operator inputs ----------------------------------------------------------
+// 34/35/36/39 have NO internal pull-ups. Each button needs an external 10 k to 3V3.
+#define START_BUTTON_PIN   34     // CYCLE START, momentary to GND
+#define STOP_BUTTON_PIN    35     // CYCLE STOP — a firmware abort, NOT the E-stop
+#define ENC_A_PIN          13     // rotary encoder, PCNT quadrature
+#define ENC_B_PIN          19
+#define ENC_SW_PIN         15     // strapping pin: must be HIGH at boot. A pulled-up
+                                  // button idles HIGH, so this works — by luck. Re-check
+                                  // if the switch is ever changed to active-high.
+
+// ---- Sensors ------------------------------------------------------------------
+#define FLOW_PULSE_PIN     39     // Hall flow sensor, pulses; PCNT counts them (CR-06)
+#define ONEWIRE_PIN        33     // both DS18B20 coolant probes (CR-07)
+// NO ON-BOARD THERMOCOUPLE. pinmap.md: "MAX31855 / thermocouple. Deleted — CR-02
+// rewritten." A TC in a kW-class 90 kHz field cannot be read during a cycle
+// (§8.3), and post-cycle verification is the calibration campaign's handheld
+// K-type and temper colour, not a firmware channel. See TRAPS.
+
+// ---- Buses --------------------------------------------------------------------
+#define I2C_SDA_PIN        21     // INA228 (0x40) and the PCF8574 lamp expander
+#define I2C_SCL_PIN        22
+#define CAN_TX_PIN         GPIO_NUM_14   // TWAI. pinmap: P14 = header pin 31
+#define CAN_RX_PIN         GPIO_NUM_32   // TWAI. pinmap: P32 = header pin 26 — NOT GPIO 12,
+                                         // whose boot-strap a HIGH-idling RX would break
+#define CAN_BITRATE_KBPS   125    // MEASURED on the rectifier 2026-09-07 (§6.14.0a)
+
+// ---- Display and lamps --------------------------------------------------------
+#define TFT_CS_PIN         5
+#define TFT_DC_PIN         17
+#define TFT_SCK_PIN        18     // VSPI default
+#define TFT_MOSI_PIN       23     // VSPI default; MISO unused, display is write-only
+// Lamps live on the PCF8574 (2N7002 gate drive — the expander cannot source enough
+// for a 2N3904). Address is 0x20 for a PCF8574P, 0x38 for a PCF8574AP: READ THE
+// CHIP MARKING before trusting this constant (pinmap.md, Bridgold listing
+// contradicts itself). The bring-up `scan` reports whichever is actually there.
+#define PCF8574_ADDR       0x20
+#define LAMP_GREEN_BIT     0
+#define LAMP_AMBER_BIT     1
+#define LAMP_RED_BIT       2
+// Interim status until the expander is wired: the NodeMCU's onboard LED. GPIO 2
+// is a strapping pin (LOW/floating at boot); driving it after boot is fine and is
+// what every NodeMCU sketch does. State by BLINK PATTERN, never by colour.
+#define STATUS_LED_PIN     2
+
+// =============================================================================
+// CAN — Vertiv R48-3000e3, MEASURED 2026-09-07 (requirements §6.14.0a–e)
+// =============================================================================
+// Transceiver: Waveshare SN65HVD230 CAN Board — the hiBCTR modules were
+// counterfeit and never drove a bus (docs/return-sn65hvd230-modules.md).
+// The Waveshare carries the 120 Ω termination; the rectifier's port has NONE
+// (55 kΩ measured), so ours is the bus's only terminator — correct for two nodes.
+// JST harness: YELLOW = CAN H, BLUE = CAN L, NO GROUND WIRE — the port is on an
+// isolated control ground and the link runs clean without one. Reversed polarity
+// gives BUS-OFF, not silence.
+//
+// The session is a CONVERSATION: handshake, then keep-alive every 6 s. The
+// rectifier forgets its setpoints after ~37 s of controller SILENCE (a session
+// timeout, measured — not a setpoint timeout). That is the safety property the
+// whole ONLINE-only design rests on: a hung controller cannot leave the bus at a
+// commanded voltage for longer than 37 s. R48::service() must be called from the
+// main loop unconditionally, and the loop must never block for 6 s.
+#define CAN_KEEPALIVE_MS   6000
+#define CAN_SESSION_LOST_MS 20000  // no rectifier frame for this long → telemetry offline
+
+// =============================================================================
+// INA228 on the 100 A shunt (CR-01)
+// =============================================================================
+// INA228 chosen over INA226: 85 V common-mode clears the 53 V bus.
+// OPEN QUESTION §6.16: whether the DC bus negative is the same node as logic
+// ground. If it is, matched series resistors on VIN± and power sequencing
+// suffice; if the bus floats, this part needs isolation. Not yet decided.
 #define INA228_ADDR        0x40
-// Super Mini header pins are 1–13 + TX/RX; inner pads carry 14–21 and 33–48.
-// MEASURED 2026-08-09 on this board: ESP32-S3 rev 2, 4 MB flash, **no PSRAM** —
-// so GPIO 33–37 are electrically free (they'd be consumed by octal PSRAM). They
-// still need soldering to inner pads. Remaining reservations: 19/20 are native
-// USB, and 0/3/45/46 are strapping pins.
-// The shunt case carries NO mV marking. This 0.75 mΩ default assumes the common
-// 100 A / 75 mV rating — it is a PLACEHOLDER. Determine it by four-wire injection
-// per VR-11 (10 A through it, measure the sense terminals) before trusting a dose.
-// VR-07 folds a residual error into the measured joule targets provided the value
-// is STABLE, so repeatability matters more than absolute accuracy — but a badly
-// wrong value makes CR-03's 5–70 A plausibility window meaningless.
+// The shunt case carries NO mV marking. 0.75 mΩ assumes the common 100 A / 75 mV
+// rating — a PLACEHOLDER until four-wire injection (VR-11) measures it. The dose
+// is only as good as this number. See the INA228 calibration item in status.md.
 #define SHUNT_OHMS         0.00075f   // PLACEHOLDER — see VR-11
-#define I_MAX_EXPECTED_A   80.0f      // headroom over the 56.1 A rectifier ceiling
-// CURRENT_LSB = I_MAX_EXPECTED / 2^19          = 1.526e-4 A/bit
-// SHUNT_CAL   = 13107.2e6 * CURRENT_LSB * R    ≈ 1500   (ADCRANGE=0)
-// ENERGY_LSB  = 16 * 3.2 * CURRENT_LSB         ≈ 7.81 mJ/bit
-// 7.81 mJ on a 5.7 kJ dose is ~0.00014% — resolution is not the limiting factor.
+#define I_MAX_EXPECTED_A   80.0f      // headroom over the ~68 A the rectifier delivers
+#define SHUNT_CALIBRATED   0          // set 1 when VR-11 has been done; gates DOSED mode
 
-// ---- Thermocouple (CR-02, TR-01..05) ----------------------------------------
-// NEVER read during the cycle. Induced voltage, junction self-heating, and ramp
-// lag each independently invalidate it — see requirements §8.3.
-#define MAX31855_SCK_PIN   12
-#define MAX31855_MISO_PIN  13
-#define MAX31855_CS_PIN    11
-#define TC_SETTLE_MS       200     // TR-04: gate sampling to ≥200 ms after field-off
+// =============================================================================
+// CYCLE MODES
+// =============================================================================
+// TIMED: the test rig's proven behaviour — SSR on for a fixed duration from the
+//        ladder, no dose. This is what every cycle to date has been.
+// DOSED: CR-01 — terminate on accumulated energy from the INA228. Requires a
+//        calibrated shunt (SHUNT_CALIBRATED) or it is refused at PRECHECK.
+static const uint32_t DUR_LADDER_S[] = {5, 10, 15, 20, 25, 30};   // seconds, per press
+#define DUR_LADDER_COUNT   (sizeof(DUR_LADDER_S) / sizeof(DUR_LADDER_S[0]))
 
-// ---- Bus voltage sense (resistor divider) -----------------------------------
-// 220 k (top, to DC+) / 10 k (bottom, to DC−) = 23:1. 53.5 V → 2.33 V and 48 V →
-// 2.09 V, both clear of the 3.3 V rail; draws ~0.24 mA. Put 0.1 µF across the
-// bottom leg — you are sensing next to a kW oscillator (R-11) and that filter is
-// not optional.
-//
-// 220 k, not the 180 k originally specified here: 180 k is not stocked. The EAONE
-// kit steps 100 k → 220 k → 300 k, and nothing else on hand reaches 19:1 in two
-// parts (checked against inventory 2026-08-25). Rejected 100 k + 68 k + 10 k in
-// series = 18.8:1, which hits the number but spends three parts and two extra
-// joints to save a calibration step the `cal` command performs anyway. Source
-// impedance is 9.6 kΩ; the 0.1 µF supplies the ADC sampling charge, so the
-// higher impedance costs nothing.
-// GPIO 1 is ADC1_CH0 on the S3; ADC1 avoids the WiFi conflict that afflicts ADC2.
-#define BUS_SENSE_PIN      1
-#define BUS_DIV_RATIO      23.0f   // CALIBRATE — see the testrig `cal` command
+// =============================================================================
+// LIMITS
+// =============================================================================
+// ---- Arming (CR-05 rev. §6.10): all three, none sufficient alone -------------
+#define ARM_MIN_MS         30000  // ≥30 s since mains came up (contactor close)
+#define ARM_BUS_V_MIN      40.0f  // bus voltage over CAN must be at least this
+#define ARM_SAMPLES        3      // held across this many consecutive telemetry samples
+#define ARM_TIMEOUT_MS     90000  // not armed by then → FAULT. A dead rectifier and a
+                                  // slow one are identical to a clock.
 
-// ---- Contactor and interlocks ------------------------------------------------
-// CR-05: the contactor delivers the voltage STEP. CAN sets voltage; it must never
-// be used to enable the output — a ramp is exactly what causes ZVS shoot-through.
-// SR-03: E-stop is HARDWARE in series with the contactor coil. This pin cannot be
-// the E-stop and must never be presented as one.
-#define CONTACTOR_PIN      10
-#define FLOW_SWITCH_PIN    6      // CR-06, active high = flow proven
-#define ESTOP_SENSE_PIN    7      // read-only status; the trip itself is hardwired
-#define START_BUTTON_PIN   2      // momentary to GND, INPUT_PULLUP
-#define STOP_BUTTON_PIN    3      // momentary to GND, INPUT_PULLUP
-#define DURATION_BUTTON_PIN 11    // momentary to GND, INPUT_PULLUP
-// *** RIG-ONLY BORROW *** GPIO11 is MAX31855_CS. The thermocouple is Phase 2 and
-// not fitted, so the test rig borrows the pin to get a duration control at the
-// machine. It MUST go back when the TC lands. On the real controller this is
-// what the PCF8574 on the existing I2C bus is for — see roadmap.md.
-//
-// Why a duration button at all: the calibration protocol is an iteration on
-// duration ("heat ~25% longer, try again, repeat"). Without this, every step
-// means plugging a laptop back in, which defeats the point of the buttons.
-// GPIO 3 is an ESP32-S3 strapping pin (JTAG signal source). It is NOT a boot-mode
-// pin like 0/45/46, so a button on it is acceptable — the only consequence of
-// holding STOP through power-up is JTAG source selection, which affects debugging
-// and nothing else. Noted so it is a known cost rather than a surprise.
-//
-// The STOP button is a FIRMWARE ABORT, not an E-stop. SR-03's E-stop is hardware
-// in series with the contactor coil and must look different — mushroom head,
-// latching, red on yellow. Do not let this button be mistaken for one.
+// ---- Cycle ---------------------------------------------------------------------
+#define START_TEMP_MAX_C   60.0f  // CR-04 — enforced by the operator until a channel exists
+#define COOLANT_TEMP_MAX_C 50.0f  // CR-07 — DS18B20
+#define COOLDOWN_MIN_MS    60000  // CR-04 stand-in: no nose TC, so a minimum dwell.
+                                  // PLACEHOLDER until CR-02/CR-04 are rewritten for
+                                  // the no-thermocouple design.
+#define PEAK_FLAG_C        350.0f // CR-02 thresholds — applied to the CAMPAIGN's handheld
+#define PEAK_LOCKOUT_C     375.0f // readings, not to a firmware channel
 
-// ---- OTA ---------------------------------------------------------------------
-// Credentials live in NVS, never in source — set once over serial with
-//    wifi <ssid> <password>
-// WiFi is skipped entirely if none are stored, so the rig works with no network.
-//
-// ⚠️ OTA is serviced ONLY while IDLE. An update landing mid-cycle with the field
-// on is the obvious disaster, and gating it costs one condition.
-//
-// ⚠️ This is a BENCH convenience with a known expiry: the Super Mini uses a PCB
-// antenna, and the final machine lives in a grounded steel enclosure. Expect OTA
-// to stop working the moment the controller goes in the cabinet, unless the
-// antenna ends up outside it.
-#define OTA_HOSTNAME       "shrinkfit-testrig"
-// NO OTA PASSWORD — deliberate, Scott 2026-08-27, not an omission. Anyone on the
-// network can push firmware to this rig. Accepted because it is a bench device on
-// a trusted shop LAN and the machine is never unattended. Revisit if it ever
-// joins a wider network, or when this becomes the real controller rather than a
-// test rig: ArduinoOTA.setPassword() plus --auth on the upload is the fix.
-
-// ---- Status LED --------------------------------------------------------------
-// Onboard LED on GPIO48 — CONFIRMED WORKING 2026-08-27, all three patterns read
-// correctly on the bench. It is a PLAIN LED, not an addressable RGB: driving it
-// with neopixelWrite() produced meaningless constant flicker, because a WS2812
-// bit stream on a plain LED is just noise. Note this is the LED that looks like
-// a power indicator — the module has no separate one. State is therefore carried by BLINK PATTERN only, which never
-// depended on colour in the first place and suits the shop's accessibility rule
-// better than an RGB would have.
-#define STATUS_LED_PIN     48
-#define STATUS_LED_ENABLE  1      // set 0 if the pin turns out wrong
-
-// ---- Cycle limits ------------------------------------------------------------
-#define STARTUP_BLOCK_MS   30000  // CR-05: block DC to the ZVS until the PSU settles
-#define START_TEMP_MAX_C   60.0f  // CR-04: refuse to start on a warm holder
-#define COOLANT_TEMP_MAX_C 50.0f  // CR-07
-#define PEAK_FLAG_C        350.0f // CR-02: flag + require acknowledgement
-#define PEAK_LOCKOUT_C     375.0f // CR-02: lock the preset until recalibrated
-
-// ---- Bus voltage -------------------------------------------------------------
-// MOSFETs CONFIRMED: IRFP260N, 200 V / 50 A / 40 mΩ. 53.5 V is out of spec.
-//   41.5 V → peak Vds ≈ 130 V (34.8% margin) — commissioning
-//   48.0 V → peak Vds ≈ 151 V (24.5% margin) — OPERATING CEILING
-//   53.5 V → peak Vds ≈ 168 V (16%)          — DO NOT USE
-//
-// π·Vdc is the IDEALISED Royer peak. Ringing routinely adds 10–20%, which at
-// 48 V means 165–180 V on a 200 V part. Scope Vds (VR-05) before raising this
-// past 41.5 V, and never above 48 V regardless of what the scope says.
+// ---- Bus voltage ---------------------------------------------------------------
+// MOSFETs CONFIRMED: IRFP260N, 200 V / 50 A / 40 mΩ. 53 V is out of spec.
+//   41.5 V → peak Vds ≈ 130 V (35% margin) — commissioning
+//   48.0 V → peak Vds ≈ 151 V (25% margin) — OPERATING CEILING
+//   53.0 V → peak Vds ≈ 167 V (17%)        — DO NOT USE
+// π·Vdc is the idealised Royer peak; ringing adds 10–20%. Scope Vds (VR-05)
+// before raising past 41.5 V and never above 48 V regardless of what it shows.
+// The R48 slews setpoints at ~2.5 V/s (walk-in, measured) — a step command is a
+// ~3 s ramp at the output, and the SSR stays open throughout so the ZVS never
+// sees it.
 #define BUS_SETPOINT_V     41.5f
-#define BUS_VOLTAGE_CEIL   48.0f  // hard clamp — device limit, not a preference
-#define BUS_CURRENT_LIM_A  50.0f  // rectifier-level limit, independent of firmware
+#define BUS_VOLTAGE_CEIL   48.0f  // hard clamp — device limit, not a preference.
+                                  // Enforced AGAIN inside R48::setVoltage(); this is
+                                  // the value that one reads.
+#define BUS_VOLTAGE_MIN    41.0f  // rectifier's ONLINE floor (§6.15)
+// Current limit: the rectifier's own CC loop, a protection layer BELOW firmware.
+// MEASURED 2026-09-07: the ONLINE limit is a fraction of a 56 A base (not the
+// datasheet's 62.5), linear to ~3 A over 45–62 A; the CC loop is steady at a
+// 17 V bus (60 A) and HUNTS at 9 V (45 A) into this coil. So it is a usable knob
+// from ~50 A up to the ~68 A default and nothing below — fine power control
+// below that comes from duty, not from this. (§6.14.0d)
+#define BUS_CURRENT_LIM_A  55.0f
+#define R48_I_BASE_A       56.0f  // 100 % of rated = rated power at nominal volts
 static_assert(BUS_SETPOINT_V <= BUS_VOLTAGE_CEIL, "bus setpoint exceeds IRFP260N-derived ceiling");
+static_assert(BUS_SETPOINT_V >= BUS_VOLTAGE_MIN,  "bus setpoint below the rectifier's ONLINE floor");
 
-// ---- Sensor plausibility (review Tier 1 #2) ---------------------------------
-// The dangerous failure is the sense chain reading LOW while real power is high:
-// dose accumulates slowly, heating continues, and a ratio-based timeout arrives
-// far too late. Hence an ABSOLUTE per-size ceiling plus a live sanity window.
-#define PLAUS_V_MIN        35.0f
+// ---- Sensor plausibility (CR-03, review Tier 1 #2) ----------------------------
+// The dangerous failure is the sense chain reading LOW while real power is high.
+// Hence an ABSOLUTE per-size ceiling plus a live sanity window.
+#define PLAUS_V_MIN        8.0f   // the bus folds to 15–20 V in current limit (measured)
 #define PLAUS_V_MAX        60.0f
 #define PLAUS_I_MIN_A      5.0f   // below this mid-cycle ⇒ lost coupling or dead sense
-#define PLAUS_I_MAX_A      70.0f
-#define PLAUS_GRACE_MS     500    // ignore the window during the startup transient
+#define PLAUS_I_MAX_A      75.0f  // rectifier delivers ~68 A at its default limit
+#define PLAUS_GRACE_MS     1000   // ignore during the ~1 s startup transient
 #define CAN_CROSS_TOL      0.20f  // rectifier telemetry vs INA228 max fractional disagreement
+                                  // — but the rectifier's current filter LAGS 2–3 s on
+                                  // the fall (measured), so this check must not run in
+                                  // the first seconds after any change.
 
-// ---- Preset table (CR-08) ----------------------------------------------------
+// =============================================================================
+// OTA / console
+// =============================================================================
+// Credentials live in NVS, set once over serial (`ssid`, `pass`). WiFi is skipped
+// if none are stored. OTA is serviced ONLY while IDLE. NO OTA PASSWORD — Scott's
+// decision 2026-08-27 for a bench device on the shop LAN; revisit when this goes
+// in the cabinet. The Mac must be ON THE IOT NETWORK to OTA: a failed espota
+// invitation freezes the board's loop until it is power-cycled (TRAPS).
+#define OTA_HOSTNAME       "shrinkfit-ctl"
+#define TELNET_PORT        23
+
+// =============================================================================
+// Preset table (CR-08)
+// =============================================================================
 // Energies are §4.3 PREDICTIONS, not calibration. VR-07 replaces every one of
 // them with measured values from the descending campaign (§8.1). Do not run
-// production cycles on these numbers.
+// production cycles on these numbers. Every entry stays provisional until the
+// shunt is calibrated AND the campaign has measured it.
 struct Preset {
   const char* name;
-  float  energyJ;        // dose target
-  uint32_t ceilingMs;    // ABSOLUTE abort, not a multiple of expected
-  bool   provisional;    // true ⇒ predicted, never measured
+  float    energyJ;      // dose target (DOSED mode)
+  uint32_t ceilingMs;    // ABSOLUTE abort, not a multiple of expected (CR-03)
+  bool     provisional;  // true ⇒ predicted, never measured
 };
 
 static const Preset PRESETS[] = {

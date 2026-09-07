@@ -1429,3 +1429,33 @@ the only thing that can run a cycle.
 **Stock:** listener ESP32 → B3-R6C3 (never booked out). Waveshares split: **790**
 qty 1 @ B3-R3C6, free spare; **793** qty 1 @ Electronics Bench, on the dev rig,
 allocated to BO-0002.
+
+### 2026-09-07 ~15:00 — merged controller firmware BUILDS (steps 1+2 of the merge)
+
+`env:controller` (NodeMCU-32S) compiles `main.cpp` + `energy.cpp` + `r48_can.cpp`
+— the first time the production tree has ever built. What landed:
+
+- **config.h rewritten for the NodeMCU-32S** from pinmap.md: SSR 4, mains-drop 16,
+  CAN 14/32, I²C 21/22, buttons 34/35, encoder 13/19/15, E-stop sense 36, lamps
+  on the PCF8574 (0x20), interim status on GPIO 2. Every §6.9/§6.10 semantic
+  carried in: the SSR is the step, firmware can only DROP mains, the E-stop is
+  hardwired and read-only. Bus limits, arming gate (3 conditions), and the
+  measured R48 numbers (base 56, walk-in, CC hunt floor) are constants with
+  rationale.
+- **r48_can.cpp is no longer a stub** — the verified Vertiv session, telemetry
+  decode (/1024, /512) and ONLINE set commands with the 48 V clamp are ported
+  from ina228_test.cpp. `service()` drives handshake→keep-alive; `poll()` decodes.
+- **main.cpp** gains TIMED mode (the S3 rig's proven fixed-duration cycle, from
+  testrig.cpp) alongside DOSED (CR-01), the arming state machine, and the
+  plausibility cross-check. DOSED is refused until SHUNT_CALIBRATED.
+
+**Not done / stubbed, for the remaining steps:**
+- TIMED cycle NOT yet tested on hardware — next after flashing.
+- HMI is the onboard LED; encoder/TFT/PCF8574 lamps are step 3 (PCF8574 is on
+  the bench now).
+- Flow interlock BYPASSED (FLOW_INTERLOCK=0), as the S3 rig runs. DS18B20 coolant
+  read stubbed. tMainsUp is set at boot, not from the contactor aux — step 4.
+- No console yet: FAULT can't be acknowledged and CR-02 peak can't be entered.
+- Duration ladder has no input control bound yet (encoder switch in step 3).
+
+The S3 test rig stays live at the assembly table until this fires a cycle.

@@ -31,10 +31,20 @@ public:
   // layer BELOW the firmware, which is the point.
   bool setCurrentLimit(float amps);
 
-  // Non-blocking; call from the slow loop. Most R48 units broadcast status
-  // unprompted, so this mostly drains the RX queue.
+  // Non-blocking; drains the RX queue and decodes status frames. Call often.
   void poll(Telem& out);
 
+  // Drive the session: handshake until the rectifier answers, then keep-alive
+  // every CAN_KEEPALIVE_MS. MUST be called from the main loop unconditionally —
+  // the rectifier drops its setpoints after ~37 s of silence (§6.14, measured),
+  // which is the safety net, but it also means a stalled loop loses the bus.
+  void service();
+
 private:
+  enum Mode { LISTEN, INIT, RUN };
+  void _send(uint32_t id, const uint8_t d[8]);
   bool _up = false;
+  Mode _mode = LISTEN;
+  uint32_t _nextTx = 0, _lastRx = 0;
+  float _vHold = NAN, _iHold = NAN;   // held ONLINE setpoints, re-sent by service()
 };
