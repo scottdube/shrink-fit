@@ -101,6 +101,12 @@ enum R48Mode { R48_LISTEN, R48_INIT, R48_RUN };
 static R48Mode  r48Mode = R48_LISTEN;
 static uint32_t r48NextTx = 0, r48LastRx = 0, r48Frames = 0, r48Hello = 0;
 static bool     r48Got5B = false;
+#ifdef R48_STAGE2
+static float    r48Vset = NAN, r48Iset = NAN;   // held ONLINE setpoints (NAN = none)
+static uint32_t r48HoldAt = 0;
+static void r48HoldTick();
+static void r48HoldClear(const char *why);
+#endif
 
 static bool     canUp = false, canRaw = false;
 static uint32_t canNextReq = 0, canRx = 0, canTx = 0, canRxErr = 0;
@@ -249,6 +255,9 @@ static void canReset() {
   canTx = canRx = canRxErr = 0;
   pingSent = pingEcho = pingLost = pingSeq = pingTxFail = 0; pingWait = false;
   r48V = r48I = NAN; r48Frames = r48Hello = 0; r48Got5B = false; r48NextTx = 0;
+#ifdef R48_STAGE2
+  r48Vset = r48Iset = NAN;
+#endif
   canBegin();
 }
 
@@ -292,7 +301,12 @@ static void r48Tick() {
     static uint32_t warned = 0;
     if (now - warned > 5000) { warned = now; sayfln("R48: 20 s silence -- output would have dropped."); }
   }
-  if (now < r48NextTx) return;
+  if (now < r48NextTx) {
+#ifdef R48_STAGE2
+    r48HoldTick();
+#endif
+    return;
+  }
   if (r48Mode == R48_INIT) { r48Handshake(); r48NextTx = now + 10000; }
   else                     { r48KeepAlive(); r48NextTx = now + 6000;  }
 }
@@ -304,30 +318,53 @@ static void encFloatBE(float v, uint8_t *out) {
 }
 
 #ifdef R48_STAGE2
-// ONLINE voltage (cmd 0x21): expires after 30 s of silence, so a mistake cannot
-// persist. Clamped to 48.0 V -- the IRFP260N ceiling, 6.14/6.15 -- BEFORE
-// encoding, and the clamp is not a parameter. OFFLINE (0x24) is deliberately
-// not implemented: it persists in the rectifier across power cycles.
-static void setVoltageOnline(float volts) {
-  const float R48_VMAX = 48.0f, R48_VMIN = 41.0f;
+// STAGE 2 -- set commands. ONLINE only (0x21 / 0x22): the rectifier drops an
+// ONLINE setpoint after ~30 s of silence, so a mistake cannot persist and a
+// firmware hang cannot leave the bus at a wrong voltage. OFFLINE (0x24 / 0x19)
+// is deliberately absent from this file: it persists across power cycles.
+//
+// The clamp lives INSIDE the function and is not a parameter. 48.0 V is the
+// IRFP260N ceiling (6.14/6.15): the bus accepts 58.5 V, which is ~184 V peak
+// on 200 V FETs before ringing.
+//
+// A held setpoint is re-sent every R48_HOLD_MS while r48Vset/r48Iset are set;
+// the forum says ONLINE values want refreshing within ~15 s. r48stop, canReset
+// and 'r48v off' clear the hold, and the rectifier reverts on its own.
+static const float    R48_VMAX = 48.0f, R48_VMIN = 41.0f;
+static const float    R48_I_BASE = 51.7f;          // 6.15: datasheet 62.5 A is the 1.21 value
+static const uint32_t R48_HOLD_MS = 10000;
+
+static void r48SendVoltage(float volts, bool say) {
   if (volts > R48_VMAX) volts = R48_VMAX;
   if (volts < R48_VMIN) volts = R48_VMIN;
   uint8_t d[8] = {0x03,0xF0,0x00,0x21,0,0,0,0};
   encFloatBE(volts, &d[4]);
   r48Send(R48_ID_SET, d);
-  sayf("R48: ONLINE voltage -> %.1f V (clamped to %.1f max)\n", volts, R48_VMAX);
+  if (say) sayf("R48: ONLINE voltage -> %.1f V  [clamp %.0f-%.0f]  bytes %02X %02X %02X %02X\n",
+                volts, R48_VMIN, R48_VMAX, d[4], d[5], d[6], d[7]);
 }
-// ONLINE current limit (cmd 0x22) as a FRACTION of rated. 6.15: the datasheet's
-// 62.5 A is the 1.21 value, so the 100 %% base is ~51.7 A. 30 A = 0.58.
-static void setCurrentOnline(float amps) {
-  const float R48_I_BASE = 51.7f;
+static void r48SendCurrent(float amps, bool say) {
   float frac = amps / R48_I_BASE;
   if (frac > 1.21f) frac = 1.21f;
   if (frac < 0.10f) frac = 0.10f;
   uint8_t d[8] = {0x03,0xF0,0x00,0x22,0,0,0,0};
   encFloatBE(frac, &d[4]);
   r48Send(R48_ID_SET, d);
-  sayf("R48: ONLINE current -> %.1f A = %.3f of rated\n", frac * R48_I_BASE, frac);
+  if (say) sayf("R48: ONLINE current -> %.1f A = %.3f of rated  bytes %02X %02X %02X %02X\n",
+                frac * R48_I_BASE, frac, d[4], d[5], d[6], d[7]);
+}
+static void r48HoldTick() {
+  if (r48Mode != R48_RUN) return;
+  if (isnan(r48Vset) && isnan(r48Iset)) return;
+  if (millis() - r48HoldAt < R48_HOLD_MS) return;
+  r48HoldAt = millis();
+  if (!isnan(r48Vset)) r48SendVoltage(r48Vset, false);
+  if (!isnan(r48Iset)) r48SendCurrent(r48Iset, false);
+}
+static void r48HoldClear(const char *why) {
+  if (!isnan(r48Vset) || !isnan(r48Iset))
+    sayf("R48: setpoint hold released (%s) -- rectifier reverts within ~30 s.\n", why);
+  r48Vset = r48Iset = NAN;
 }
 #endif
 
@@ -495,6 +532,11 @@ static void canStatus() {
        r48Mode == R48_LISTEN ? "LISTEN" : r48Mode == R48_INIT ? "INIT" : "RUN",
        (unsigned long)r48Frames, (unsigned long)r48Hello, r48V, r48I,
        r48LastRx ? (unsigned long)((millis() - r48LastRx) / 1000) : 0UL);
+#ifdef R48_STAGE2
+  sayf("R48  STAGE 2: hold V=%s  I=%s   (clamp %.0f-%.0f V)\n",
+       isnan(r48Vset) ? "none" : String(r48Vset,1).c_str(),
+       isnan(r48Iset) ? "none" : String(r48Iset,1).c_str(), R48_VMIN, R48_VMAX);
+#endif
   if (st.state == TWAI_STATE_BUS_OFF)
     sayfln("  BUS-OFF: tx errors exceeded 255. Termination: Waveshare has 120R onboard; add NOTHING.");
   if (pingMode) {
@@ -533,6 +575,9 @@ void setup() {
   otaBegin();
   canBegin();
   sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | r48 | r48init | r48stop | ping | selftest | dominant | recessive | toggle");
+#ifdef R48_STAGE2
+  sayfln("*** STAGE 2 BUILD: r48v <41..48> | r48v off | r48i <amps> | r48i off  -- ONLINE only, clamp 48.0 V ***");
+#endif
   sayfln("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
   sayfln("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
   sayfln("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
@@ -622,8 +667,32 @@ static void handleLine(const char *line) {
     sayfln("     Nothing sent changes a setpoint. 'r48stop' returns to listen-only.");
   }
   else if (s == "r48stop") {
+#ifdef R48_STAGE2
+    r48HoldClear("r48stop");
+#endif
     r48Mode = R48_LISTEN; sayfln("R48: LISTEN -- transmitting nothing.");
   }
+#ifdef R48_STAGE2
+  else if (s.startsWith("r48v")) {
+    if (r48Mode != R48_RUN) sayfln("R48: not in RUN -- r48init first and wait for HELLO.");
+    else if (s == "r48v off") r48HoldClear("r48v off");
+    else {
+      float v = s.substring(4).toFloat();
+      if (v <= 0) sayfln("usage: r48v <41..48>  |  r48v off");
+      else { r48Vset = v; r48HoldAt = millis(); r48SendVoltage(v, true);
+             sayfln("     held: re-sent every 10 s until 'r48v off' or 'r48stop'."); }
+    }
+  }
+  else if (s.startsWith("r48i")) {
+    if (r48Mode != R48_RUN) sayfln("R48: not in RUN -- r48init first and wait for HELLO.");
+    else if (s == "r48i off") { r48Iset = NAN; sayfln("R48: current hold released."); }
+    else {
+      float a = s.substring(4).toFloat();
+      if (a <= 0) sayfln("usage: r48i <5..62 amps>  |  r48i off");
+      else { r48Iset = a; r48HoldAt = millis(); r48SendCurrent(a, true); }
+    }
+  }
+#endif
   else if (s == "selftest") canSelfTest();
   // Drive the transceiver's D input directly as a plain GPIO, bypassing TWAI.
   // A hand jumper to GND depends on a contact we cannot verify; the P14 wire has
