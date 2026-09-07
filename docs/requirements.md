@@ -1784,6 +1784,20 @@ ceiling and a coarse knob, not a fine one.
 **Stage 2 is verified for voltage, hold, revert, clamp, and current limit —
 every one on the wire, on telemetry, and on a meter. Current scale ≈ 57 A ± 1.5.**
 
+### 6.14.0e The R48 JST harness — wire colours, recorded 2026-09-05
+
+Scott made a harness for the rectifier's 2-pin JST. **The polarity that works
+is the one measured today** (reversed gives bus-off, §6.14.0a):
+
+| Wire colour | Signal |
+|---|---|
+| **Yellow** | **CAN H** |
+| **Blue** | **CAN L** |
+
+No ground wire — the JST's CAN ground is isolated (§6.14.1b) and the link runs
+clean without one. If the bus ever goes bus-off on first contact after a rewire,
+check these two before anything else.
+
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
 **R48 on mains, DC output open, transceiver unplugged, black probe on DC−:

@@ -1365,3 +1365,5 @@ the base is a gain rather than an offset.
 
 **Resolved:** the clamp hunted 43–48 A — same band as telemetry. The CC loop oscillates at a 9 V bus into the ZVS. Base ≈ 57 A, four estimates agree, gain not offset. **CR-01 constraint: current limit is a coarse knob down to ~45 A; below that, duty cycle.** Amber LED confirmed as an event latch that
 clears on the next command. Next point, if any, goes UP (62 A), never down.
+
+**R48 JST harness:** yellow = CAN H, blue = CAN L, no ground. §6.14.0e.
