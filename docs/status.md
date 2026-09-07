@@ -1385,9 +1385,7 @@ clears on the next command. Next point, if any, goes UP (62 A), never down.
 - `R48_I_BASE = 56.0` in source, **not flashed** — OTA aborted (Mac had left
   IoT) and the board stalled in the OTA handler. **Needs a power-cycle, then a
   USB flash at the bench.** TRAPS has the rule.
-- **90 s hold test still owed**: step 2 held 35 s against a 37 s timeout and so
-  never proved the refresh. After the power-cycle: `r48v 45`, read the meter at
-  2 min.
+- ~~90 s hold test~~ **DONE 14:07**: 99 s with refresh, then 108 s on keep-alive alone — setpoint sticky while the session lives. The 37 s revert is a *session* timeout. CR-01 must keep the session alive; re-sending setpoints is optional.
 - **InvenTree:** stock 80/83 (hiBCTR modules) → REJECTED, one BO-0002 allocation
   released, part 19 noted. **PO-0159** is the two Waveshares (2/2 received,
   PLACED) and **PO-0160** the CANable — both one click from Complete.

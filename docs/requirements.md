@@ -1719,6 +1719,14 @@ R48 unloaded, meter on `DC+`/`DC−`, session in `RUN`, keep-alive every 6 s.
 - **The clamp is proven on the wire.** A request for 50 V left the board as
   48.0; the held value records what was asked, the send path records what was
   allowed. No command string reaches the encoder unclamped.
+- **Long hold, 14:03–14:05:** 45 V held **99 s** with refresh + keep-alive running,
+  meter and telemetry agreeing — the setpoint survives indefinitely while the
+  controller talks. Then **refresh OFF, keep-alive only, 14:05:22–14:07:10:
+  still 45 V after 108 s.** So the ~37 s revert is a **session timeout, not a
+  setpoint timeout**: the rectifier drops the setpoint when the controller goes
+  quiet, not when the setpoint stops being repeated. The 10 s refresh in the
+  firmware is therefore redundant — kept as belt-and-braces — and **CR-01's only
+  hard obligation is to keep the session alive (any traffic inside ~37 s).**
 - **Fan ramps on a setpoint change** while unloaded and returns to normal after
   the revert. **The amber LED blinks *after* a state change ends** — after the
   revert here, after a load cycle earlier — and is off during the commanded
