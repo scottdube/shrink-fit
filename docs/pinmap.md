@@ -147,6 +147,53 @@ SD3 **36**. These are the internal SPI flash bus (GPIO 6–11). Holes with no pa
 so the module's pins pass through touching nothing. **Do not delete the holes** —
 without them the module cannot seat.
 
+## Physical header positions, counted from the USB end — MEASURED 2026-09-07
+
+The symbol-pin table above is for KiCad. This is for **wiring at the bench**,
+where Scott counts holes from the USB connector because the silk is unreadable in
+place. The two are different numbering systems and confusing them wasted an hour.
+
+**Edge A** — the edge carrying `3V3`, `EN` and `5V`. Verified by measurement:
+position 6 = GND and 19 = 3V3 read 3.3 V apart; CAN worked on 8 and 13; the
+status LED works on 11; Scott counted `P27` at 9 independently.
+
+| Pos | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| | `5V` | `CMD` | **`SD3`** | **`SD2`** | `P13` | **`GND`** | `P12` | **`P14`** | `P27` | `P26` |
+
+| Pos | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 |
+|---|---|---|---|---|---|---|---|---|---|
+| | **`P25`** | `P33` | **`P32`** | `P35` | `P34` | `SVN`/39 | `SVP`/36 | `EN` | **`3V3`** |
+
+**Edge B** — **the pin nearest the USB is `CLK`, NOT `GND`.** An earlier draft of
+this table put a phantom `GND` first, which made every Edge B position one too
+high and sent the duration button to the wrong hole.
+
+| Pos | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|
+| | **`CLK`** | **`SD0`** | **`SD1`** | **`P15`** | `P2` | `P0` | **`P4`** | `P16` | `P17` |
+
+| Pos | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 |
+|---|---|---|---|---|---|---|---|---|---|
+| | `P5` | `P18` | `P19` | `GND` | `P21` | `RX` | `TX` | `P22` | `P23` |
+
+**Bold = confirmed on the hardware.** `P15` at B4 is Scott's, found by silk after
+the button failed at my B5. **The rest of Edge B is still inferred** — treat B7
+(`P4`, the SSR) as unconfirmed until something is wired there and seen to work.
+
+**Flash pins are positions 1–4 on Edge B and 2–4 on Edge A.** Nothing goes there.
+
+### Bench wiring as built, 2026-09-07
+
+| Signal | GPIO | Edge | Pos | State |
+|---|---|---|---|---|
+| Status LED (+330 Ω) | 25 | A | 11 | working |
+| Duration button | 15 | B | **4** | working |
+| START button (+10 k to 3V3) | 34 | A | 15 | pull-up good, **switch not closing** |
+| STOP button (+10 k to 3V3) | 35 | A | 14 | pull-up good, **switch not closing** |
+| SSR | 4 | B | **7** | not wired |
+| 3V3 / GND for pull-ups | — | A | 19 / 6 | — |
+
 ### Verification before copper
 
 ```
