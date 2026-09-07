@@ -1285,3 +1285,16 @@ natively. It was invisible at first only because Parallels had claimed it.
 
 Tomorrow it goes on the R48 bus in parallel with the dev Waveshare — the one
 observer that neither ESP32 can influence, and the arbiter if the two disagree.
+
+### 2026-09-05 — R48 JST resolved as isolated CAN; contact sequence
+
+1. **Sniffer verification** on the loopback pair — CANable `CANH`/`CANL` across
+   the two Waveshares, **switch OFF** (pair already has two terminators). Dev
+   board `ping`; sniffer must print the `0x123`/`0x124` exchange.
+2. **Move the CANable to the JST, switch ON** (only terminator on that bus).
+   Nothing else attached. R48 on. `cansniff.py` at 125 kbps. Does it broadcast?
+   If silent, swap the two JST wires and listen again.
+3. **Safety check** before the ESP32 joins: each JST pin to mains earth, R48 on.
+4. **ESP32 joins** (USB brick, telnet, Waveshare `GND` left unconnected):
+   Waveshare `CANH`/`CANL` in parallel on the JST pair. `canraw`, then
+   `r48init`. Watch telnet and the sniffer together — the sniffer is the arbiter.

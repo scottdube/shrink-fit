@@ -1690,6 +1690,32 @@ an **isolated** adapter with *only* `CANH`/`CANL` attached — the CANable — w
 floating CAN side settles at the rectifier's reference through its own input
 resistors. The dev ESP32 does not go near it until that reference is known.
 
+### 6.14.1b RESOLVED 2026-09-05 — the JST is CAN, on an isolated ground
+
+Tests from 6.14.1a, R48 off: **55 kΩ across the pair in both polarities, OL both
+ways in diode mode.** Symmetric and resistive — a CAN transceiver's differential
+input (spec 40–100 kΩ), not an opto. R48 on, output 53.4 V: **shorting the pair
+changed nothing** — not an inhibit. With 6.14.1a's floating reading, the picture
+is consistent and complete: **CAN, referenced to an isolated control ground that
+is not on the breakout.** Scott's reading of the fingers was right; 6.14.1's
+"not CAN" was measured through a transceiver that could not transmit.
+
+Two consequences for wiring, both from the 55 kΩ:
+
+1. **The port is unterminated** — a terminated one reads ~120 Ω. Normal for a
+   rectifier built to sit mid-bus. On this bus **our end supplies the only
+   terminator**: CANable switch **ON**. (OFF was for the two-Waveshare loopback.)
+2. **No rail is a safe `GND` reference.** First contact is the **isolated**
+   CANable with only `CANH`/`CANL` attached — its CAN side floats to the
+   rectifier's reference through the input resistors. Which pin is H and which
+   is L is unknown; a passive listen is harmless either way, so try one, then swap.
+
+**Before any non-isolated node joins** (the dev ESP32 + Waveshare, even on a USB
+brick): measure **each JST pin to mains earth** with the R48 on. Near earth
+potential → the control ground is SELV and a floating brick-powered ESP32 is
+acceptable. Tens of volts or more → the CAN circuit is primary-referenced and
+the ESP32 stays off it until there is isolation between them.
+
 ### 6.14.2 ROOT CAUSE — the breakout card omits the comms interface by design
 
 An Amazon listing for the same class of R48-3000e3 adapter says it plainly:
