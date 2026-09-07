@@ -413,10 +413,16 @@ static void canService() {
         // Status frame. Decode per 6.14 -- note /1022 not /1024, and the x2 on
         // current, both from the source and BOTH to be confirmed against the
         // meter on first contact. Printed raw alongside until they are.
-        r48V = (float)(((uint16_t)m.data[1] << 8) | m.data[2]) / 1022.0f;
-        r48I = (float)(((uint16_t)m.data[6] << 8) | m.data[7]) * 2.0f;
+        // VERIFIED 2026-09-05 against the meter under a real load (ZVS cycle):
+        //   Vout: raw is always a multiple of 1024 -> whole volts. raw/1024.
+        //         53 V unloaded (meter 53.4), 20-21 V in current limit.
+        //   Iout: the source's 'x2' was missing the same /1024. raw/512 gives
+        //         67.4 A at raw 0x86BA against 68 A on the DC clamp (<1 %).
+        //         Telemetry lags ~2-3 s on the way down -- a filter.
+        r48V = (float)(((uint16_t)m.data[1] << 8) | m.data[2]) / 1024.0f;
+        r48I = (float)(((uint16_t)m.data[6] << 8) | m.data[7]) / 512.0f;
         known = !canRaw;
-        sayf("R48 status: Vout %.2f V  Iout %.1f A   [raw %02X %02X | %02X %02X]\n",
+        sayf("R48 status: Vout %.0f V  Iout %.1f A   [raw %02X %02X | %02X %02X]\n",
              r48V, r48I, m.data[1], m.data[2], m.data[6], m.data[7]);
       }
     }

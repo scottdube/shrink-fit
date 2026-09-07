@@ -1330,7 +1330,7 @@ polarity** — reversed gives bus-off, not silence.
 1. Flash the HELLO-ID fix by USB when the board is back at the bench (OTA cannot
    cross the VLAN from the main LAN). Until then the board stays in INIT and
    re-handshakes every 10 s; the R48 tolerates it and telemetry flows anyway.
-2. Verify `Iout ×2` against a known load. Unloaded reads 0.0, which proves nothing.
-3. Confirm the RUN state and 6 s keep-alive hold the session (needs 1).
+2. ~~Verify `Iout ×2`~~ **DONE 13:20** — it is `raw/512`; 67.4 A vs 68 A clamp. Vout is `raw/1024`, whole volts. §6.14.0b.
+3. ~~Confirm RUN + keep-alive~~ **DONE 13:05** — 2 min soak, zero re-init, zero errors.
 4. Stage 2 — set commands behind the 48.0 V clamp. Not before 1–3.
 5. CANable sniffer — parked, open.

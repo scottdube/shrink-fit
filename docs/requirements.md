@@ -1669,6 +1669,30 @@ before anything else.**
 `GND` was left unconnected and the link is clean. The earlier `DC−` tie was for
 a transceiver assumed to sit on the output ground — it does not.
 
+### 6.14.0b TELEMETRY DECODE VERIFIED under load — 2026-09-05 ~13:20
+
+ZVS short cycle (2 blinks = 10 s) on the shrink-fit coil, R48 feeding it, DC
+clamp on the bus, status frames captured at ~2.5/s over telnet.
+
+| | raw | decode | meter |
+|---|---|---|---|
+| Vout unloaded | `0xD400` = 54272 | **53 V** (`raw/1024`) | 53.4 V |
+| Vout in load | `0x5400`/`0x5000` | **21 / 20 V** | — |
+| Iout peak | `0x86BA` = 34490 | **67.4 A** (`raw/512`) | **68 A** |
+
+- **Vout is integer volts.** Every raw value is a multiple of 1024; the source's
+  `/1022` was an approximation. Resolution 1 V — coarse, adequate for CR-11.
+- **Iout = raw / 512.** The source's `×2` omitted a `/1024`. Agrees with the
+  clamp to under 1 %.
+- **Current telemetry lags ~2–3 s on the fall** (36 k → 700 raw over 2.4 s after
+  Vout had already recovered) — a filter inside the rectifier. CR-11's
+  disagreement window must be wider than that or it will fault on every cycle end.
+- **Operating point confirmed: the R48 current-limits at ~68 A and folds to
+  20 V** into the ZVS. That is the August bench measurement (67.3 A at 18 V,
+  §4.x) reproduced from the rectifier's own telemetry. The 62.5 A datasheet
+  figure is ~8 % under what it actually delivers, on both instruments.
+- Ramp: 0 → 68 A in ~4 s; Vout collapses within the first second.
+
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
 **R48 on mains, DC output open, transceiver unplugged, black probe on DC−:
