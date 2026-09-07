@@ -1693,6 +1693,31 @@ clamp on the bus, status frames captured at ~2.5/s over telnet.
   figure is ~8 % under what it actually delivers, on both instruments.
 - Ramp: 0 → 68 A in ~4 s; Vout collapses within the first second.
 
+### 6.14.0c STAGE 2 — ONLINE voltage command and its timeout, measured 2026-09-05 ~14:00
+
+R48 unloaded, meter on `DC+`/`DC−`, session in `RUN`, keep-alive every 6 s.
+
+| Step | Sent | Telemetry | Meter |
+|---|---|---|---|
+| 1 | `r48v 45` → `0x0607FF83` `03 F0 00 21 42 34 00 00` | 53→45, **1 V per frame, ~2.5 V/s** (walk-in) | **45 V** |
+| 2 | nothing (10 s refresh running) | 45 for 35 s, 89 frames | 45 V |
+| 3 | `r48stop` — total silence | **45 held 36.8 s, then 46→53 over 3.2 s; 53 at 40.0 s** | *(Scott's timing below)* |
+
+- **IEEE-754 encoding confirmed on the wire**: `42 34 00 00` = 45.0, the rectifier obeyed it.
+- **Setpoint changes are slewed at ~2.5 V/s in both directions** — the walk-in
+  feature. A step command is not a step at the output. CR-01 timing must allow
+  ~3 s for an 8 V change.
+- **ONLINE timeout measured at ~37 s of controller silence** (forum said 30). It
+  is a real, unconditional revert to the rectifier's own default (53 V). This is
+  the property that makes ONLINE-only firmware safe: a hung controller cannot
+  leave the bus at a commanded voltage for longer than 37 s.
+- **The rectifier keeps streaming status after the controller goes silent** —
+  139 frames in 55 s of silence. The source's "20 s → acOff / 25 s → re-init"
+  are the *controller's* internal flags, not rectifier behaviour. Telemetry is
+  free even when we are not talking.
+- **Fan ramps on a setpoint change** while unloaded; amber LED unaffected by
+  the voltage command.
+
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
 **R48 on mains, DC output open, transceiver unplugged, black probe on DC−:
