@@ -1611,3 +1611,16 @@ Exactly the `NO`s in the status line: **E-stop, contactor, flow, shunt.** Each h
 a flag that flips when the hardware lands. Also open: PCF8574 lamps (chip on the
 bench, unwired) and INA228 shunt calibration (VR-11), which is what unlocks DOSED
 mode and CR-01 energy dosing.
+
+### 2026-09-07 ~17:45 — production build armed and set the operating point
+
+`env:controller` pushed over OTA. `st` reads `cooldown 60s` and the bench banner
+is gone — the tell that the safe build is running.
+
+**The real CR-05 gate passed end to end:** bus ≥ 40 V over CAN across 3 telemetry
+samples plus 30 s since power-up → ARMED → `setCurrentLimit(55 A)` and
+`setVoltage(41.5)` → IDLE. **The rectifier moved 53 V → 41 V on the controller's
+command.** First time the firmware has driven the machine's operating point.
+
+Bench-mode escape hatch is gone: it will now FAULT if the rectifier is not
+answering, refuse to start with the CAN session down, and hold 60 s of cooldown.
