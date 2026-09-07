@@ -1393,3 +1393,11 @@ clears on the next command. Next point, if any, goes UP (62 A), never down.
   lines, photos: dropped. LCSC order: follows the footprint decision.
 - **Dates in all docs corrected to the git calendar** (bench day 09-04,
   Waveshares/loopback/sniffer 09-06, R48 contact and Stage 2 09-07).
+
+### 2026-09-07 14:10 — stopped. Meter confirmed 45 V on keep-alive alone. CANable: KEEP.
+
+Board released to LISTEN; rectifier reverting to its default on its own. Bench
+state: dev board (base-57 build) + Waveshare + CANable on the R48 JST harness at
+the assembly table, Mac there too. Next: design session for CR-01 (Scott: "in a
+bit"); base-56 USB flash when the board returns; footprint decision; LCSC order
+after it; Amazon return by ~09-17.
