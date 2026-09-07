@@ -1725,6 +1725,32 @@ R48 unloaded, meter on `DC+`/`DC−`, session in `RUN`, keep-alive every 6 s.
   state. That reads as Vertiv's "alarm logged and cleared" indication, not an
   active fault; the exact meaning is an open item for the manual.
 
+### 6.14.0d STAGE 2 — ONLINE current limit under load, measured 2026-09-05 ~14:40
+
+`r48i 50` → `0x0607FF83` `03 F0 00 22 3F 77 95 0B` (0.967 of a 51.7 A base),
+then one ZVS cycle (2 blinks), DC clamp on the bus, meter on the output.
+
+| | Commanded | Telemetry (`raw/512`) | Clamp | Uncommanded (§6.14.0b) |
+|---|---|---|---|---|
+| Current | 50 A | **55.6 A** peak, plateau 54–55.6 | **55 A** | 68 A |
+| Bus voltage | — | **15 V** | 15 V | 20 V |
+
+- **The ONLINE current command works**: 68 → 55 A. Plateau reached in ~2 s.
+- **The 100 % base is ~57 A, not 51.7.** Two independent estimates: 55.6 / 0.967
+  = **57.5 A** from this test; 68 / 1.21 = **56.2 A** from the uncommanded limit.
+  57 A ≈ 3000 W / 53 V — **the rectifier's 100 % is rated power at nominal
+  voltage.** The datasheet's 62.5 A is not this unit's 1.21 value; its actual
+  1.21 value is the 68 A we measure. §6.15's 51.7 A is superseded; firmware
+  `R48_I_BASE = 57.0`. One point only — linearity (gain vs offset) is unverified
+  until a second command level is measured.
+- The ZVS ran cleanly at 15 V / 55 A. Its current tracks bus voltage roughly
+  linearly (68 A at 20 V, 55 A at 15 V), as expected for a Royer.
+- Telemetry current filter on the fall again: ~3 s from 55 to 0 after the bus
+  had recovered.
+
+**Stage 2 is therefore fully verified: voltage, hold, revert, clamp, and
+current limit — every one on the wire, on telemetry, and on a meter.**
+
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
 **R48 on mains, DC output open, transceiver unplugged, black probe on DC−:

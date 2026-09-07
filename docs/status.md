@@ -1353,3 +1353,10 @@ ZVS cycle with the clamp meter watching.
 **Not yet done, in order:** `r48i` under load · fold Stage 2 into the real
 controller build with the safety chain · the deferred list (return report,
 parts order, TI notification, quarantine, controller footprint, PO).
+
+### 2026-09-05 ~14:40 — ✅ `r48i` verified under load; Stage 2 complete
+
+50 A commanded → 55 A delivered (telemetry and clamp agree) → the 100 % base is
+~57 A, not 51.7. Firmware corrected. §6.14.0d. **Every Stage 2 property is now
+a measurement.** Optional: one more point (`r48i 30`, expect ~30 A) to prove
+the base is a gain rather than an offset.

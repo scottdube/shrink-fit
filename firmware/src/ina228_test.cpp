@@ -331,7 +331,11 @@ static void encFloatBE(float v, uint8_t *out) {
 // the forum says ONLINE values want refreshing within ~15 s. r48stop, canReset
 // and 'r48v off' clear the hold, and the rectifier reverts on its own.
 static const float    R48_VMAX = 48.0f, R48_VMIN = 41.0f;
-static const float    R48_I_BASE = 51.7f;          // 6.15: datasheet 62.5 A is the 1.21 value
+// MEASURED 2026-09-05 (6.14.0d), superseding 6.15's 51.7 A: commanding 0.967 of
+// rated delivered 55.6 A on telemetry / 55 A on the clamp -> base 57.5 A; the
+// uncommanded limit of 68 A / 1.21 -> 56.2 A. Both say ~57, which is 3000 W at
+// 53 V: the rectifier's 100 % is rated power at nominal voltage. +-1 A.
+static const float    R48_I_BASE = 57.0f;
 static const uint32_t R48_HOLD_MS = 10000;
 
 static void r48SendVoltage(float volts, bool say) {
