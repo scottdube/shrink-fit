@@ -88,6 +88,16 @@ from the same stock is not expected to differ.
 3. `[photo — bench setup: PSU readout and both meters during the 125 kHz test]`
 4. TI datasheet SLOS346O, §8.5 Electrical Characteristics: Driver
 
+## Corroboration — genuine parts on the same wiring, next day
+
+2026-09-05: two **Waveshare** SN65HVD230 boards (Amazon, sold by Waveshare's own
+store) were fitted to the **same ESP32s, same pins, same wiring, same firmware**
+that all three hiBCTR modules had failed on. Under the identical 125 kHz drive
+test both Waveshares drove the bus (2.8/1.6 V and 2.7/1.6 V split); the two-node
+loopback then passed 16/16 with zero errors; and the same setup went on to hold
+a full CAN session with a Vertiv R48-3000e3 rectifier, including verified
+telemetry and verified set-commands. Nothing changed but the transceiver.
+
 ## Corroboration — the clone market for this exact part number
 
 LCSC's search for `SN65HVD230DR` on 2026-09-04 returns the genuine TI part
