@@ -323,6 +323,31 @@ static void handleLine(const char* line) {
   String s(line); s.trim();
   if (!s.length()) return;
   if      (s == "st" || s == "status") status();
+  // Map a header position to a GPIO: ground the pin, run `pins`, see which one
+  // moved. Same trick that identified the CAN role pin. Input-only pins (34-39)
+  // have NO internal pull-up, so they read LOW unconnected and cannot be probed
+  // this way -- their level is simply reported, and a 3.3 V meter reading on a
+  // pin the chip calls LOW proves that pin is not that GPIO.
+  else if (s == "pins") {
+    static const uint8_t PU[] = {4,13,15,16,17,18,19,21,22,23,25,26,27,32,33};
+    static const uint8_t IO[] = {34,35,36,39};
+    for (uint8_t i = 0; i < sizeof(PU); i++) pinMode(PU[i], INPUT_PULLUP);
+    delay(5);
+    say("pulled-up pins reading LOW (= the one you are grounding):");
+    bool any = false;
+    for (uint8_t i = 0; i < sizeof(PU); i++)
+      if (digitalRead(PU[i]) == LOW) { sayf("  GPIO%u", PU[i]); any = true; }
+    if (!any) say("  none");
+    sayfln("");
+    say("input-only (no pull-up, LOW when unconnected):");
+    for (uint8_t i = 0; i < sizeof(IO); i++)
+      sayf("  GPIO%u=%s", IO[i], digitalRead(IO[i]) ? "HIGH" : "LOW");
+    sayfln("");
+    pinMode(SSR_PIN, OUTPUT); ssr(false);          // restore what we borrowed
+    pinMode(STATUS_LED2_PIN, OUTPUT);
+    pinMode(ENC_SW_PIN, INPUT_PULLUP);
+    sayfln("(SSR and LED pins restored)");
+  }
   else if (s == "start") {
     if (state != St::IDLE) sayf("refused: state is %s, not IDLE\n", stName());
     else enter(St::PRECHECK);
@@ -367,7 +392,7 @@ static void handleLine(const char* line) {
                                          prefs.getString("pass","").length(),
                                          otaReady ? WiFi.localIP().toString().c_str() : "not connected"); }
   else if (s == "wifi clear")     { prefs.remove("ssid"); prefs.remove("pass"); sayfln("cleared"); }
-  else sayfln("commands: st | start | stop | ack | dur [s] | mode timed|dosed | preset [n]"
+  else sayfln("commands: st | pins | start | stop | ack | dur [s] | mode timed|dosed | preset [n]"
               " | ssid <n> | pass <p> | wifi? | wifi clear");
 }
 
@@ -424,7 +449,7 @@ static void serviceNet() {
     if (telnetCli && telnetCli.connected()) telnetCli.stop();
     telnetCli = telnetSrv.available();
     telnetCli.printf("\n=== shrink-fit controller ===\n"
-                     "commands: st | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
+                     "commands: st | pins | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
   }
   static char tb[64]; static uint8_t tn = 0;
   while (telnetCli && telnetCli.available()) {
@@ -481,7 +506,7 @@ void setup() {
   sayfln("    SSR pin GPIO 4 still drives — put an LED on it, not a coil.");
   sayfln("    Buttons ARE read: they need their external 10k pull-ups to 3V3.");
 #endif
-  sayfln("commands: st | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
+  sayfln("commands: st | pins | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
 
   if (!rect.begin(CAN_TX_PIN, CAN_RX_PIN, CAN_BITRATE_KBPS))
     sayfln("WARN: TWAI init failed — rectifier link unavailable");
