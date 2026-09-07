@@ -447,6 +447,7 @@ void setup() {
   pinMode(STOP_BUTTON_PIN,  INPUT);
   pinMode(ENC_SW_PIN,       INPUT_PULLUP);   // duration button now, encoder push later
   pinMode(STATUS_LED_PIN,   OUTPUT);
+  pinMode(STATUS_LED2_PIN,  OUTPUT);
 
   prefs.begin("shrinkctl", false);
   // Restore the saved duration, snapping anything off-ladder back to a rung --
@@ -557,6 +558,7 @@ void loop() {
     uint32_t per = (state == St::FAULT) ? 150 : 1000;
     on = ((now / (per / 2)) & 1);
   }
-  digitalWrite(STATUS_LED_PIN, on ? HIGH : LOW);
+  digitalWrite(STATUS_LED_PIN,  on ? HIGH : LOW);
+  digitalWrite(STATUS_LED2_PIN, on ? HIGH : LOW);
   (void)tLed;
 }

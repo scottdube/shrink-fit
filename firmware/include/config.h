@@ -64,10 +64,17 @@
 #define LAMP_GREEN_BIT     0
 #define LAMP_AMBER_BIT     1
 #define LAMP_RED_BIT       2
-// Interim status until the expander is wired: the NodeMCU's onboard LED. GPIO 2
-// is a strapping pin (LOW/floating at boot); driving it after boot is fine and is
-// what every NodeMCU sketch does. State by BLINK PATTERN, never by colour.
-#define STATUS_LED_PIN     2
+// Interim status until the PCF8574 lamps are wired. TWO pins are driven with the
+// same pattern, because the onboard LED is not guaranteed: many NodeMCU-32S
+// boards carry only a power LED, and this one appears to be one of them. GPIO 2
+// is a strapping pin (LOW/floating at boot); driving it after boot is fine.
+// STATUS_LED2 is a DISCRETE LED you wire yourself, and is the one to trust.
+//   GPIO 25 ── 330 Ω ── LED anode,  LED cathode ── GND
+// GPIO 25 is free by design (pinmap.md moved the lamps to the expander), and it
+// is LAMP_GREEN's pin on the finished board, so the wire has a future.
+// State by BLINK PATTERN, never by colour — the shop's accessibility rule.
+#define STATUS_LED_PIN     2      // onboard, may not exist on this board
+#define STATUS_LED2_PIN    25     // discrete, wire it — edge A position 11
 
 // =============================================================================
 // CAN — Vertiv R48-3000e3, MEASURED 2026-09-07 (requirements §6.14.0a–e)
