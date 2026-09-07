@@ -1387,8 +1387,7 @@ clears on the next command. Next point, if any, goes UP (62 A), never down.
   USB flash at the bench.** TRAPS has the rule.
 - ~~90 s hold test~~ **DONE 14:07**: 99 s with refresh, then 108 s on keep-alive alone — setpoint sticky while the session lives. The 37 s revert is a *session* timeout. CR-01 must keep the session alive; re-sending setpoints is optional.
 - **InvenTree:** stock 80/83 (hiBCTR modules) → REJECTED, one BO-0002 allocation
-  released, part 19 noted. **PO-0159** is the two Waveshares (2/2 received,
-  PLACED) and **PO-0160** the CANable — both one click from Complete.
+  released, part 19 noted. **PO-0159** is the two Waveshares and **PO-0160** the CANable — both **Complete** (status 30; I had misread 30 as PLACED all day).
 - Footprint (C6): leaning SOIC on PCB, deferred. TI notification, marking
   lines, photos: dropped. LCSC order: follows the footprint decision.
 - **Dates in all docs corrected to the git calendar** (bench day 09-04,
@@ -1404,3 +1403,29 @@ after it; Amazon return by ~09-17.
 **CANable tooling on the Mac (pio venv):** `cansniff.py` (ours, plain list) ·
 `python -m can.viewer` (live per-ID table, python-can 4.6.1) · SavvyCAN (GUI,
 Scott's install if wanted). All slcan on `/dev/cu.usbmodem3673335E30361`, 125 k.
+
+### 2026-09-07 ~14:30 — firmware inventory: three rigs, none complete
+
+Scott asked whether the dev board runs the same software as the rig at the
+assembly table. It does not, and the honest inventory is:
+
+| Board | Firmware | Has | Lacks | State |
+|---|---|---|---|---|
+| **ESP32-S3 test rig** (assembly table) | `testrig.cpp` | cycle control, duration ladder, LED, OTA | CAN, INA228, thermocouple | **works; it fired every ZVS cycle today** |
+| **NodeMCU-32S dev board** (bench) | `ina228_test.cpp` | INA228, telnet/OTA, **verified Vertiv CAN Stage 1+2** | cycle control, HMI, safety chain | works |
+| **production controller** | `main.cpp` + `energy.cpp` + `r48_can.cpp` | E-stop, contactor, MAX31855, INA228 hooks | `r48_can.cpp` is a **stub** ("frame format not implemented"), HMI stubbed, targets the **S3** though §6.12 chose the NodeMCU-32S | **does not compile** — `Adafruit_INA228.h` / `Adafruit_MAX31855.h` missing from lib_deps |
+
+Everything verified against the rectifier today lives in the dev board's *test*
+firmware. Nothing verified today is in the production firmware, and the
+production firmware has never built in this checkout.
+
+**Design-session scope, in order:** (1) make `main.cpp` build on a NodeMCU-32S
+env with the libs declared; (2) port the Vertiv session/telemetry/set-command
+code from `ina228_test.cpp` into `r48_can.cpp`, clamp and ONLINE-only intact;
+(3) port the cycle/HMI from `testrig.cpp`; (4) the safety chain; (5) one rig at
+the assembly table, the S3 retired to stock. Until (3), the S3 rig stays — it is
+the only thing that can run a cycle.
+
+**Stock:** listener ESP32 → B3-R6C3 (never booked out). Waveshares split: **790**
+qty 1 @ B3-R3C6, free spare; **793** qty 1 @ Electronics Bench, on the dev rig,
+allocated to BO-0002.
