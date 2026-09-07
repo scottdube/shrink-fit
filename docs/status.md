@@ -1307,3 +1307,13 @@ ESP32s, the CANable and the Mac. Every R48 step is a trip, so R48 work is
 brick with telnet was built for exactly this: it goes to the R48 alone and is
 driven over WiFi from the bench. The Mac stays put. The CANable needs the Mac
 and therefore only travels if a second trip is justified by an ambiguous result.
+
+### 2026-09-05 — CANable sniffer: OPEN, set aside
+
+Transceiver powered (2.8 V bias on both lines, isolated side), `S4` = 125 kbps
+confirmed in `inc/can.h`, tried both H/L polarities, isolated `GND` tied to the
+Waveshare `GND` — and it neither hears the loopback pair nor is heard by it,
+with a clean error register. Not a gate for the R48; parked. Next idea when it
+is worth an hour: flash candleLight (gs_usb) via canable.io/updater and drive it
+with python-can over libusb, which removes slcan and this firmware from the
+question.
