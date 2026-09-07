@@ -1480,8 +1480,21 @@ site — guarding callers individually is exactly how the two got out of step.
 4. Flash `env:controller` (NOT `_bench`) — the bench build bypasses every
    interlock by design.
 
-**Still open in the merged firmware:** no WiFi/OTA/telnet at all (the S3 rig and
-ina228_test had it; main.cpp does not) — so at the ZVS it is USB-serial only
-until that is ported. Encoder not bound to duration. Lamps still the onboard LED,
-PCF8574 on the bench but not wired. Flow and coolant stubbed. tMainsUp is set at
-boot rather than from the contactor aux.
+**Ported 15:35 (Scott's call, both corrections his):** WiFi + OTA + telnet, the
+**duration button**, and the **single-LED blink-count** display — the rig's proven
+pattern, not the PCB's encoder/TFT. I had drifted into designing the finished
+machine instead of the bench rig.
+
+- Duration button lands on **ENC_SW_PIN (GPIO 15)**: already in the pin map, HAS
+  an internal pull-up (unlike 34–39, so no external resistor), and when the
+  encoder is fitted its push switch is the same pin doing the same job.
+- LED: HEATING solid · IDLE plays duration/5 flashes then a dark gap · FAULT fast
+  · else slow. Continuous display, because the rig proved a press that *reports*
+  the setting is a press that *changes* it.
+- Duration persists in NVS and snaps off-ladder values back to a rung.
+- OTA is gated to IDLE/FAULT and forces the SSR open on start.
+- NVS namespace is **"shrinkctl"**, new — so WiFi credentials must be entered
+  once at the serial console: `ssid <name>` then `pass <secret>`, then reboot.
+
+**Still open:** lamps are the onboard LED (PCF8574 on the bench, not wired).
+Flow and coolant stubbed. tMainsUp set at boot, not from the contactor aux.
