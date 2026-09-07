@@ -105,6 +105,28 @@
 #define SHUNT_CALIBRATED   0          // set 1 when VR-11 has been done; gates DOSED mode
 
 // =============================================================================
+// WHAT IS ACTUALLY FITTED — declare it, do not fake it
+// =============================================================================
+// As of 2026-09-07 the machine is the S3 test rig's topology: the R48 feeds the
+// ZVS directly and the SSR is the only actuator. There is no AC contactor and no
+// E-stop chain (§6.9 designs them; they are not built). Firmware must not pretend
+// otherwise — a pull-up resistor that makes GPIO 36 read "E-stop closed" is a lie
+// that is invisible a month later, whereas a flag announces itself at every boot.
+//
+// Set each to 1 as the hardware lands, and the checks come back automatically.
+#ifndef ESTOP_FITTED
+#define ESTOP_FITTED       0      // 0 ⇒ estopClosed() returns true, warns loudly
+#endif
+#ifndef CONTACTOR_FITTED
+#define CONTACTOR_FITTED   0      // 0 ⇒ mainsDrop() cannot drop anything, warns loudly
+#endif
+#if !ESTOP_FITTED || !CONTACTOR_FITTED
+// A build with either of these at 0 has NO independent means of removing power.
+// The SSR opening is the whole protection story — same as the test rig, which is
+// how every cycle to date has been run, but it must be a stated posture.
+#endif
+
+// =============================================================================
 // CYCLE MODES
 // =============================================================================
 // TIMED: the test rig's proven behaviour — SSR on for a fixed duration from the

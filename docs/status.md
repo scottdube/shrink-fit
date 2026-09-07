@@ -1515,3 +1515,26 @@ that ran the rectifier all afternoon, now on the merged firmware.
 
 Lesson worth keeping: adding a dual-output `say()` layer does nothing unless
 every caller uses it. `grep -n 'Serial\.\(printf\|println\)'` is the check.
+
+### 2026-09-07 ~16:05 — what is fitted is now DECLARED, not faked
+
+Scott's call: a 10 kΩ pull-up on GPIO 36 would make firmware report "E-stop
+closed" forever with no E-stop in existence — a resistor that lies, invisible a
+month later. Two build flags instead, both defaulting to 0 and both loud:
+
+| Flag | 0 means | Announced |
+|---|---|---|
+| `ESTOP_FITTED` | `estopClosed()` forced true, GPIO 36 ignored | boot + every `st` |
+| `CONTACTOR_FITTED` | `mainsDrop()` cannot remove power, prints so when called | boot + every `st` |
+
+Confirmed as built: **no AC contactor, no E-stop chain — the ZVS is fed straight
+off the R48 and the SSR is the only actuator.** Same posture as the S3 test rig
+that has run every cycle to date, now stated rather than assumed. Set each flag
+to 1 as the hardware lands and the checks return automatically.
+
+`st` now ends with `fitted: E-stop NO  contactor NO  flow NO  shunt NO` — four
+honest words about what protection actually exists.
+
+**Pre-ZVS hardware, revised:** two 10 kΩ to 3V3 (GPIO 34 START, 35 STOP — *not*
+36 while `ESTOP_FITTED=0`), momentary to GND on GPIO 15 (duration, has an
+internal pull-up), SSR on GPIO 4, CAN harness on. Flash `env:controller`.

@@ -101,13 +101,21 @@ static bool     lastDurLevel = false;
 // The SSR is the step (CR-05). It is the ONLY thing that puts the bus on the ZVS.
 static void ssr(bool on)         { digitalWrite(SSR_PIN, on ? HIGH : LOW); }
 // Firmware's one path to mains: open the contactor. There is no close.
-static void mainsDrop()          { digitalWrite(MAINS_DROP_PIN, HIGH); }
+// With no contactor fitted this cannot remove power. Say so, rather than let a
+// caller believe a safety action happened. fault() still opens the SSR.
+static void mainsDrop() {
+#if CONTACTOR_FITTED
+  digitalWrite(MAINS_DROP_PIN, HIGH);
+#else
+  say("  (no contactor fitted — mains NOT dropped; SSR open is the only action)\n");
+#endif
+}
 // BENCH_MODE returns true here rather than at each call site: guarding the
 // callers individually is how doHeating() kept its E-stop check while
 // doPrecheck() lost it, and the cycle died 5 ms in on a floating pin.
 static bool estopClosed()        {
-#if BENCH_MODE
-  return true;
+#if BENCH_MODE || !ESTOP_FITTED
+  return true;               // no chain to sense; the boot/status warning says so
 #else
   return digitalRead(ESTOP_SENSE_PIN) == HIGH;
 #endif
@@ -304,6 +312,9 @@ static void status() {
 #if BENCH_MODE
   sayfln("  *** BENCH MODE — arming gate and interlocks BYPASSED, buttons ignored ***");
 #endif
+  sayf("  fitted: E-stop %s  contactor %s  flow %s  shunt %s\n",
+       ESTOP_FITTED ? "yes" : "NO", CONTACTOR_FITTED ? "yes" : "NO",
+       FLOW_INTERLOCK ? "yes" : "NO", SHUNT_CALIBRATED ? "cal" : "NO");
 }
 
 static void wifiBegin();
@@ -458,6 +469,13 @@ void setup() {
 #endif
   sayfln("NOTE: no on-board thermocouple; peak temperature is the handheld + temper colour");
 #if BENCH_MODE
+#if !ESTOP_FITTED
+  sayfln("WARNING: NO E-STOP FITTED — GPIO 36 ignored, estopClosed() forced true.");
+#endif
+#if !CONTACTOR_FITTED
+  sayfln("WARNING: NO AC CONTACTOR — firmware cannot remove mains. Opening the SSR is");
+  sayfln("         the ONLY protective action. (ZVS fed straight off the R48.)");
+#endif
   sayfln("\n*** BENCH MODE ***  arming gate BYPASSED, interlocks BYPASSED, buttons IGNORED.");
   sayfln("    SSR pin GPIO 4 still drives — put an LED on it, not a coil.");
 #endif
