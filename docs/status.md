@@ -1401,3 +1401,6 @@ state: dev board (base-57 build) + Waveshare + CANable on the R48 JST harness at
 the assembly table, Mac there too. Next: design session for CR-01 (Scott: "in a
 bit"); base-56 USB flash when the board returns; footprint decision; LCSC order
 after it; Amazon return by ~09-17.
+**CANable tooling on the Mac (pio venv):** `cansniff.py` (ours, plain list) ·
+`python -m can.viewer` (live per-ID table, python-can 4.6.1) · SavvyCAN (GUI,
+Scott's install if wanted). All slcan on `/dev/cu.usbmodem3673335E30361`, 125 k.
