@@ -142,13 +142,13 @@ static void fault(const char* why, bool dropMains = false) {
   if (dropMains) mainsDrop();
   faultMsg = why;
   enter(St::FAULT);
-  Serial.printf("FAULT%s: %s\n", dropMains ? " (mains dropped)" : "", why);
+  sayf("FAULT%s: %s\n", dropMains ? " (mains dropped)" : "", why);
 }
 
 // ---- CR-10 cycle log --------------------------------------------------------
 // Serial for now; persist to LittleFS/SD next. This log IS the metrology (§8.2).
 static void logCycle(bool completed) {
-  Serial.printf("{\"ms\":%lu,\"mode\":\"%s\",\"size\":\"%s\",\"durS\":%lu,"
+  sayf("{\"ms\":%lu,\"mode\":\"%s\",\"size\":\"%s\",\"durS\":%lu,"
                 "\"J\":%.1f,\"targetJ\":%.1f,\"elapsedMs\":%lu,"
                 "\"rectV\":%.0f,\"rectI\":%.1f,\"completed\":%d,\"provisional\":%d}\n",
                 millis(), mode == Mode::TIMED ? "timed" : "dosed",
@@ -199,7 +199,7 @@ static void doArming() {
   uint32_t now = millis();
 #if BENCH_MODE
   if (now - tMainsUp >= 2000) {
-    Serial.println("ARMED (BENCH MODE — arming gate BYPASSED, no rectifier required)");
+    sayfln("ARMED (BENCH MODE — arming gate BYPASSED, no rectifier required)");
     enter(St::IDLE);
   }
   return;
@@ -216,7 +216,7 @@ static void doArming() {
     // of the rectifier's ~3 s walk-in to the new setpoint.
     rect.setCurrentLimit(BUS_CURRENT_LIM_A);
     rect.setVoltage(BUS_SETPOINT_V);
-    Serial.printf("ARMED: bus %.0f V over CAN, %u samples, %lu s after mains\n",
+    sayf("ARMED: bus %.0f V over CAN, %u samples, %lu s after mains\n",
                   rectTelem.vOut, armSamples, (now - tMainsUp) / 1000);
     enter(St::IDLE);
   }
@@ -244,8 +244,8 @@ static void doPrecheck() {
   doseJ = 0;
   tHeatStart = millis();
   ssr(true);                 // CR-05: the STEP. Not a ramp, not CAN, not the contactor.
-  Serial.printf("HEATING: %s %s\n", mode == Mode::TIMED ? "timed" : "dosed",
-                mode == Mode::TIMED ? String(DUR_LADDER_S[durIx]) + " s" : String(PRESETS[sel].name));
+  if (mode == Mode::TIMED) sayf("HEATING: timed %lu s\n", (unsigned long)DUR_LADDER_S[durIx]);
+  else                     sayf("HEATING: dosed %s (%.0f J)\n", PRESETS[sel].name, doseTargetJ);
   enter(St::HEATING);
 }
 
@@ -287,22 +287,22 @@ static const char* stName() {
 }
 
 static void status() {
-  Serial.printf("state %-8s mode %-5s  dur %lus  preset %s\n", stName(),
+  sayf("state %-8s mode %-5s  dur %lus  preset %s\n", stName(),
                 mode == Mode::TIMED ? "TIMED" : "DOSED",
                 (unsigned long)DUR_LADDER_S[durIx], PRESETS[sel].name);
-  Serial.printf("  R48: %s  %.0f V  %.1f A   %s\n",
+  sayf("  R48: %s  %.0f V  %.1f A   %s\n",
                 rectTelem.online ? "online" : "OFFLINE", rectTelem.vOut, rectTelem.iOut,
                 state == St::ARMING ? "(arming: need bus>=40V x3 samples and 30s)" : "");
-  Serial.printf("  INA228: %s   shunt %s   dose %.0f/%.0f J\n",
+  sayf("  INA228: %s   shunt %s   dose %.0f/%.0f J\n",
                 meterUp ? "present" : "absent",
                 SHUNT_CALIBRATED ? "calibrated" : "UNCALIBRATED (DOSED refused)",
                 doseJ, doseTargetJ);
   if (state == St::HEATING)
-    Serial.printf("  heating %lu ms of %lus\n", millis() - tHeatStart,
+    sayf("  heating %lu ms of %lus\n", millis() - tHeatStart,
                   (unsigned long)DUR_LADDER_S[durIx]);
-  if (state == St::FAULT) Serial.printf("  FAULT: %s   ('ack' to clear)\n", faultMsg ? faultMsg : "?");
+  if (state == St::FAULT) sayf("  FAULT: %s   ('ack' to clear)\n", faultMsg ? faultMsg : "?");
 #if BENCH_MODE
-  Serial.println("  *** BENCH MODE — arming gate and interlocks BYPASSED, buttons ignored ***");
+  sayfln("  *** BENCH MODE — arming gate and interlocks BYPASSED, buttons ignored ***");
 #endif
 }
 
@@ -313,36 +313,36 @@ static void handleLine(const char* line) {
   if (!s.length()) return;
   if      (s == "st" || s == "status") status();
   else if (s == "start") {
-    if (state != St::IDLE) Serial.printf("refused: state is %s, not IDLE\n", stName());
+    if (state != St::IDLE) sayf("refused: state is %s, not IDLE\n", stName());
     else enter(St::PRECHECK);
   }
   else if (s == "stop") {
-    if (state == St::HEATING) { ssr(false); logCycle(false); enter(St::SETTLE); Serial.println("aborted"); }
-    else Serial.println("not heating");
+    if (state == St::HEATING) { ssr(false); logCycle(false); enter(St::SETTLE); sayfln("aborted"); }
+    else sayfln("not heating");
   }
   else if (s == "ack") {
     if (state == St::FAULT) { faultMsg = nullptr; armSamples = 0; tMainsUp = millis();
-                              enter(St::ARMING); Serial.println("fault cleared -> ARMING"); }
-    else Serial.println("not in FAULT");
+                              enter(St::ARMING); sayfln("fault cleared -> ARMING"); }
+    else sayfln("not in FAULT");
   }
   else if (s.startsWith("dur")) {
     if (s.length() > 3) {
       uint32_t want = s.substring(3).toInt();
       for (uint8_t i = 0; i < DUR_LADDER_COUNT; i++) if (DUR_LADDER_S[i] == want) durIx = i;
     } else durIx = (durIx + 1) % DUR_LADDER_COUNT;      // step the ladder, like the rig's button
-    Serial.printf("duration %lu s\n", (unsigned long)DUR_LADDER_S[durIx]);
+    sayf("duration %lu s\n", (unsigned long)DUR_LADDER_S[durIx]);
   }
   else if (s.startsWith("mode")) {
     if (s.indexOf("dosed") > 0) {
-      if (!SHUNT_CALIBRATED) Serial.println("DOSED refused: shunt not calibrated (VR-11)");
+      if (!SHUNT_CALIBRATED) sayfln("DOSED refused: shunt not calibrated (VR-11)");
       else mode = Mode::DOSED;
     } else mode = Mode::TIMED;
-    Serial.printf("mode %s\n", mode == Mode::TIMED ? "TIMED" : "DOSED");
+    sayf("mode %s\n", mode == Mode::TIMED ? "TIMED" : "DOSED");
   }
   else if (s.startsWith("preset")) {
     uint8_t i = s.substring(6).toInt();
-    if (i < PRESET_COUNT) { sel = i; Serial.printf("preset %s\n", PRESETS[sel].name); }
-    else { for (uint8_t k = 0; k < PRESET_COUNT; k++) Serial.printf("  %u %s\n", k, PRESETS[k].name); }
+    if (i < PRESET_COUNT) { sel = i; sayf("preset %s\n", PRESETS[sel].name); }
+    else { for (uint8_t k = 0; k < PRESET_COUNT; k++) sayf("  %u %s\n", k, PRESETS[k].name); }
   }
   // Separate ssid/pass commands: a combined "wifi <ssid> <pass>" splits on the
   // first space, so an SSID containing one silently puts half of itself into the
@@ -427,7 +427,7 @@ static void serviceNet() {
 void setup() {
   Serial.begin(115200);
   delay(300);
-  Serial.println("\n=== shrink-fit controller — NodeMCU-32S ===");
+  sayfln("\n=== shrink-fit controller — NodeMCU-32S ===");
 
   pinMode(SSR_PIN, OUTPUT);        ssr(false);
   pinMode(MAINS_DROP_PIN, OUTPUT); digitalWrite(MAINS_DROP_PIN, LOW);
@@ -452,19 +452,19 @@ void setup() {
 
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, 400000);
   meterUp = meter.begin(INA228_ADDR, SHUNT_OHMS, I_MAX_EXPECTED_A);
-  if (!meterUp) Serial.println("WARN: INA228 not found — DOSED mode unavailable, TIMED only");
+  if (!meterUp) sayfln("WARN: INA228 not found — DOSED mode unavailable, TIMED only");
 #if !FLOW_INTERLOCK
-  Serial.println("WARN: flow interlock BYPASSED (FLOW_INTERLOCK=0) — as on the S3 test rig");
+  sayfln("WARN: flow interlock BYPASSED (FLOW_INTERLOCK=0) — as on the S3 test rig");
 #endif
-  Serial.println("NOTE: no on-board thermocouple; peak temperature is the handheld + temper colour");
+  sayfln("NOTE: no on-board thermocouple; peak temperature is the handheld + temper colour");
 #if BENCH_MODE
-  Serial.println("\n*** BENCH MODE ***  arming gate BYPASSED, interlocks BYPASSED, buttons IGNORED.");
-  Serial.println("    SSR pin GPIO 4 still drives — put an LED on it, not a coil.");
+  sayfln("\n*** BENCH MODE ***  arming gate BYPASSED, interlocks BYPASSED, buttons IGNORED.");
+  sayfln("    SSR pin GPIO 4 still drives — put an LED on it, not a coil.");
 #endif
-  Serial.println("commands: st | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
+  sayfln("commands: st | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
 
   if (!rect.begin(CAN_TX_PIN, CAN_RX_PIN, CAN_BITRATE_KBPS))
-    Serial.println("WARN: TWAI init failed — rectifier link unavailable");
+    sayfln("WARN: TWAI init failed — rectifier link unavailable");
 
   wifiBegin();
 

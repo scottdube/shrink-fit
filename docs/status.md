@@ -1498,3 +1498,20 @@ machine instead of the bench rig.
 
 **Still open:** lamps are the onboard LED (PCF8574 on the bench, not wired).
 Flow and coolant stubbed. tMainsUp set at boot, not from the contactor aux.
+
+### 2026-09-07 ~15:50 — controller reachable over telnet; full cycle driven remotely
+
+WiFi joined at **192.168.30.54**, telnet console up, `dur 5` + `start` from the
+bench produced a 5000 ms cycle on the board at the assembly table. Same workflow
+that ran the rectifier all afternoon, now on the merged firmware.
+
+**Two bugs found by that first telnet session, both mine:**
+1. `status()` and `handleLine()` printed with `Serial.printf`, so **only the
+   banner reached telnet** — the console looked dead remotely while working fine
+   on USB. All 28 call sites converted to the `say()` layer, which was created
+   precisely so there is one output path.
+2. A `printf("%s", String(...))` — passing a `String` object to varargs is
+   undefined behaviour. Replaced with two typed calls.
+
+Lesson worth keeping: adding a dual-output `say()` layer does nothing unless
+every caller uses it. `grep -n 'Serial\.\(printf\|println\)'` is the check.
