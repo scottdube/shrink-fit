@@ -1275,9 +1275,13 @@ natively. It was invisible at first only because Parallels had claimed it.
 - Port: `/dev/cu.usbmodem3673335E30361` (suffix is the device serial, stable).
 - Tool: `~/code/scripts/cansniff.py` — pyserial only, prints every frame with
   timestamp/ID/DLC/data. `-b 125` default.
-- **Before it joins any bus:** check whether its 120 Ω termination jumper is
-  fitted (CANH–CANL resistance, unplugged). On the R48 bus with a Waveshare
-  already terminated, a third 120 Ω is one too many.
+- **Termination is on a switch, shipped ON** (measured 120 Ω across CANH–CANL).
+  **Switch it OFF before it joins any bus** — the R48 bus already has the
+  Waveshare's 120 Ω plus the rectifier's own, and even the loopback pair would
+  make it a third terminator (the 40 Ω trap from 09-04 morning).
+- Received into InvenTree 2026-09-04 as stock item 791 @ Electronics Bench, with
+  the identification in its notes. PO-0160 line 1/1; order left PLACED for Scott
+  to complete.
 
 Tomorrow it goes on the R48 bus in parallel with the dev Waveshare — the one
 observer that neither ESP32 can influence, and the arbiter if the two disagree.
