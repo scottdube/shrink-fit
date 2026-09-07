@@ -1568,3 +1568,34 @@ and deserves that.
 
 **All three operator inputs verified.** Still untested: the SSR on Edge B
 position 7 (nothing wired there yet).
+
+## 2026-09-07 ~17:30 — ✅ MERGED CONTROLLER RUNNING AT THE ASSEMBLY TABLE
+
+Dev board (NodeMCU-32S) at the machine with SSR and CAN harness wired, DC breaker
+OFF, driven over telnet from the bench:
+
+- **`R48: online  53 V  0.0 A`** — live CAN session with the rectifier, handshake
+  and 6 s keep-alive, passive (bench mode commands no setpoints; the R48 sits at
+  its own default). 0.0 A confirms the DC breaker is genuinely open.
+- **SSR fires on a cycle** — Edge B position 7 = GPIO 4 confirmed on hardware,
+  the last inferred entry in the physical pin map.
+- All three buttons, the LED blink-count, duration in NVS, telnet and OTA working.
+
+**One board now does everything the S3 test rig does, plus rectifier telemetry
+and remote control it never had.** Merge steps 1–3 complete.
+
+### To hand over from the S3 rig
+
+1. Flash **`env:controller`** — restores the CR-05 arming gate (bus ≥ 40 V over
+   CAN × 3 samples + 30 s, else FAULT), the 60 s CR-04 cooldown, and refusal to
+   run with the CAN session down. **`st` showing `cooldown 60s` is the tell that
+   the right build is on**; `3s` means the bench build with every interlock
+   bypassed.
+2. DC breaker on, real cycle, compare against an S3-rig cycle.
+3. Remove the S3 and its breadboard.
+
+### Still stubbed — step 4, the safety chain
+Exactly the `NO`s in the status line: **E-stop, contactor, flow, shunt.** Each has
+a flag that flips when the hardware lands. Also open: PCF8574 lamps (chip on the
+bench, unwired) and INA228 shunt calibration (VR-11), which is what unlocks DOSED
+mode and CR-01 energy dosing.
