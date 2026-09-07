@@ -81,6 +81,12 @@ static const uint32_t RO_PER = 400;    // per flash: 200 on, 200 off
 static const uint32_t RO_GAP = 1600;   // dark tail, separates one count from the next
 static uint32_t idleAnchor = 0;        // restart the burst on a change so it replays at once
 static bool     lastDurLevel = false;
+// `watch`: sample the three operator inputs and print every transition for 30 s.
+// Turns "the button does nothing" from a guessing game into a log -- press at
+// leisure, read afterwards, no timing coordination needed over a chat window.
+static const char* stName();
+static uint32_t watchUntil = 0;
+static int      wS = -1, wT = -1, wD = -1;
 
 // The duration button lands on ENC_SW_PIN (GPIO 15) deliberately: it is already
 // in the pin map, it HAS an internal pull-up (unlike 34-39), and when the encoder
@@ -348,6 +354,10 @@ static void handleLine(const char* line) {
     pinMode(ENC_SW_PIN, INPUT_PULLUP);
     sayfln("(SSR and LED pins restored)");
   }
+  else if (s.startsWith("watch")) {
+    watchUntil = millis() + 30000; wS = wT = wD = -1;
+    sayfln("watching START(34) STOP(35) DUR(15) for 30 s — press them now.");
+  }
   else if (s == "start") {
     if (state != St::IDLE) sayf("refused: state is %s, not IDLE\n", stName());
     else enter(St::PRECHECK);
@@ -392,7 +402,7 @@ static void handleLine(const char* line) {
                                          prefs.getString("pass","").length(),
                                          otaReady ? WiFi.localIP().toString().c_str() : "not connected"); }
   else if (s == "wifi clear")     { prefs.remove("ssid"); prefs.remove("pass"); sayfln("cleared"); }
-  else sayfln("commands: st | pins | start | stop | ack | dur [s] | mode timed|dosed | preset [n]"
+  else sayfln("commands: st | pins | watch | start | stop | ack | dur [s] | mode timed|dosed | preset [n]"
               " | ssid <n> | pass <p> | wifi? | wifi clear");
 }
 
@@ -449,7 +459,7 @@ static void serviceNet() {
     if (telnetCli && telnetCli.connected()) telnetCli.stop();
     telnetCli = telnetSrv.available();
     telnetCli.printf("\n=== shrink-fit controller ===\n"
-                     "commands: st | pins | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
+                     "commands: st | pins | watch | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
   }
   static char tb[64]; static uint8_t tn = 0;
   while (telnetCli && telnetCli.available()) {
@@ -506,7 +516,7 @@ void setup() {
   sayfln("    SSR pin GPIO 4 still drives — put an LED on it, not a coil.");
   sayfln("    Buttons ARE read: they need their external 10k pull-ups to 3V3.");
 #endif
-  sayfln("commands: st | pins | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
+  sayfln("commands: st | pins | watch | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
 
   if (!rect.begin(CAN_TX_PIN, CAN_RX_PIN, CAN_BITRATE_KBPS))
     sayfln("WARN: TWAI init failed — rectifier link unavailable");
@@ -536,6 +546,16 @@ void loop() {
   pollConsole();
   serviceNet();
   rect.service();
+
+  if (watchUntil && now < watchUntil) {
+    int a = digitalRead(START_BUTTON_PIN), b = digitalRead(STOP_BUTTON_PIN),
+        c = digitalRead(DURATION_BUTTON_PIN);
+    if (a != wS || b != wT || c != wD) {
+      wS = a; wT = b; wD = c;
+      sayf("  %6lu ms  START=%s  STOP=%s  DUR=%s   state %s\n", now,
+           a ? "HIGH" : "LOW ", b ? "HIGH" : "LOW ", c ? "HIGH" : "LOW ", stName());
+    }
+  } else if (watchUntil && now >= watchUntil) { watchUntil = 0; sayfln("watch ended."); }
 
   if (now - tSlow >= 250) { tSlow = now; rect.poll(rectTelem); }
 
