@@ -1581,6 +1581,18 @@ OFF, driven over telnet from the bench:
   the last inferred entry in the physical pin map.
 - All three buttons, the LED blink-count, duration in NVS, telnet and OTA working.
 
+**Full button-driven cycle captured at the machine, 17:32:**
+
+```
+431253 ms  START=LOW    state IDLE      <- button
+431262 ms               state HEATING   <- 9 ms later, SSR closed
+446258 ms  elapsedMs:15000  completed:1  rectV:53  rectI:0.0
+```
+
+**9 ms button-to-SSR. 15000 ms exactly. And `rectV` is IN the cycle log** — every
+cycle now records the rectifier's own voltage and current beside it, which is the
+independent channel CR-11 asks for and the S3 rig could not provide at all.
+
 **One board now does everything the S3 test rig does, plus rectifier telemetry
 and remote control it never had.** Merge steps 1–3 complete.
 
