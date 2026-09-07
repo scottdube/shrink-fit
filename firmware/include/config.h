@@ -111,9 +111,13 @@
 // INA228 on the 100 A shunt (CR-01)
 // =============================================================================
 // INA228 chosen over INA226: 85 V common-mode clears the 53 V bus.
-// OPEN QUESTION §6.16: whether the DC bus negative is the same node as logic
-// ground. If it is, matched series resistors on VIN± and power sequencing
-// suffice; if the bus floats, this part needs isolation. Not yet decided.
+// §6.16 RESOLVED 2026-09-07: the DC bus FLOATS relative to logic ground — 18 V AC
+// measured between DC− and controller GND, which is the design (SR-10 closed, no
+// continuity to chassis; SR-11 withdrew the earth bond). So the common mode at a
+// bus-side shunt swings about ±25 V, and the INA228's −0.3 V minimum is violated
+// on every mains cycle. THIS PART CANNOT SIT ON LOGIC GROUND with its inputs on
+// the bus. It must be referenced to DC− with an isolated I²C, or replaced by an
+// isolated sensor. Not yet decided — see §6.16.
 #define INA228_ADDR        0x40
 // The shunt case carries NO mV marking. 0.75 mΩ assumes the common 100 A / 75 mV
 // rating — a PLACEHOLDER until four-wire injection (VR-11) measures it. The dose

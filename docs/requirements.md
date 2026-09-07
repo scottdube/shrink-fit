@@ -801,7 +801,7 @@ the enclosure in three years. Put them on the machine:
 ⚠  DC BUS CEILING 48 V.  IRFP260N = 200 V parts. Do not raise. (VR-05)
 ⚠  NEVER ENERGISE WITHOUT THE WORK COIL CONNECTED. (board silkscreen)
 ⚠  E-STOP CUTS DC ONLY.  Mains and rectifier stay live. Unplug to isolate.
-ⓘ  DC− is bonded to earth at ONE point. Do not add a second bond. (SR-11)
+⚠  DC OUTPUT FLOATS — neither rail is bonded to earth. DO NOT BOND IT. (SR-10/11)
 ⓘ  Cycles terminate on ENERGY, not time. Presets are calibrated — see docs.
 ```
 
@@ -2222,7 +2222,48 @@ on every variant listed.
 **Firmware clamp at 48.0 V stands** (§6.14) — the bus accepts 58.5 V, which is
 ~184 V peak on 200 V FETs before ringing.
 
-## 6.16 OPEN — INA228 input protection and ground reference
+## 6.16 RESOLVED 2026-09-07 — the bus floats, so the INA228 needs isolation
+
+**Measured with the machine running**, R48 DC− to controller logic ground:
+
+| | Reading |
+|---|---|
+| DC volts | **1.7 V, fluctuating** |
+| AC volts | **18 V, steady** |
+
+Two floating systems with capacitive coupling between them — near-zero DC, real
+AC through supply Y-capacitance. **Not a fault: this is the design.** SR-10
+(closed 2026-08-09) measured no continuity from either DC rail to chassis, and
+SR-11 withdrew the earth bond after analysis showed bonding *creates* a hazard by
+giving the coil a defined potential relative to an earthed machine.
+
+**Consequence — the simple option is dead.** An INA228 on logic ground with its
+inputs across a bus-side shunt would see a common mode swinging roughly **±25 V**
+(18 V AC RMS). The part's range is **−0.3 V to +85 V**: the positive half is fine,
+**the negative half violates the minimum on every mains cycle.** A plain low-side
+INA228 referenced to logic ground cannot be used here. The series-resistor and
+power-sequencing answer sketched earlier addresses a different problem and does
+not fix this one.
+
+**Three ways forward, none free:**
+
+1. **Reference the INA228 to DC−** — its ground on the bus, common mode ~0, which
+   is what the part wants. Then its I²C is at bus potential and **must be
+   isolated** (ISO1541 or similar) before it reaches the ESP32. One extra part, a
+   split ground plane, and the isolator needs a bus-side supply.
+2. **Bond DC− to logic ground.** Makes them one node and everything simplifies —
+   but it ties the floating bus to the controller, and SR-11's analysis of what a
+   bond does deserves re-reading before anyone chooses this. It is not the same as
+   bonding to earth, but it is not nothing either.
+3. **An isolated current sensor instead** — hall-effect or a fully isolated
+   amplifier. Loses the INA228's hardware energy accumulator, which CR-01 relies
+   on precisely because it is immune to loop jitter.
+
+**Not decided.** Option 1 is the conventional answer and preserves CR-01's
+hardware integration; option 2 is cheapest and needs a safety argument, not just
+an electrical one.
+
+## 6.16-OLD — the earlier sketch, superseded by the measurement above
 
 Raised by Scott at the bench 2026-09-04, from a measurement, not from theory.
 
