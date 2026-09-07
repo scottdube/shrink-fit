@@ -1653,3 +1653,31 @@ cycle — none of which the S3 test rig could see.
 regulation target and it lags*, not a readback of what we commanded. It read
 41.5 through the sag, 16.3 V after the cycle, then returned. In CC the target is
 the sagged voltage. Never read it as "did my setpoint take" during a cycle.
+
+## 2026-09-07 end of day — where to pick up
+
+**State left behind:** merged controller (`env:controller`, production build) on
+the NodeMCU-32S at the assembly table, IDLE, SSR open, armed at 41.5 V, telnet on
+**192.168.30.54**. S3 test rig still in place, now redundant. Mac on IoT.
+
+### Next session, in the order I'd take it
+
+1. **Two readings to finish §6.16** — DC− to mains earth, and logic ground to
+   mains earth. Confirms both systems really float rather than one being earthed
+   through a path nobody intended.
+2. **Decide the INA228 topology** (§6.16): reference it to DC− with isolated I²C
+   (conventional, keeps CR-01's hardware accumulator), bond DC− to logic ground
+   (cheapest, needs a safety argument), or an isolated sensor (loses the
+   accumulator). **This gates the schematic's INA228 section.**
+3. **VR-11 shunt calibration** — four-wire injection. Unlocks DOSED mode and real
+   CR-01 energy dosing; everything is TIMED until then.
+4. **Pull the S3 rig and its breadboard.**
+5. **Step 4 of the merge — the safety chain.** Exactly the `NO`s in the status
+   line: E-stop, contactor, flow, shunt. Each has a flag that flips when the
+   hardware lands.
+
+### Smaller, unblocked
+PCF8574 lamps (chip on the bench, unwired) · schematic updates from today: CAN
+transceiver choice (SOIC on board vs `J9` header), the 120 Ω termination our end
+must carry, the R48 JST connector · the `0x33` fan command mystery · the Amazon
+return for the three counterfeit transceivers, window closes ~09-17.
