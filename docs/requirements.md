@@ -1859,8 +1859,13 @@ output current** with temperature flat at ~20 °C throughout:
 | **47.0 V** | **audibly speeds up — the knee is the FIRST volt down** |
 | 43.0 V | slightly quieter than 42.5 |
 | 42.5 V | quieter than 41.5, not much |
+| **42.0 V** | **full — the ramp is complete by here** |
 | 41.8 V | full |
 | 41.5 V | full |
+
+So the whole transition happens in the **6 volts between 48 and 42**, and 41 V is
+the floor anyway: §6.15 puts the ONLINE range at 41–58.5 V and `BUS_VOLTAGE_MIN`
+enforces it, so there is nothing below 41 to explore.
 
 Established by a descending 1 V sweep, 15 s per step, from 48 V down (Scott
 counted the steps by ear). **Graduated, not a threshold, and it starts at once.** Not thermal (0x04 never moved), not load (0 A),
