@@ -1241,7 +1241,7 @@ meaningful until it is flashed.
 
 ### Tomorrow, in order
 
-1. **Flash the dev board.** USB: `pio run -e ina228_esp32 -t upload`. Or OTA
+1. ~~**Flash the dev board.**~~ **DONE 2026-09-05 ~noon** — boots `R48 mode: LISTEN`, tx=0, on `usbserial-0001` today (port names shifted). Original text: USB: `pio run -e ina228_esp32 -t upload`. Or OTA
    once it is powered and on WiFi: `pio run -e ina228_ota -t upload`. Confirm
    the boot banner says `R48 mode: LISTEN`.
 2. **Decide where CAN physically is on the R48.** §6.14.1 measured the 2-pin JST
