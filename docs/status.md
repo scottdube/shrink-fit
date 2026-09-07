@@ -1204,3 +1204,29 @@ tracks the DC clamp later is the real current sub-ID; the other is discarded.
 - `BUS-OFF` → termination. Check the 220∥270 is actually across H and L.
 - `tx` climbing, `rx` stuck at 0 → R48 not on mains, H/L swapped, or no GND to DC−.
 - Nothing at all → transceiver RS pin; the module's 10 kΩ to GND should hold it in high-speed mode.
+
+## 2026-09-04 — CAN two-node loopback PASSES on Waveshare transceivers
+
+**16/16 round trips, ~1.4 ms RTT, zero errors, first attempt** — once both
+ends were verified *before* the bus went between them.
+
+What was proven, in order, each by a direct measurement at the part:
+
+1. All three hiBCTR blue "VP230" modules **never drive the bus** — D toggling at
+   125 kHz at the chip lead, supply steady, `RS` in slope control, output stage
+   never engages. Return in progress; see `docs/return-sn65hvd230-modules.md`.
+2. Two Waveshare SN65HVD230 boards (Amazon, sold by Waveshare) **drive**:
+   `CANH`/`CANL` split to 2.8/1.6 V and 2.7/1.6 V under the same stimulus.
+   Onboard 120 Ω on each, so no external termination.
+3. With both drivers proven and both boards on the Mac's USB (common ground, no
+   bonding wire), the loopback echoed every frame.
+
+**Consequence for the R48:** every earlier "rectifier not answering" was measured
+through a transceiver that could not transmit. The question has not yet been
+asked. Before it can be: the firmware still carries the Huawei request ID
+(§6.13, withdrawn) and must be rewritten to the Vertiv protocol (§6.15). A
+passive `canraw` listen needs no protocol and is the zero-risk first step.
+
+**Bench state:** dev board (`usbserial-4`, ina228 firmware, Waveshare on
+`P14`/`P32`) and new board (`usbserial-0001`, `can_loop_listener`, Waveshare).
+Blue modules 1–3 marked and set aside for return.
