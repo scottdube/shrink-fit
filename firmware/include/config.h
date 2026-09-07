@@ -157,6 +157,9 @@ static const uint32_t DUR_LADDER_S[] = {5, 10, 15, 20, 25, 30};   // seconds, pe
 // =============================================================================
 // LIMITS
 // =============================================================================
+#ifndef BENCH_MODE
+#define BENCH_MODE 0
+#endif
 // ---- Arming (CR-05 rev. §6.10): all three, none sufficient alone -------------
 #define ARM_MIN_MS         30000  // ≥30 s since mains came up (contactor close)
 #define ARM_BUS_V_MIN      40.0f  // bus voltage over CAN must be at least this
@@ -167,9 +170,20 @@ static const uint32_t DUR_LADDER_S[] = {5, 10, 15, 20, 25, 30};   // seconds, pe
 // ---- Cycle ---------------------------------------------------------------------
 #define START_TEMP_MAX_C   60.0f  // CR-04 — enforced by the operator until a channel exists
 #define COOLANT_TEMP_MAX_C 50.0f  // CR-07 — DS18B20
-#define COOLDOWN_MIN_MS    60000  // CR-04 stand-in: no nose TC, so a minimum dwell.
-                                  // PLACEHOLDER until CR-02/CR-04 are rewritten for
-                                  // the no-thermocouple design.
+// CR-04 stand-in: with no nose thermocouple, a minimum dwell is the only thing
+// stopping a warm holder being re-heated, which is the failure that permanently
+// enlarges bores. PLACEHOLDER until CR-02/CR-04 are rewritten for the
+// no-thermocouple design.
+//
+// BENCH_MODE shortens it to 3 s so bench testing is not spent waiting — it ate
+// three button presses during the first button test. The real 60 s is untouched
+// in env:controller, and the shortened value is announced at boot like every
+// other bench compromise, never silent.
+#if BENCH_MODE
+#define COOLDOWN_MIN_MS    3000
+#else
+#define COOLDOWN_MIN_MS    60000
+#endif
 #define PEAK_FLAG_C        350.0f // CR-02 thresholds — applied to the CAMPAIGN's handheld
 #define PEAK_LOCKOUT_C     375.0f // readings, not to a firmware channel
 

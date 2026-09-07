@@ -1557,5 +1557,14 @@ symptom from a pull-up on the wrong side of the wire. Divergence from pinmap.md
 is documented in both config.h and pinmap.md, with the instruction to revert to
 34/35 when the PCB is laid out.
 
-**Still untested:** the duration button since the rewire (it worked before), and
-the SSR on Edge B position 7 (nothing wired there yet).
+**Duration button confirmed too** — the setting had moved 10 s → 15 s on its own,
+which only the button does.
+
+**COOLDOWN shortened to 3 s under BENCH_MODE** (Scott's call) because the real
+60 s ate three button presses during the first test. `env:controller` keeps 60 s;
+both builds now print the value in `st` as `cooldown Ns`, so it is checkable at
+runtime rather than trusted from a preprocessor branch — it is a safety constant
+and deserves that.
+
+**All three operator inputs verified.** Still untested: the SSR on Edge B
+position 7 (nothing wired there yet).

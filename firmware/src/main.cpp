@@ -318,9 +318,10 @@ static void status() {
 #if BENCH_MODE
   sayfln("  *** BENCH MODE — arming gate and interlocks BYPASSED (buttons live) ***");
 #endif
-  sayf("  fitted: E-stop %s  contactor %s  flow %s  shunt %s\n",
+  sayf("  fitted: E-stop %s  contactor %s  flow %s  shunt %s   cooldown %lus\n",
        ESTOP_FITTED ? "yes" : "NO", CONTACTOR_FITTED ? "yes" : "NO",
-       FLOW_INTERLOCK ? "yes" : "NO", SHUNT_CALIBRATED ? "cal" : "NO");
+       FLOW_INTERLOCK ? "yes" : "NO", SHUNT_CALIBRATED ? "cal" : "NO",
+       (unsigned long)(COOLDOWN_MIN_MS / 1000));
 }
 
 static void wifiBegin();
@@ -519,7 +520,8 @@ void setup() {
 #endif
   sayfln("\n*** BENCH MODE ***  arming gate and interlocks BYPASSED. Buttons ARE live.");
   sayfln("    SSR pin GPIO 4 still drives — put an LED on it, not a coil.");
-  sayfln("    Buttons ARE read: they need their external 10k pull-ups to 3V3.");
+  sayf("    COOLDOWN shortened to %lu s (real build uses 60).\n",
+       (unsigned long)(COOLDOWN_MIN_MS / 1000));
 #endif
   sayfln("commands: st | pins | watch | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
 
