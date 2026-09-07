@@ -1855,21 +1855,35 @@ output current** with temperature flat at ~20 °C throughout:
 
 | Setpoint | Fan |
 |---|---|
-| 41.5 V | full |
+| **48.0 V** | **quietest** |
+| **47.0 V** | **audibly speeds up — the knee is the FIRST volt down** |
+| 43.0 V | slightly quieter than 42.5 |
+| 42.5 V | quieter than 41.5, not much |
 | 41.8 V | full |
-| 42.5 V | quieter, not much |
-| 43.0 V | slightly quieter again |
-| 48.0 V | **much lower** |
+| 41.5 V | full |
 
-**Graduated, not a threshold.** Not thermal (0x04 never moved), not load (0 A),
+Established by a descending 1 V sweep, 15 s per step, from 48 V down (Scott
+counted the steps by ear). **Graduated, not a threshold, and it starts at once.** Not thermal (0x04 never moved), not load (0 A),
 and **not the `0x33` fan command** — sending explicit `auto` changed nothing, so
 the unit was already in auto or `0x33` does not behave as §6.15 describes.
 
-**Design consequence.** `BUS_SETPOINT_V` is 41.5 V for FET margin (peak Vds
-≈130 V, 35%); the ceiling is 48 V (≈151 V, 25%). **Quiet and safe pull in
-opposite directions.** Fan noise is an annoyance; FET margin is what destroys
-IRFP260Ns. Stay low until the ZVS has been scoped at voltage (VR-05), which is
-the measurement that would justify running higher.
+**Design consequence — and there is NO compromise position.** The fan is quietest
+only at 48 V, which is exactly `BUS_VOLTAGE_CEIL`, the point of *least* FET
+margin (peak Vds ≈151 V, 25% on 200 V parts). It starts ramping at 47 V. So every
+volt of margin costs fan noise from the first volt; there is no quiet 44–45 V
+middle ground to settle on.
+
+`BUS_SETPOINT_V` stays **41.5 V** (≈130 V peak, 35% margin). Fan noise is an
+annoyance; FET margin is what destroys IRFP260Ns, and ringing adds 10–20% on top
+of the idealised π·Vdc figure. **This is a decision to revisit only after VR-05
+scopes actual Vds at voltage** — that measurement, not the noise, is what could
+justify running nearer the ceiling.
+
+**Unexplained, and worth noting as such:** the rectifier is at 0 A output and
+20 °C throughout. Nothing in its own telemetry accounts for the fan, so the
+mechanism is internal — plausibly its converter working harder away from the
+~54 V telecom float point it was designed around, but that is inference, not
+measurement.
 
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
