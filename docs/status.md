@@ -1308,7 +1308,16 @@ brick with telnet was built for exactly this: it goes to the R48 alone and is
 driven over WiFi from the bench. The Mac stays put. The CANable needs the Mac
 and therefore only travels if a second trip is justified by an ambiguous result.
 
-### 2026-09-07 — CANable sniffer: OPEN, set aside
+### 2026-09-07 — CANable sniffer: ~~OPEN~~ **VERIFIED on the R48 bus, 14:03 — KEEP**
+
+139 frames in 30 s on the live rectifier session, error register clean, every
+ID present, and it independently caught the status frame `11 B4 00 00` = 45 V —
+a third, isolated instrument witnessing a set command land. The loopback
+failure was that floating-brick pair's common mode and is moot. Wiring on the
+R48: `CAN H`→yellow, `CAN L`→blue, no ground, **termination switch ON** (the
+R48 port has none; with the Waveshare's that makes the correct two).
+
+*(original entry follows)*
 
 Transceiver powered (2.8 V bias on both lines, isolated side), `S4` = 125 kbps
 confirmed in `inc/can.h`, tried both H/L polarities, isolated `GND` tied to the
