@@ -1538,3 +1538,24 @@ honest words about what protection actually exists.
 **Pre-ZVS hardware, revised:** two 10 kΩ to 3V3 (GPIO 34 START, 35 STOP — *not*
 36 while `ESTOP_FITTED=0`), momentary to GND on GPIO 15 (duration, has an
 internal pull-up), SSR on GPIO 4, CAN harness on. Flash `env:controller`.
+
+### 2026-09-07 ~17:00 — START and STOP verified on the merged controller
+
+Buttons moved to GPIO 27 (START, Edge A pos 9) and GPIO 26 (STOP, pos 10),
+internal pull-ups, no external resistors. Captured in one `watch` pass:
+
+- **START fires a cycle** — and three earlier presses were correctly ignored
+  because the board was in COOLDOWN. **That is the "lockout" Scott suspected**:
+  CR-04's 60 s dwell after any cycle, working as designed but invisible until the
+  watch made it legible.
+- **STOP aborts mid-heat** — 6.66 s into a 10 s cycle, logged `completed: 0`.
+- Clean transitions, no bounce, no phantom presses.
+
+**What the input-only pins cost, for the record:** 34/35 gave a phantom cycle at
+first arm, were invisible to the `pins` scan, and produced a start-on-disconnect
+symptom from a pull-up on the wrong side of the wire. Divergence from pinmap.md
+is documented in both config.h and pinmap.md, with the instruction to revert to
+34/35 when the PCB is laid out.
+
+**Still untested:** the duration button since the rewire (it worked before), and
+the SSR on Edge B position 7 (nothing wired there yet).
