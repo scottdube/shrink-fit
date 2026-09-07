@@ -1702,7 +1702,7 @@ R48 unloaded, meter on `DC+`/`DC−`, session in `RUN`, keep-alive every 6 s.
 | 1 | `r48v 45` → `0x0607FF83` `03 F0 00 21 42 34 00 00` | 53→45, **1 V per frame, ~2.5 V/s** (walk-in) | **45 V** |
 | 2 | nothing (10 s refresh running) | 45 for 35 s, 89 frames | 45 V |
 | 3 | `r48stop` — total silence | **45 held 36.8 s, then 46→53 over 3.2 s; 53 at 40.0 s** | back at 53; "roughly 5 s" for the walk-up by eye |
-| 4 | `r48v 50` — deliberately over the clamp | wire got `42 40 00 00` = **48.0**; status `hold V=50.0` records the ask | *(pending)* |
+| 4 | `r48v 50` — deliberately over the clamp | wire got `42 40 00 00` = **48.0**; status `hold V=50.0` records the ask | **48 V** — fan did *not* ramp (5 V step vs 8 V), amber off |
 
 - **IEEE-754 encoding confirmed on the wire**: `42 34 00 00` = 45.0, the rectifier obeyed it.
 - **Setpoint changes are slewed at ~2.5 V/s in both directions** — the walk-in
