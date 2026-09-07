@@ -1263,3 +1263,21 @@ Parts order (Amazon Waveshare done; LCSC C12084 ×10 + SOIC-8 adapters
 undecided) · InvenTree PO for the two Waveshares · TI notification yes/no ·
 quarantine stock 80/83 yes/no · controller footprint: SOIC-8 on PCB vs module
 header · IC marking lines 2–3 for the return report.
+
+### 2026-09-04 evening — USB-CAN sniffer identified and working on the Mac
+
+PO-0160 "Jhoinrch Isolation USB to CAN FD Adapter" is a **CANable 2.0 clone**
+running the open-source slcan firmware (`V` → `16e7497-dirty
+github.com/normaldotcom/canable2.git`). The vendor's "no Apple M chips" note is
+about their Windows GUI; the hardware is a CDC serial device and works on macOS
+natively. It was invisible at first only because Parallels had claimed it.
+
+- Port: `/dev/cu.usbmodem3673335E30361` (suffix is the device serial, stable).
+- Tool: `~/code/scripts/cansniff.py` — pyserial only, prints every frame with
+  timestamp/ID/DLC/data. `-b 125` default.
+- **Before it joins any bus:** check whether its 120 Ω termination jumper is
+  fitted (CANH–CANL resistance, unplugged). On the R48 bus with a Waveshare
+  already terminated, a third 120 Ω is one too many.
+
+Tomorrow it goes on the R48 bus in parallel with the dev Waveshare — the one
+observer that neither ESP32 can influence, and the arbiter if the two disagree.
