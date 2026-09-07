@@ -164,12 +164,14 @@ static void fault(const char* why, bool dropMains = false) {
 static void logCycle(bool completed) {
   sayf("{\"ms\":%lu,\"mode\":\"%s\",\"size\":\"%s\",\"durS\":%lu,"
                 "\"J\":%.1f,\"targetJ\":%.1f,\"elapsedMs\":%lu,"
-                "\"rectV\":%.0f,\"rectI\":%.1f,\"completed\":%d,\"provisional\":%d}\n",
+                "\"rectV\":%.0f,\"rectI\":%.1f,\"rectC\":%.1f,\"acV\":%.0f,"
+                "\"completed\":%d,\"provisional\":%d}\n",
                 millis(), mode == Mode::TIMED ? "timed" : "dosed",
                 mode == Mode::DOSED ? PRESETS[sel].name : "-",
                 mode == Mode::TIMED ? (unsigned long)DUR_LADDER_S[durIx] : 0UL,
                 doseJ, doseTargetJ, millis() - tHeatStart,
-                rectTelem.vOut, rectTelem.iOut, completed ? 1 : 0,
+                rectTelem.vOut, rectTelem.iOut, rectTelem.tempC, rectTelem.acInV,
+                completed ? 1 : 0,
                 mode == Mode::DOSED ? (PRESETS[sel].provisional ? 1 : 0) : 1);
 }
 
@@ -304,8 +306,10 @@ static void status() {
   sayf("state %-8s mode %-5s  dur %lus  preset %s\n", stName(),
                 mode == Mode::TIMED ? "TIMED" : "DOSED",
                 (unsigned long)DUR_LADDER_S[durIx], PRESETS[sel].name);
-  sayf("  R48: %s  %.0f V  %.1f A   %s\n",
-                rectTelem.online ? "online" : "OFFLINE", rectTelem.vOut, rectTelem.iOut,
+  sayf("  R48: %s  %.0f V  %.1f A   set %.1f V  lim %.0f%%  %.1f degC  AC %.0f V\n",
+       rectTelem.online ? "online" : "OFFLINE", rectTelem.vOut, rectTelem.iOut,
+       rectTelem.vSet, rectTelem.iLimit * 100.0f, rectTelem.tempC, rectTelem.acInV);
+  sayf("       %s\n",
                 state == St::ARMING ? "(arming: need bus>=40V x3 samples and 30s)" : "");
   sayf("  INA228: %s   shunt %s   dose %.0f/%.0f J\n",
                 meterUp ? "present" : "absent",
@@ -364,6 +368,33 @@ static void handleLine(const char* line) {
     sayf("watching START(%d) STOP(%d) DUR(%d) for 30 s — press them now.\n",
          START_BUTTON_PIN, STOP_BUTTON_PIN, DURATION_BUTTON_PIN);
   }
+  // Commissioning controls. bus is clamped inside R48::setVoltage (41-48 V,
+  // IRFP260N ceiling) and refused while heating -- changing the operating point
+  // mid-cycle would invalidate the dose and surprise the ZVS.
+  else if (s.startsWith("bus")) {
+    if (state == St::HEATING) sayfln("refused: heating");
+    else { float v = s.substring(3).toFloat();
+           if (v <= 0) sayf("usage: bus <%.0f..%.0f>\n", BUS_VOLTAGE_MIN, BUS_VOLTAGE_CEIL);
+           else { rect.setVoltage(v); sayf("bus -> %.1f V commanded (clamped %.0f-%.0f)\n",
+                                          v, BUS_VOLTAGE_MIN, BUS_VOLTAGE_CEIL); } }
+  }
+  else if (s.startsWith("fan")) {
+    bool full = s.indexOf("full") > 0;
+    rect.setFan(full);
+    sayf("fan -> %s (cmd 0x33)\n", full ? "FULL" : "auto");
+  }
+  else if (s == "caninfo") {
+    sayfln("R48 info frames (0x41, sub-ID in data[3]) — last payload per sub-ID:");
+    rect.forEachInfo([](uint8_t sub, const uint8_t d[4], uint32_t age) {
+      uint32_t raw = ((uint32_t)d[0]<<24)|((uint32_t)d[1]<<16)|((uint32_t)d[2]<<8)|d[3];
+      float f; memcpy(&f, &raw, 4);
+      char asc[5] = { (char)(d[0]>=32&&d[0]<127?d[0]:'.'), (char)(d[1]>=32&&d[1]<127?d[1]:'.'),
+                      (char)(d[2]>=32&&d[2]<127?d[2]:'.'), (char)(d[3]>=32&&d[3]<127?d[3]:'.'), 0 };
+      sayf("  0x%02X  %02X %02X %02X %02X  u32 %-10lu /1024 %8.2f  float %-12g \"%s\"  %lus\n",
+           sub, d[0], d[1], d[2], d[3], (unsigned long)raw, raw/1024.0f, (double)f, asc,
+           (unsigned long)(age/1000));
+    });
+  }
   else if (s == "start") {
     if (state != St::IDLE) sayf("refused: state is %s, not IDLE\n", stName());
     else enter(St::PRECHECK);
@@ -408,7 +439,7 @@ static void handleLine(const char* line) {
                                          prefs.getString("pass","").length(),
                                          otaReady ? WiFi.localIP().toString().c_str() : "not connected"); }
   else if (s == "wifi clear")     { prefs.remove("ssid"); prefs.remove("pass"); sayfln("cleared"); }
-  else sayfln("commands: st | pins | watch | start | stop | ack | dur [s] | mode timed|dosed | preset [n]"
+  else sayfln("commands: st | pins | watch | bus <v> | fan auto|full | caninfo | start | stop | ack | dur [s] | mode timed|dosed | preset [n]"
               " | ssid <n> | pass <p> | wifi? | wifi clear");
 }
 
@@ -465,7 +496,7 @@ static void serviceNet() {
     if (telnetCli && telnetCli.connected()) telnetCli.stop();
     telnetCli = telnetSrv.available();
     telnetCli.printf("\n=== shrink-fit controller ===\n"
-                     "commands: st | pins | watch | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
+                     "commands: st | pins | watch | bus <v> | fan auto|full | caninfo | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
   }
   static char tb[64]; static uint8_t tn = 0;
   while (telnetCli && telnetCli.available()) {
@@ -523,7 +554,7 @@ void setup() {
   sayf("    COOLDOWN shortened to %lu s (real build uses 60).\n",
        (unsigned long)(COOLDOWN_MIN_MS / 1000));
 #endif
-  sayfln("commands: st | pins | watch | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
+  sayfln("commands: st | pins | watch | bus <v> | fan auto|full | caninfo | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
 
   if (!rect.begin(CAN_TX_PIN, CAN_RX_PIN, CAN_BITRATE_KBPS))
     sayfln("WARN: TWAI init failed — rectifier link unavailable");

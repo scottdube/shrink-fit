@@ -1825,6 +1825,52 @@ No ground wire — the JST's CAN ground is isolated (§6.14.1b) and the link run
 clean without one. If the bus ever goes bus-off on first contact after a rewire,
 check these two before anything else.
 
+### 6.14.0f The 0x41 info frames DECODED — four new channels, 2026-09-07
+
+The rectifier streams `0x41` frames on `0x060F8007` with a sub-ID in `data[3]`
+and a **big-endian IEEE-754 float in `data[4..7]`** — the same encoding as the set
+commands. Identified by commanding known values and watching them come back,
+which validates the whole set rather than guessing:
+
+| Sub | Meaning | Evidence |
+|---|---|---|
+| **0x01** | **Output voltage setpoint** | mirrored 41.53 / 48.06 / 41.80 / 42.51 / 43.01 as commanded |
+| 0x02 | Output current | 0 at no load |
+| **0x03** | **Current limit, fraction of rated** | read back **0.982422** against our commanded 55/56 = 0.982 |
+| **0x04** | **Internal temperature °C** | steady 19.85–20.09 across every setpoint; shop ambient |
+| **0x05** | **AC input voltage** | 241.8–241.9 V — the shop's 240 V mains |
+| 0x07 | unknown, 0 | |
+| 0x5A–0x5C | model string ASCII | `081R` `4830` `00e3` = R48-3000e3 |
+
+**This matters beyond diagnostics.** `0x04` gives CR-07 a coolant/thermal channel
+the design did not otherwise have, and `0x05` makes a mains sag visible — both
+from a source completely independent of our own sensing. All four are now in
+`R48::Telem`, shown in `st`, and **`rectC` and `acV` are written into every cycle
+log line** beside the dose.
+
+### 6.14.0g Fan behaviour — tracks the setpoint, graduated, measured 2026-09-07
+
+Scott noticed the fan running full and asked what drives it. Measured at **zero
+output current** with temperature flat at ~20 °C throughout:
+
+| Setpoint | Fan |
+|---|---|
+| 41.5 V | full |
+| 41.8 V | full |
+| 42.5 V | quieter, not much |
+| 43.0 V | slightly quieter again |
+| 48.0 V | **much lower** |
+
+**Graduated, not a threshold.** Not thermal (0x04 never moved), not load (0 A),
+and **not the `0x33` fan command** — sending explicit `auto` changed nothing, so
+the unit was already in auto or `0x33` does not behave as §6.15 describes.
+
+**Design consequence.** `BUS_SETPOINT_V` is 41.5 V for FET margin (peak Vds
+≈130 V, 35%); the ceiling is 48 V (≈151 V, 25%). **Quiet and safe pull in
+opposite directions.** Fan noise is an annoyance; FET margin is what destroys
+IRFP260Ns. Stay low until the ZVS has been scoped at voltage (VR-05), which is
+the measurement that would justify running higher.
+
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
 **R48 on mains, DC output open, transceiver unplugged, black probe on DC−:

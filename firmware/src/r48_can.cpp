@@ -95,6 +95,20 @@ bool R48::setCurrentLimit(float amps) {
   return true;
 }
 
+bool R48::setFan(bool full) {
+  if (!_up) return false;
+  uint8_t d[8] = {0x03, 0xF0, 0x00, 0x33, 0, 0, 0, 0};
+  if (full) d[5] = 0x01;                 // 00 01 00 00 = full, 00 00 00 00 = auto
+  _send(ID_SET, d);
+  return true;
+}
+
+void R48::forEachInfo(void (*cb)(uint8_t sub, const uint8_t d[4], uint32_t ageMs)) {
+  uint32_t now = millis();
+  for (int i = 0; i < 256; i++)
+    if (_infoSeen[i]) cb((uint8_t)i, _info[i], now - _infoSeen[i]);
+}
+
 void R48::service() {
   if (!_up || _mode == LISTEN) return;
   uint32_t now = millis();
@@ -139,6 +153,20 @@ void R48::poll(Telem& out) {
       if (_mode == INIT) { _mode = RUN; _nextTx = 0; }        // handshake acknowledged
     } else if (m.data[3] == 0x23 && _mode != LISTEN) {
       _mode = INIT; _nextTx = 0;                               // rectifier asked to re-sync
+    }
+    if (m.data[0] == 0x41 && m.data_length_code == 8) {        // info frame
+      uint8_t sub = m.data[3];
+      memcpy(_info[sub], &m.data[4], 4);
+      _infoSeen[sub] = millis();
+      uint32_t raw = ((uint32_t)m.data[4] << 24) | ((uint32_t)m.data[5] << 16) |
+                     ((uint32_t)m.data[6] << 8)  |  m.data[7];
+      float f; memcpy(&f, &raw, 4);
+      switch (sub) {
+        case 0x01: out.vSet   = f; break;
+        case 0x03: out.iLimit = f; break;
+        case 0x04: out.tempC  = f; break;
+        case 0x05: out.acInV  = f; break;
+      }
     }
     if (m.data[0] == 0x11 && m.data_length_code == 8) {        // status frame
       out.vOut = (float)(((uint16_t)m.data[1] << 8) | m.data[2]) / 1024.0f;
