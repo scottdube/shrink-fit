@@ -1834,7 +1834,7 @@ which validates the whole set rather than guessing:
 
 | Sub | Meaning | Evidence |
 |---|---|---|
-| **0x01** | **Output voltage setpoint** | mirrored 41.53 / 48.06 / 41.80 / 42.51 / 43.01 as commanded |
+| **0x01** | **ACTIVE regulation target, lags a few seconds** — not simply what we commanded | mirrored 41.53 / 48.06 / 41.80 / 42.51 / 43.01 at no load, but during a real cycle it read 41.5 through the sag then **16.3 V after it**, then returned. In constant-current the target IS the sagged voltage, and the info frames report it late. Do NOT use this as "did my setpoint take" during a cycle |
 | 0x02 | Output current | 0 at no load |
 | **0x03** | **Current limit, fraction of rated** | read back **0.982422** against our commanded 55/56 = 0.982 |
 | **0x04** | **Internal temperature °C** | steady 19.85–20.09 across every setpoint; shop ambient |

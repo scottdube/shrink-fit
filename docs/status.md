@@ -1624,3 +1624,32 @@ command.** First time the firmware has driven the machine's operating point.
 
 Bench-mode escape hatch is gone: it will now FAULT if the rectifier is not
 answering, refuse to start with the CAN session down, and hold 60 s of cooldown.
+
+## 2026-09-07 ~18:15 — ✅ FIRST REAL HEATING CYCLE UNDER THE MERGED CONTROLLER
+
+41.5 V setpoint, 55 A limit, 5 s, coolant running, test slug in the coil,
+DC breaker closed. Fired from telnet, telemetry captured throughout:
+
+| t | bus | current |
+|---|---|---|
+| +2.5 s | 19 V | 35.5 A |
+| +3.7 s | 16 V | 52.5 A |
+| +5.0 s | 16 V | 55.4 A |
+| +6.2 s | 16 V | **56.5 A** |
+| +7.5 s | 28 V | 32.8 A (SSR open, recovering) |
+
+`elapsedMs:5000 rectV:16 rectI:56.7 rectC:19.9 acV:239 completed:1` — **~900 W**.
+
+Current hit 56.7 A against the commanded 55 A, inside the ±1.5 A uncertainty on
+the 56 A base (§6.14.0d). Bus folded to 16 V in constant-current as expected. SSR
+opened on time. Rectifier temperature unmoved at 19.9 °C over 5 s.
+
+**The controller now does the whole job**: arms itself against the rectifier,
+sets the operating point, fires a timed cycle from a button or the console, and
+logs the rectifier's own voltage, current, temperature and mains input with every
+cycle — none of which the S3 test rig could see.
+
+**Correction to the decode this cycle produced:** `0x01` is the *active
+regulation target and it lags*, not a readback of what we commanded. It read
+41.5 through the sag, 16.3 V after the cycle, then returned. In CC the target is
+the sagged voltage. Never read it as "did my setpoint take" during a cycle.
