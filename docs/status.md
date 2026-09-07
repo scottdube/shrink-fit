@@ -1334,3 +1334,22 @@ polarity** — reversed gives bus-off, not silence.
 3. ~~Confirm RUN + keep-alive~~ **DONE 13:05** — 2 min soak, zero re-init, zero errors.
 4. Stage 2 — set commands behind the 48.0 V clamp. Not before 1–3.
 5. CANable sniffer — parked, open.
+
+## 2026-09-05 ~14:15 — ✅ STAGE 2 VERIFIED: the rectifier is under ONLINE control
+
+All five steps passed on telemetry and meter (§6.14.0c): 45 V obeyed with a
+2.5 V/s walk-in; held under the 10 s refresh; **silence reverts it in ~37 s,
+reproducibly**; a 50 V request left the board as 48.0 and the meter read 48.
+The safety property that the whole ONLINE-only design rests on is now a
+measurement, not a claim.
+
+**What this unblocks:** CR-01 can command the bus voltage directly, with a hard
+ceiling the firmware cannot exceed and a fallback the rectifier enforces on its
+own if the controller dies. The current-limit command (`r48i`) is built and
+encoded per §6.15 but **not yet verified under load** — that is the mechanism
+CR-01 would actually use to meter power into the coil, and it wants one more
+ZVS cycle with the clamp meter watching.
+
+**Not yet done, in order:** `r48i` under load · fold Stage 2 into the real
+controller build with the safety chain · the deferred list (return report,
+parts order, TI notification, quarantine, controller footprint, PO).
