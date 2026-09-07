@@ -1767,8 +1767,22 @@ then one ZVS cycle (2 blinks), DC clamp on the bus, meter on the output.
   It ran, but this is the regime to stay out of. Any further point goes *up*
   (`r48i 62`, f = 1.09, bus ~17 V), never down.
 
-**Stage 2 is verified for voltage, hold, revert, clamp, and the current command
-taking effect. The current-command *scale* is a single-point calibration.**
+**RESOLVED (Scott, from the bench):** the clamp was not read early — it **hunted
+43–48 A** through the cycle, the same band as the telemetry's 44.5–48.2. The two
+instruments agree; **the rectifier's current-limit loop oscillates at a 9 V bus
+into the ZVS**, which is a resonant load at its gate-drive floor. Unstable
+operating point, not a measurement error and not a nonlinear command. Mean of
+the band → base **~58 A**. Four estimates now: 57.5, 56.2, 58.3, and 3000 W/53 V
+= 56.6. **Base ≈ 57 A, gain, no offset.** `R48_I_BASE = 57.0` stands.
+
+**Design constraint for CR-01, from this:** the current limit cannot be used to
+throttle *this* coil below ~45 A, because the bus folds under ~12 V and the CC
+loop hunts. Fine power control below that point comes from **duty cycle**
+(on-time per CR-01 dose), not from the current setpoint. The current limit is a
+ceiling and a coarse knob, not a fine one.
+
+**Stage 2 is verified for voltage, hold, revert, clamp, and current limit —
+every one on the wire, on telemetry, and on a meter. Current scale ≈ 57 A ± 1.5.**
 
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
