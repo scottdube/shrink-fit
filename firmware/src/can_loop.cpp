@@ -143,6 +143,21 @@ static void selfTest() {
 
 void setup() {
   Serial.begin(115200);
+#ifdef HOLD_TOGGLE
+  // Bench jig: 125 kHz 50% square wave on D, forever -- a CAN-shaped stimulus.
+  // The DC hold is not a CAN test (a dominant bit is 8 us, and a transceiver
+  // with a dominant-state timeout fails the hold while being perfectly good).
+  // Under a meter a working driver averages CANH ~2.6 V / CANL ~1.6 V; a driver
+  // that never engages leaves both lines at the recessive bias (~2.2 V).
+  ledcSetup(0, 125000, 4);
+  ledcAttachPin(PIN_CAN_TX, 0);
+  ledcWrite(0, 8);                                    // 8/16 = 50 %
+  pinMode(PIN_CAN_RX, INPUT);
+  delay(400);
+  Serial.printf("\n=== JIG: 125 kHz square wave on D (GPIO%d) ===\n", PIN_CAN_TX);
+  Serial.println("Measure CANH and CANL to GND. Driving = ~2.6 / ~1.6. Not = both ~2.2.");
+  while (true) { delay(5000); Serial.println("  toggling."); }
+#endif
 #ifdef HOLD_DOMINANT
   // Bench jig only: hold the transceiver's D input LOW as a plain GPIO and do
   // nothing else -- no TWAI, no protocol. Exists to run the one comparison never
