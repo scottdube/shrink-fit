@@ -1633,6 +1633,42 @@ frame with its ID; `r48init` starts the handshake and keep-alive; `r48stop`
 returns to listen. Set commands exist only behind `-DR48_STAGE2`, with the
 48.0 V clamp applied before encoding and OFFLINE (`0x24`) deliberately absent.
 
+### 6.14.0a FIRST CONTACT — 2026-09-05, ~12:40. The R48 talks.
+
+Dev ESP32 + Waveshare on a USB brick, driven over telnet, `CANH`/`CANL` only to
+the JST, **no ground wire**. 60 s in LISTEN: silence — **the rectifier does not
+broadcast until spoken to.** `r48init`: **160 frames in 40 s, tx_err=0
+rx_err=0 bus_err=0.** `Vout 53.10 V` decoded against **53.4 V on the meter** —
+the `/1022` divisor holds to 0.6 %. Output unloaded, `Iout 0.0 A`; the `×2` is
+still unverified and needs a known load.
+
+**Corrections to what the source recorded, measured on the wire:**
+
+- **Reply IDs are `0x060F8003` and `0x060F8007`**, not `0x00860F80xx`. The
+  source's values carry the MCP2515 library's extended-frame flag (bit 31); a
+  29-bit ID cannot exceed `0x1FFFFFFF`, so they could never match. Our TX IDs
+  never had the flag, which is why the R48 heard us before we recognised it.
+  The sync reply is `0x0707F803` (our `0x0707FF83` with the low nibble pattern
+  swapped — `FF83` → `F803`).
+- The handshake acknowledgement arrived as **`0x060F8003` with `data[3] = 0x5D`**
+  (the source's "recovery" value), not `0x58`, on first contact.
+- **`data[0] = 0x41` info frames** on `0x060F8007`, sub-ID in `data[3]`: seen
+  `0x51, 0x55, 0x56, 0x5A, 0x5B, 0x5C`. **`0x5A`–`0x5C` are the model string in
+  ASCII**, four chars each: `081R` `4830` `00e3` → **"R48-3000e3"**. The rest
+  are unknown and logged raw.
+- `data[0] = 0x11` status frames arrive as documented; `Vout` in `data[1..2]`.
+
+**Polarity.** With `CANH`/`CANL` reversed the bus went **BUS-OFF** (52 bus
+errors in 45 s), not error-passive — the rectifier hears an inverted frame as
+malformed and throws error flags at it, which our controller reads as bit
+errors. I had argued a swap could only produce silence; it produces bus-off.
+**Bus-off on first contact with an unknown node means try the other polarity
+before anything else.**
+
+**Ground.** None. The JST's CAN ground is isolated (6.14.1b); the Waveshare's
+`GND` was left unconnected and the link is clean. The earlier `DC−` tie was for
+a transceiver assumed to sit on the output ground — it does not.
+
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
 **R48 on mains, DC output open, transceiver unplugged, black probe on DC−:

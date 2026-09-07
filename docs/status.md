@@ -1317,3 +1317,20 @@ with a clean error register. Not a gate for the R48; parked. Next idea when it
 is worth an hour: flash candleLight (gs_usb) via canable.io/updater and drive it
 with python-can over libusb, which removes slcan and this firmware from the
 question.
+
+## 2026-09-05 ~12:40 — ✅ R48 CAN COMMUNICATION ACHIEVED
+
+Rectifier answers the Vertiv handshake and streams telemetry: 160 frames/40 s,
+zero errors, `Vout 53.10 V` vs 53.4 V on the meter. Details in §6.14.0a.
+What made it work, in order: a transceiver that can actually drive (Waveshare),
+the JST identified as isolated CAN, **no ground wire**, and the **right
+polarity** — reversed gives bus-off, not silence.
+
+**Pending, in priority order:**
+1. Flash the HELLO-ID fix by USB when the board is back at the bench (OTA cannot
+   cross the VLAN from the main LAN). Until then the board stays in INIT and
+   re-handshakes every 10 s; the R48 tolerates it and telemetry flows anyway.
+2. Verify `Iout ×2` against a known load. Unloaded reads 0.0, which proves nothing.
+3. Confirm the RUN state and 6 s keep-alive hold the session (needs 1).
+4. Stage 2 — set commands behind the 48.0 V clamp. Not before 1–3.
+5. CANable sniffer — parked, open.

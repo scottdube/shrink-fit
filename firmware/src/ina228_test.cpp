@@ -88,8 +88,14 @@ static const uint32_t R48_ID_SETTINGS = 0x0647FF83;  // settings query (keep-ali
 static const uint32_t R48_ID_CONTROL  = 0x06080783;  // control byte / 'gimme5'
 static const uint32_t R48_ID_SYNC1    = 0x0707FF83;  // handshake 1
 static const uint32_t R48_ID_SYNC2    = 0x0717FF83;  // handshake 2
-static const uint32_t R48_ID_HELLO    = 0x00860F8003;// handshake reply, data[3]==0x58
-static const uint32_t R48_ID_STATUS   = 0x00860F8007;// telemetry (data[0]==0x11)
+// The source recorded these as 0x00860F80xx -- that is the MCP2515 library's
+// extended-frame flag (bit 31) left in the value. A 29-bit ID cannot exceed
+// 0x1FFFFFFF, so as written they could never match. Measured on the wire
+// 2026-09-05: the rectifier answers on 0x060F8003 and 0x060F8007. Our TX IDs
+// never carried the flag, which is why the R48 heard us before we heard it.
+static const uint32_t R48_ID_HELLO    = 0x060F8003;  // handshake reply, data[3]==0x58/0x5D
+static const uint32_t R48_ID_STATUS   = 0x060F8007;  // telemetry / info frames
+static const uint32_t R48_ID_SYNCACK  = 0x0707F803;  // reply to our 0x0707FF83 sync
 
 enum R48Mode { R48_LISTEN, R48_INIT, R48_RUN };
 static R48Mode  r48Mode = R48_LISTEN;
@@ -391,6 +397,18 @@ static void canService() {
         sayfln("R48: 0x23 -- resent both syncs.");
       }
       else if (m.data[3] == 0x5B) { r48Got5B = true; }
+      if (m.data[0] == 0x41 && m.data_length_code == 8 && m.identifier == R48_ID_STATUS) {
+        // Info frames, sub-ID in data[3]. 0x5A..0x5C carry the model string as
+        // ASCII, four chars each, seen on the wire as "081R" "4830" "00e3" --
+        // i.e. "R48-3000e3" in three pieces. Others are unknown and printed raw.
+        uint8_t sub = m.data[3];
+        if (sub >= 0x5A && sub <= 0x5C) {
+          static char model[13] = {0};
+          memcpy(&model[(sub - 0x5A) * 4], &m.data[4], 4);
+          if (sub == 0x5C) { model[12] = 0; sayf("R48 model string: \"%s\"\n", model); }
+          known = true;
+        }
+      }
       if (m.data[0] == 0x11 && m.data_length_code == 8) {
         // Status frame. Decode per 6.14 -- note /1022 not /1024, and the x2 on
         // current, both from the source and BOTH to be confirmed against the
