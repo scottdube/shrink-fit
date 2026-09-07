@@ -44,13 +44,32 @@ float     doseTargetJ = 0, doseJ = 0;
 bool      presetLocked[PRESET_COUNT] = {false};
 const char* faultMsg = nullptr;
 uint8_t   armSamples = 0;
+bool      lastStartLevel = false;      // edge-detect: a held button must not re-fire
+
+// BENCH_MODE: no rectifier, no SSR, no buttons. Set ONLY by env:controller_bench.
+// It bypasses the CR-05 arming gate and ignores the physical inputs, because on
+// the bench GPIO 34/35 float (input-only pins, no internal pull-ups) and would
+// start cycles on noise. It must never be set in a build that drives a coil, so
+// it is loud at boot and on every status line rather than a quiet constant.
+#ifndef BENCH_MODE
+#define BENCH_MODE 0
+#endif
 
 // ---- io helpers -------------------------------------------------------------
 // The SSR is the step (CR-05). It is the ONLY thing that puts the bus on the ZVS.
 static void ssr(bool on)         { digitalWrite(SSR_PIN, on ? HIGH : LOW); }
 // Firmware's one path to mains: open the contactor. There is no close.
 static void mainsDrop()          { digitalWrite(MAINS_DROP_PIN, HIGH); }
-static bool estopClosed()        { return digitalRead(ESTOP_SENSE_PIN) == HIGH; }
+// BENCH_MODE returns true here rather than at each call site: guarding the
+// callers individually is how doHeating() kept its E-stop check while
+// doPrecheck() lost it, and the cycle died 5 ms in on a floating pin.
+static bool estopClosed()        {
+#if BENCH_MODE
+  return true;
+#else
+  return digitalRead(ESTOP_SENSE_PIN) == HIGH;
+#endif
+}
 static bool startPressed()       { return digitalRead(START_BUTTON_PIN) == LOW; }
 static bool stopPressed()        { return digitalRead(STOP_BUTTON_PIN)  == LOW; }
 // Flow: a Hall pulse train on FLOW_PULSE_PIN counted by PCNT (CR-06). Until the
@@ -104,6 +123,9 @@ static void logCycle(bool completed) {
 // continues past target. The absolute ceiling bounds the damage; this catches it
 // sooner. In TIMED mode only the rectifier's own telemetry is checked.
 static bool plausible() {
+#if BENCH_MODE
+  return true;                       // nothing is connected to be plausible about
+#endif
   if (millis() - tHeatStart < PLAUS_GRACE_MS) return true;
   if (rectTelem.online) {
     if (rectTelem.vOut < PLAUS_V_MIN || rectTelem.vOut > PLAUS_V_MAX) { faultMsg = "bus V out of window (CAN)"; return false; }
@@ -133,6 +155,13 @@ static bool plausible() {
 //   clock, and only the voltage condition separates them.
 static void doArming() {
   uint32_t now = millis();
+#if BENCH_MODE
+  if (now - tMainsUp >= 2000) {
+    Serial.println("ARMED (BENCH MODE — arming gate BYPASSED, no rectifier required)");
+    enter(St::IDLE);
+  }
+  return;
+#endif
   if (now - tMainsUp > ARM_TIMEOUT_MS) return fault("rectifier never reached arming voltage (CR-05)");
   static uint32_t lastRx = 0;
   if (rectTelem.online && rectTelem.lastRxMs != lastRx) {          // a NEW sample
@@ -154,10 +183,12 @@ static void doArming() {
 static void doPrecheck() {
   if (!estopClosed())        return fault("E-stop open");
   if (!flowProven())         return fault("no coolant flow (CR-06)");
+#if !BENCH_MODE
   float ct = coolantTempC();
   if (!isnan(ct) && ct > COOLANT_TEMP_MAX_C) return fault("coolant too hot (CR-07)");
   if (!rectTelem.online)     return fault("rectifier CAN offline (CR-11)");
   if (rectTelem.vOut < ARM_BUS_V_MIN) return fault("bus sagged below arming voltage");
+#endif
 
   if (mode == Mode::DOSED) {
     if (!SHUNT_CALIBRATED)   return fault("DOSED refused: shunt not calibrated (VR-11)");
@@ -178,7 +209,7 @@ static void doPrecheck() {
 
 static void doHeating() {
   uint32_t el = millis() - tHeatStart;
-  if (stopPressed())                 { ssr(false); logCycle(false); enter(St::SETTLE); return; }
+  if (!BENCH_MODE && stopPressed())  { ssr(false); logCycle(false); enter(St::SETTLE); return; }
   if (!plausible())                  return fault(faultMsg, true);
   if (!flowProven())                 return fault("flow lost mid-cycle");
   if (!estopClosed())                return fault("E-stop opened mid-cycle");
@@ -197,6 +228,88 @@ static void doMeasure() {
   // the operator — TODO(step 3): a console command to record them against the
   // last cycle so presetLocked[] can be set from a measurement.
   enter(St::COOLDOWN);
+}
+
+// ---- console ----------------------------------------------------------------
+// Non-blocking, printable-only line assembly. readStringUntil() blocks a full
+// second and echoes line noise as commands — a trap already paid for once on the
+// bring-up board.
+static const char* stName() {
+  switch (state) {
+    case St::BOOT: return "BOOT"; case St::ARMING: return "ARMING";
+    case St::IDLE: return "IDLE"; case St::PRECHECK: return "PRECHECK";
+    case St::HEATING: return "HEATING"; case St::SETTLE: return "SETTLE";
+    case St::MEASURE: return "MEASURE"; case St::COOLDOWN: return "COOLDOWN";
+    default: return "FAULT";
+  }
+}
+
+static void status() {
+  Serial.printf("state %-8s mode %-5s  dur %lus  preset %s\n", stName(),
+                mode == Mode::TIMED ? "TIMED" : "DOSED",
+                (unsigned long)DUR_LADDER_S[durIx], PRESETS[sel].name);
+  Serial.printf("  R48: %s  %.0f V  %.1f A   %s\n",
+                rectTelem.online ? "online" : "OFFLINE", rectTelem.vOut, rectTelem.iOut,
+                state == St::ARMING ? "(arming: need bus>=40V x3 samples and 30s)" : "");
+  Serial.printf("  INA228: %s   shunt %s   dose %.0f/%.0f J\n",
+                meterUp ? "present" : "absent",
+                SHUNT_CALIBRATED ? "calibrated" : "UNCALIBRATED (DOSED refused)",
+                doseJ, doseTargetJ);
+  if (state == St::HEATING)
+    Serial.printf("  heating %lu ms of %lus\n", millis() - tHeatStart,
+                  (unsigned long)DUR_LADDER_S[durIx]);
+  if (state == St::FAULT) Serial.printf("  FAULT: %s   ('ack' to clear)\n", faultMsg ? faultMsg : "?");
+#if BENCH_MODE
+  Serial.println("  *** BENCH MODE — arming gate and interlocks BYPASSED, buttons ignored ***");
+#endif
+}
+
+static void handleLine(const char* line) {
+  String s(line); s.trim();
+  if (!s.length()) return;
+  if      (s == "st" || s == "status") status();
+  else if (s == "start") {
+    if (state != St::IDLE) Serial.printf("refused: state is %s, not IDLE\n", stName());
+    else enter(St::PRECHECK);
+  }
+  else if (s == "stop") {
+    if (state == St::HEATING) { ssr(false); logCycle(false); enter(St::SETTLE); Serial.println("aborted"); }
+    else Serial.println("not heating");
+  }
+  else if (s == "ack") {
+    if (state == St::FAULT) { faultMsg = nullptr; armSamples = 0; tMainsUp = millis();
+                              enter(St::ARMING); Serial.println("fault cleared -> ARMING"); }
+    else Serial.println("not in FAULT");
+  }
+  else if (s.startsWith("dur")) {
+    if (s.length() > 3) {
+      uint32_t want = s.substring(3).toInt();
+      for (uint8_t i = 0; i < DUR_LADDER_COUNT; i++) if (DUR_LADDER_S[i] == want) durIx = i;
+    } else durIx = (durIx + 1) % DUR_LADDER_COUNT;      // step the ladder, like the rig's button
+    Serial.printf("duration %lu s\n", (unsigned long)DUR_LADDER_S[durIx]);
+  }
+  else if (s.startsWith("mode")) {
+    if (s.indexOf("dosed") > 0) {
+      if (!SHUNT_CALIBRATED) Serial.println("DOSED refused: shunt not calibrated (VR-11)");
+      else mode = Mode::DOSED;
+    } else mode = Mode::TIMED;
+    Serial.printf("mode %s\n", mode == Mode::TIMED ? "TIMED" : "DOSED");
+  }
+  else if (s.startsWith("preset")) {
+    uint8_t i = s.substring(6).toInt();
+    if (i < PRESET_COUNT) { sel = i; Serial.printf("preset %s\n", PRESETS[sel].name); }
+    else { for (uint8_t k = 0; k < PRESET_COUNT; k++) Serial.printf("  %u %s\n", k, PRESETS[k].name); }
+  }
+  else Serial.println("commands: st | start | stop | ack | dur [s] | mode timed|dosed | preset [n]");
+}
+
+static void pollConsole() {
+  static char buf[64]; static uint8_t n = 0;
+  while (Serial.available()) {
+    int c = Serial.read();
+    if (c == '\n' || c == '\r') { if (n) { buf[n] = 0; n = 0; handleLine(buf); } }
+    else if (c >= 0x20 && c < 0x7F && n < sizeof(buf) - 1) buf[n++] = (char)c;
+  }
 }
 
 // ---- setup / loop -----------------------------------------------------------
@@ -220,6 +333,11 @@ void setup() {
   Serial.println("WARN: flow interlock BYPASSED (FLOW_INTERLOCK=0) — as on the S3 test rig");
 #endif
   Serial.println("NOTE: no on-board thermocouple; peak temperature is the handheld + temper colour");
+#if BENCH_MODE
+  Serial.println("\n*** BENCH MODE ***  arming gate BYPASSED, interlocks BYPASSED, buttons IGNORED.");
+  Serial.println("    SSR pin GPIO 4 still drives — put an LED on it, not a coil.");
+#endif
+  Serial.println("commands: st | start | stop | ack | dur [s] | mode timed|dosed | preset [n]\n");
 
   if (!rect.begin(CAN_TX_PIN, CAN_RX_PIN, CAN_BITRATE_KBPS))
     Serial.println("WARN: TWAI init failed — rectifier link unavailable");
@@ -234,6 +352,7 @@ void loop() {
 
   // The rectifier session must be serviced unconditionally: it is what keeps the
   // setpoints alive, and its silence timeout is the safety net if this loop dies.
+  pollConsole();
   rect.service();
 
   if (now - tSlow >= 250) { tSlow = now; rect.poll(rectTelem); }
@@ -243,7 +362,14 @@ void loop() {
     switch (state) {
       case St::BOOT:     enter(St::ARMING); break;
       case St::ARMING:   doArming();   break;
-      case St::IDLE:     if (startPressed()) enter(St::PRECHECK); break;
+      case St::IDLE: {
+        // Edge, not level: after COOLDOWN a still-held button would otherwise
+        // start another cycle the moment the state returns to IDLE.
+        bool now_s = BENCH_MODE ? false : startPressed();
+        if (now_s && !lastStartLevel) enter(St::PRECHECK);
+        lastStartLevel = now_s;
+        break;
+      }
       case St::PRECHECK: doPrecheck(); break;
       case St::HEATING:  doHeating();  break;
       case St::SETTLE:   if (now - tState >= 200) enter(St::MEASURE); break;

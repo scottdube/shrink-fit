@@ -1459,3 +1459,29 @@ allocated to BO-0002.
 - Duration ladder has no input control bound yet (encoder switch in step 3).
 
 The S3 test rig stays live at the assembly table until this fires a cycle.
+
+### 2026-09-07 ~15:20 — merged firmware RUNS A CYCLE on the bench (merge step 3, partial)
+
+`env:controller_bench` on the dev board: console up, ARMED, `dur 5`, `start` →
+**GPIO 4 high for exactly 5000 ms**, log line emitted, COOLDOWN entered. The
+merged controller now does what the S3 test rig does.
+
+**Bug the bench caught:** the E-stop check was bypassed in `doPrecheck()` but not
+in `doHeating()`, so the first cycle died 5 ms in on a floating GPIO 36. Fixed at
+the helper (`estopClosed()` returns true under BENCH_MODE) rather than per call
+site — guarding callers individually is exactly how the two got out of step.
+
+**BEFORE THE ZVS TRIP — hardware, not firmware:**
+1. **External 10 kΩ to 3V3 on GPIO 34, 35 and 36.** Input-only pins, no internal
+   pull-ups (pinmap.md). Without them the buttons and the E-stop sense float and
+   read randomly. This is why BENCH_MODE ignores them.
+2. **SSR on GPIO 4** via the proven 2N3904 pattern.
+3. **CAN harness** back on: yellow=H, blue=L, no ground.
+4. Flash `env:controller` (NOT `_bench`) — the bench build bypasses every
+   interlock by design.
+
+**Still open in the merged firmware:** no WiFi/OTA/telnet at all (the S3 rig and
+ina228_test had it; main.cpp does not) — so at the ZVS it is USB-serial only
+until that is ported. Encoder not bound to duration. Lamps still the onboard LED,
+PCF8574 on the bench but not wired. Flow and coolant stubbed. tMainsUp is set at
+boot rather than from the contactor aux.
