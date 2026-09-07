@@ -1230,3 +1230,36 @@ passive `canraw` listen needs no protocol and is the zero-risk first step.
 **Bench state:** dev board (`usbserial-4`, ina228 firmware, Waveshare on
 `P14`/`P32`) and new board (`usbserial-0001`, `can_loop_listener`, Waveshare).
 Blue modules 1–3 marked and set aside for return.
+
+## 2026-09-04 evening — Vertiv protocol rewritten; NOT yet flashed
+
+`ina228_test.cpp` now speaks the R48-3000e3's actual protocol (§6.14.0 / §6.15).
+Huawei constants removed. Builds clean in both Stage 1 and `-DR48_STAGE2`.
+**The dev board still runs the old Huawei build** — both boards were off USB
+and off WiFi by the time it was ready. Nothing R48-related from that board is
+meaningful until it is flashed.
+
+### Tomorrow, in order
+
+1. **Flash the dev board.** USB: `pio run -e ina228_esp32 -t upload`. Or OTA
+   once it is powered and on WiFi: `pio run -e ina228_ota -t upload`. Confirm
+   the boot banner says `R48 mode: LISTEN`.
+2. **Decide where CAN physically is on the R48.** §6.14.1 measured the 2-pin JST
+   as not CAN; §6.14.2 says the breakout card omits comms; Scott's reading is
+   that two top fingers trace to the JST. Unresolved, and it gates everything.
+   **Never probe the edge connector live — mains enters through it.**
+3. **Wire the dev Waveshare to it**: `CANH`, `CANL`, and `GND` to `DC−`. **No
+   external termination** — the Waveshare carries 120 Ω. The 220∥270 pair from
+   the first attempt must stay out.
+4. **`canraw`, then wait.** LISTEN mode transmits nothing. If the R48 broadcasts
+   unprompted, it shows here with IDs, at zero risk.
+5. **`r48init`.** Handshake every 10 s until `HELLO`, then keep-alive. Watch for
+   the `0x11` status frame; compare its `Vout` against the meter to settle
+   `/1022`, and its `Iout` under a known load to settle `×2`.
+6. Only after 5 works: Stage 2 discussion. Not tomorrow.
+
+### Also tomorrow (Scott's list, deferred by him tonight)
+Parts order (Amazon Waveshare done; LCSC C12084 ×10 + SOIC-8 adapters
+undecided) · InvenTree PO for the two Waveshares · TI notification yes/no ·
+quarantine stock 80/83 yes/no · controller footprint: SOIC-8 on PCB vs module
+header · IC marking lines 2–3 for the return report.

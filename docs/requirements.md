@@ -1595,6 +1595,44 @@ no-node-on-the-bus symptom.** Two independent faults: wrong language, and
 probably wrong wires.
 
 
+### 6.14.0 The frames the source actually sends — filled in 2026-09-04
+
+§6.14 above recorded the reply IDs but not what triggers them. Read from
+`VertivPsu.cpp` directly and now implemented in `ina228_test.cpp` (Stage 1,
+read-only):
+
+| Step | ID | Data | Interval |
+|---|---|---|---|
+| handshake 1 (`sendSync`) | `0x0707FF83` | `04 F0 01 5A 00 00 00 00` | every 10 s until HELLO |
+| handshake 2 (`sendSync2`) | `0x0717FF83` | `04 F0 5A 00 00 00 00 00` | with handshake 1 |
+| `gimme5` | `0x06080783` | `20 F0 00 80 00 00 00 00` | with handshake |
+| **HELLO** (reply) | `0x00860F8003` | `data[3] == 0x58` first contact, `0x5D` on recovery | — |
+| control (keep-alive) | `0x06080783` | `00 F0 <ctrl> 80 00 00 00 00`, `ctrl` = dcOff<<7 \| fanFull<<4 \| flashLed<<3 \| acOff<<2 \| 1 → **`0x01`** = DC on, fan auto, AC on | every 6 s |
+| settings query (keep-alive) | `0x0647FF83` | `03 F0 00 08 3F 94 62 9B` | every 6 s |
+| `data[3] == 0x23` from R48 | any | resend both handshakes | — |
+| `data[3] == 0x5B` from R48 | any | flag only (`got5B`) | — |
+
+**Telemetry** is any frame with `data[0] == 0x11`; the source does not filter by
+ID. `Vout = (d[1]<<8 | d[2]) / 1022`, `Iout = (d[6]<<8 | d[7]) × 2`. **Both
+constants are from the source and unverified here** — the firmware prints the
+raw bytes beside the decode so first contact can settle them against the meter.
+
+**Reconciliation with §6.15.** The source's set-voltage encoding
+`(V×10 − 320) × 0x40000 / 10` with `msg[4] = 0x42` produces **exactly the
+IEEE-754 float bytes** — 52.0 → `42 50 00 00` either way. It is a mantissa
+shortcut valid for 32–64 V, not a different encoding. §6.15's float description
+is the correct general form and is what the firmware uses. Its current-percent
+formula does *not* reproduce §6.15's verified examples and is disregarded.
+
+**Conflict on `0x1A`.** The source calls it "set current in amps"; the forum
+(§6.15) calls it "AC input current limit". §6.15's decodes are verified, the
+source's are not; `0x1A` is **not implemented** in either sense.
+
+**Firmware modes (Stage 1):** `LISTEN` at boot transmits nothing and prints every
+frame with its ID; `r48init` starts the handshake and keep-alive; `r48stop`
+returns to listen. Set commands exist only behind `-DR48_STAGE2`, with the
+48.0 V clamp applied before encoding and OFFLINE (`0x24`) deliberately absent.
+
 ### 6.14.1 The 2-pin JST is NOT CAN — measured 2026-09-02
 
 **R48 on mains, DC output open, transceiver unplugged, black probe on DC−:

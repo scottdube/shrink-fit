@@ -19,6 +19,7 @@
 // dead board is ambiguous: arrived dead, or killed in the rework?
 
 #include <Arduino.h>
+#include <string.h>
 #include <Wire.h>
 #include <WiFi.h>
 #include <ArduinoOTA.h>
@@ -61,14 +62,40 @@ static void sayf(const char *fmt, ...) {
   say(buf);
 }
 
-// --- CAN (R48 rectifier) -----------------------------------------------------
-// STAGE 1 ONLY: listen, plus the 1 Hz request frame the R48 needs before it will
-// answer. NO set commands in this build. Stage 2 adds them behind a 48 V clamp.
-// Protocol from craigpeacock/Huawei_R4850G2_CAN -- requirements.md 6.13.
+// --- CAN (Vertiv R48-3000e3) --------------------------------------------------
+// Protocol: requirements.md 6.14 (IDs, handshake, keep-alive, telemetry decode,
+// from anikrooz/Emerson-Vertiv-R48) and 6.15 (set-value encoding = IEEE-754
+// big-endian float, verified against six examples). The Huawei R4850G2 protocol
+// that was here before is WITHDRAWN (6.13) -- different company, different part.
+//
+// This is a CONVERSATION, not a poll. The controller must open with a handshake
+// and then keep talking every ~6 s; after 20 s of silence the rectifier drops
+// its output, after 25 s it wants the handshake again. That is a free interlock
+// for CR-01 and a hard rule for the CAN task: it can never stall mid-cycle.
+//
+// STAGE 1 (this build): READ ONLY. Two modes --
+//   LISTEN  (boot default) transmits NOTHING. Prints every frame with its ID.
+//           Zero-risk first contact: does the R48 put anything on the bus?
+//   ACTIVE  ('r48init') runs the handshake + keep-alive and decodes telemetry.
+// No set commands are compiled in. Stage 2 adds them behind R48_STAGE2 with the
+// 48.0 V clamp (IRFP260N ceiling) -- see setVoltageOnline() below.
 static const int  CAN_TX = 14;                 // pinmap.md: P14 = pin 31
 static const int  CAN_RX = 32;                 // pinmap.md: P32 = pin 26 -- NOT GPIO12
-static const uint32_t R48_REQ_ID  = 0x108040FE; // data request, 8 x 0x00, extended
-static const uint32_t R48_DATA_ID = 0x1081407F; // telemetry reply
+
+// IDs -- all EXTENDED (29-bit). 6.14.
+static const uint32_t R48_ID_SET      = 0x0607FF83;  // set voltage / current   (Stage 2)
+static const uint32_t R48_ID_SETTINGS = 0x0647FF83;  // settings query (keep-alive)
+static const uint32_t R48_ID_CONTROL  = 0x06080783;  // control byte / 'gimme5'
+static const uint32_t R48_ID_SYNC1    = 0x0707FF83;  // handshake 1
+static const uint32_t R48_ID_SYNC2    = 0x0717FF83;  // handshake 2
+static const uint32_t R48_ID_HELLO    = 0x00860F8003;// handshake reply, data[3]==0x58
+static const uint32_t R48_ID_STATUS   = 0x00860F8007;// telemetry (data[0]==0x11)
+
+enum R48Mode { R48_LISTEN, R48_INIT, R48_RUN };
+static R48Mode  r48Mode = R48_LISTEN;
+static uint32_t r48NextTx = 0, r48LastRx = 0, r48Frames = 0, r48Hello = 0;
+static bool     r48Got5B = false;
+
 static bool     canUp = false, canRaw = false;
 static uint32_t canNextReq = 0, canRx = 0, canTx = 0, canRxErr = 0;
 
@@ -82,7 +109,7 @@ static const uint32_t PING_ID = 0x123, ECHO_ID = 0x124;
 static bool     pingMode = false, pingWait = false;
 static uint32_t pingSeq = 0, pingSent = 0, pingEcho = 0, pingLost = 0, pingTxFail = 0;
 static uint32_t pingWaitSeq = 0, pingTxAt = 0;
-static float    r48V = NAN, r48I81 = NAN, r48I82 = NAN, r48Vin = NAN, r48P = NAN;
+static float    r48V = NAN, r48I = NAN;      // Vout / Iout from the 0x11 status frame
 
 static const int PIN_SDA = 21;
 static const int PIN_SCL = 22;
@@ -200,7 +227,9 @@ static void canBegin() {
   if (twai_driver_install(&g, &t, &f) != ESP_OK) { sayfln("CAN: driver install FAILED"); return; }
   if (twai_start() != ESP_OK) { sayfln("CAN: start FAILED"); twai_driver_uninstall(); return; }
   canUp = true;
-  sayf("CAN: up, 125 kbps, TX=GPIO%d RX=GPIO%d. Requesting R48 telemetry at 1 Hz.\n", CAN_TX, CAN_RX);
+  sayf("CAN: up, 125 kbps, TX=GPIO%d RX=GPIO%d. R48 mode: %s.\n", CAN_TX, CAN_RX,
+       r48Mode == R48_LISTEN ? "LISTEN (transmitting nothing; 'r48init' to talk)"
+                             : "ACTIVE");
 }
 
 // Tear down and rebuild the driver. Needed after any wiring change: once the
@@ -213,15 +242,88 @@ static void canReset() {
   if (canUp) { twai_stop(); twai_driver_uninstall(); canUp = false; }
   canTx = canRx = canRxErr = 0;
   pingSent = pingEcho = pingLost = pingSeq = pingTxFail = 0; pingWait = false;
-  r48V = r48I81 = r48I82 = r48Vin = r48P = NAN;
+  r48V = r48I = NAN; r48Frames = r48Hello = 0; r48Got5B = false; r48NextTx = 0;
   canBegin();
 }
 
-static void canRequest() {
+static void r48Send(uint32_t id, const uint8_t d[8]) {
   twai_message_t m = {};
-  m.extd = 1; m.identifier = R48_REQ_ID; m.data_length_code = 8;
+  m.extd = 1; m.identifier = id; m.data_length_code = 8;
+  memcpy(m.data, d, 8);
   if (twai_transmit(&m, pdMS_TO_TICKS(20)) == ESP_OK) canTx++;
+  if (canRaw) { sayf("  TX 0x%08lX :", (unsigned long)id); for (int i=0;i<8;i++) sayf(" %02X", d[i]); sayfln(); }
 }
+
+// Handshake: both syncs, then 'gimme5'. Repeated every 10 s until the R48
+// answers on R48_ID_HELLO. 6.14 / source sendSync, sendSync2, gimme5.
+static void r48Handshake() {
+  static const uint8_t sync1[8]  = {0x04,0xF0,0x01,0x5A,0,0,0,0};
+  static const uint8_t sync2[8]  = {0x04,0xF0,0x5A,0x00,0,0,0,0};
+  static const uint8_t gimme5[8] = {0x20,0xF0,0x00,0x80,0,0,0,0};
+  r48Send(R48_ID_SYNC1, sync1);
+  r48Send(R48_ID_SYNC2, sync2);
+  r48Send(R48_ID_CONTROL, gimme5);
+}
+
+// Keep-alive, every 6 s once running: the control byte and the settings query.
+// Control bits: dcOff<<7 | fanFull<<4 | flashLed<<3 | acOff<<2 | 1.
+// 0x01 = DC on, fan auto, AC on. Nothing here changes a setpoint.
+static void r48KeepAlive() {
+  static const uint8_t ctrl[8]     = {0x00,0xF0,0x01,0x80,0,0,0,0};
+  static const uint8_t settings[8] = {0x03,0xF0,0x00,0x08,0x3F,0x94,0x62,0x9B};
+  r48Send(R48_ID_CONTROL, ctrl);
+  r48Send(R48_ID_SETTINGS, settings);
+}
+
+static void r48Tick() {
+  if (r48Mode == R48_LISTEN) return;                 // transmit nothing
+  uint32_t now = millis();
+  // Silence watchdog -- the rectifier's, mirrored here so we notice first.
+  if (r48Mode == R48_RUN && r48LastRx && now - r48LastRx > 25000) {
+    sayfln("R48: 25 s silence -- rectifier will want the handshake again. Re-INIT.");
+    r48Mode = R48_INIT; r48NextTx = 0;
+  } else if (r48Mode == R48_RUN && r48LastRx && now - r48LastRx > 20000) {
+    static uint32_t warned = 0;
+    if (now - warned > 5000) { warned = now; sayfln("R48: 20 s silence -- output would have dropped."); }
+  }
+  if (now < r48NextTx) return;
+  if (r48Mode == R48_INIT) { r48Handshake(); r48NextTx = now + 10000; }
+  else                     { r48KeepAlive(); r48NextTx = now + 6000;  }
+}
+
+// IEEE-754 big-endian float -> 4 bytes. 6.15: 52.0 -> 42 50 00 00, verified.
+static void encFloatBE(float v, uint8_t *out) {
+  uint32_t u; memcpy(&u, &v, 4);
+  out[0] = u >> 24; out[1] = u >> 16; out[2] = u >> 8; out[3] = u;
+}
+
+#ifdef R48_STAGE2
+// ONLINE voltage (cmd 0x21): expires after 30 s of silence, so a mistake cannot
+// persist. Clamped to 48.0 V -- the IRFP260N ceiling, 6.14/6.15 -- BEFORE
+// encoding, and the clamp is not a parameter. OFFLINE (0x24) is deliberately
+// not implemented: it persists in the rectifier across power cycles.
+static void setVoltageOnline(float volts) {
+  const float R48_VMAX = 48.0f, R48_VMIN = 41.0f;
+  if (volts > R48_VMAX) volts = R48_VMAX;
+  if (volts < R48_VMIN) volts = R48_VMIN;
+  uint8_t d[8] = {0x03,0xF0,0x00,0x21,0,0,0,0};
+  encFloatBE(volts, &d[4]);
+  r48Send(R48_ID_SET, d);
+  sayf("R48: ONLINE voltage -> %.1f V (clamped to %.1f max)\n", volts, R48_VMAX);
+}
+// ONLINE current limit (cmd 0x22) as a FRACTION of rated. 6.15: the datasheet's
+// 62.5 A is the 1.21 value, so the 100 %% base is ~51.7 A. 30 A = 0.58.
+static void setCurrentOnline(float amps) {
+  const float R48_I_BASE = 51.7f;
+  float frac = amps / R48_I_BASE;
+  if (frac > 1.21f) frac = 1.21f;
+  if (frac < 0.10f) frac = 0.10f;
+  uint8_t d[8] = {0x03,0xF0,0x00,0x22,0,0,0,0};
+  encFloatBE(frac, &d[4]);
+  r48Send(R48_ID_SET, d);
+  sayf("R48: ONLINE current -> %.1f A = %.3f of rated\n", frac * R48_I_BASE, frac);
+}
+#endif
 
 static uint32_t be32(const uint8_t *d) {
   return ((uint32_t)d[0] << 24) | ((uint32_t)d[1] << 16) | ((uint32_t)d[2] << 8) | d[3];
@@ -254,10 +356,9 @@ static void canPing() {
 
 static void canService() {
   if (!canUp) return;
-  if (millis() > canNextReq) {
-    canNextReq = millis() + 1000;
-    if (pingMode) canPing(); else canRequest();
-  }
+  if (pingMode) {
+    if (millis() > canNextReq) { canNextReq = millis() + 1000; canPing(); }
+  } else r48Tick();
 
   twai_message_t m;
   while (twai_receive(&m, 0) == ESP_OK) {
@@ -272,16 +373,33 @@ static void canService() {
            (unsigned long)got, (unsigned long)rtt, (unsigned long)st.tx_error_counter,
            (unsigned long)st.rx_error_counter, (unsigned long)st.bus_error_count);
     }
-    else if (m.extd && m.identifier == R48_DATA_ID && m.data_length_code == 8) {
-      float v = be32(&m.data[4]) / 1024.0f;
-      known = true;
-      switch (m.data[1]) {
-        case 0x75: r48V   = v; break;          // output voltage
-        case 0x81: r48I81 = v; break;          // output current -- per the CODE
-        case 0x82: r48I82 = v; break;          // output current -- per the README
-        case 0x78: r48Vin = v; break;          // input voltage
-        case 0x73: r48P   = v; break;          // output power
-        default:   known = false;
+    else if (m.extd && !pingMode) {
+      // Anything extended that is not our ping protocol is treated as the R48
+      // talking. Every frame counts as life for the silence watchdog.
+      r48LastRx = millis(); r48Frames++;
+      if (m.identifier == R48_ID_HELLO && (m.data[3] == 0x58 || m.data[3] == 0x5D)) {
+        // Handshake acknowledged. Source checks 0x58 on first contact and 0x5D
+        // on recovery; accept either and say which, the raw dump shows the truth.
+        r48Hello++;
+        if (r48Mode == R48_INIT) { r48Mode = R48_RUN; r48NextTx = 0; }
+        sayf("R48: HELLO (data[3]=0x%02X) -- handshake acknowledged, keep-alive every 6 s.\n", m.data[3]);
+        known = true;
+      }
+      else if (m.data[3] == 0x23 && r48Mode != R48_LISTEN) {
+        // Source: rectifier asks for the syncs again.
+        r48Handshake(); known = true;
+        sayfln("R48: 0x23 -- resent both syncs.");
+      }
+      else if (m.data[3] == 0x5B) { r48Got5B = true; }
+      if (m.data[0] == 0x11 && m.data_length_code == 8) {
+        // Status frame. Decode per 6.14 -- note /1022 not /1024, and the x2 on
+        // current, both from the source and BOTH to be confirmed against the
+        // meter on first contact. Printed raw alongside until they are.
+        r48V = (float)(((uint16_t)m.data[1] << 8) | m.data[2]) / 1022.0f;
+        r48I = (float)(((uint16_t)m.data[6] << 8) | m.data[7]) * 2.0f;
+        known = !canRaw;
+        sayf("R48 status: Vout %.2f V  Iout %.1f A   [raw %02X %02X | %02X %02X]\n",
+             r48V, r48I, m.data[1], m.data[2], m.data[6], m.data[7]);
       }
     }
     if (canRaw || !known) {
@@ -349,10 +467,12 @@ static void canStatus() {
   sayf("CAN %s  tx=%lu rx=%lu  tx_err=%lu rx_err=%lu  bus_err=%lu\n", state,
        (unsigned long)canTx, (unsigned long)canRx, (unsigned long)st.tx_error_counter,
        (unsigned long)st.rx_error_counter, (unsigned long)st.bus_error_count);
-  sayf("R48  Vout %.2f V   Iout[0x81] %.2f A   Iout[0x82] %.2f A   Vin %.1f V   Pout %.0f W\n",
-       r48V, r48I81, r48I82, r48Vin, r48P);
+  sayf("R48  mode %s  frames %lu  hello %lu  Vout %.2f V  Iout %.1f A  last rx %lu s ago\n",
+       r48Mode == R48_LISTEN ? "LISTEN" : r48Mode == R48_INIT ? "INIT" : "RUN",
+       (unsigned long)r48Frames, (unsigned long)r48Hello, r48V, r48I,
+       r48LastRx ? (unsigned long)((millis() - r48LastRx) / 1000) : 0UL);
   if (st.state == TWAI_STATE_BUS_OFF)
-    sayfln("  BUS-OFF: tx errors exceeded 255. Check termination (220||270 across H/L),");
+    sayfln("  BUS-OFF: tx errors exceeded 255. Termination: Waveshare has 120R onboard; add NOTHING.");
   if (pingMode) {
     sayf("PING mode: %lu sent, %lu echoed, %lu lost, %lu tx-queue-full\n",
          (unsigned long)pingSent, (unsigned long)pingEcho, (unsigned long)pingLost,
@@ -388,7 +508,7 @@ void setup() {
   identify();
   otaBegin();
   canBegin();
-  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | ping | selftest | dominant | recessive | toggle");
+  sayfln("\ncommands:  scan | id | r | stream | stop | can | canraw | canreset | r48 | r48init | r48stop | ping | selftest | dominant | recessive | toggle");
   sayfln("wifi:      ssid <name> | pass <password> | wifi? | wifi clear");
   sayfln("NOTE: with R002 still fitted, VIN+ and VIN- are shorted through");
   sayfln("2 milliohms -- a finger is ~1 megohm, so NOTHING external can move");
@@ -471,6 +591,15 @@ static void handleLine(const char *line) {
   }
   else if (s == "can")    canStatus();
   else if (s == "canreset") canReset();
+  else if (s == "r48")      canStatus();
+  else if (s == "r48init") {
+    r48Mode = R48_INIT; r48NextTx = 0; r48LastRx = 0;
+    sayfln("R48: ACTIVE -- handshake every 10 s until HELLO, then keep-alive every 6 s.");
+    sayfln("     Nothing sent changes a setpoint. 'r48stop' returns to listen-only.");
+  }
+  else if (s == "r48stop") {
+    r48Mode = R48_LISTEN; sayfln("R48: LISTEN -- transmitting nothing.");
+  }
   else if (s == "selftest") canSelfTest();
   // Drive the transceiver's D input directly as a plain GPIO, bypassing TWAI.
   // A hand jumper to GND depends on a contact we cannot verify; the P14 wire has
@@ -563,5 +692,5 @@ void loop() {
       // by the same filter that drops line noise on the UART.
     }
   }
-  if (streaming && millis() > nextRead) { nextRead = millis() + 500; dump(); if (canUp) sayf("  R48 %.2f V  %.2f A(81) %.2f A(82)\n", r48V, r48I81, r48I82); }
+  if (streaming && millis() > nextRead) { nextRead = millis() + 500; dump(); if (canUp) sayf("  R48 %.2f V  %.1f A\n", r48V, r48I); }
 }
