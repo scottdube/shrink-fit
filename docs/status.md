@@ -1681,3 +1681,20 @@ PCF8574 lamps (chip on the bench, unwired) · schematic updates from today: CAN
 transceiver choice (SOIC on board vs `J9` header), the 120 Ω termination our end
 must carry, the R48 JST connector · the `0x33` fan command mystery · the Amazon
 return for the three counterfeit transceivers, window closes ~09-17.
+
+### 2026-09-08 — the two spare 121 Ω terminators are in InvenTree
+
+The 220R∥270R pairs built on 09-04, before we found the transceiver modules carry
+their own termination, are now **[part 1179](http://inventory.internal/web/part/1179)**,
+2 off at **B3-R3C6** with the CAN gear.
+
+**Recorded rather than left in a drawer, on Scott's reasoning, which is better
+than mine was:** the workflow is brainstorm → design → *search inventory* → order
+what's missing. A part that exists but isn't recorded returns a confident false
+negative at exactly the moment it matters, and gets re-ordered. Tidiness of the
+parts list loses to that. (Same shape as `inventory-search-the-requirement`.)
+
+The part notes carry the over-termination warning and the state of every CAN
+device on hand — Waveshare 120 Ω always in circuit, CANable on a switch shipped
+ON, R48 port unterminated at 55 kΩ. A bus wants exactly two; a third gives ~40 Ω
+and loads the drivers, which cost an afternoon on 09-04.
