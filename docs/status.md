@@ -1698,3 +1698,8 @@ The part notes carry the over-termination warning and the state of every CAN
 device on hand — Waveshare 120 Ω always in circuit, CANable on a switch shipped
 ON, R48 port unterminated at 55 kΩ. A bus wants exactly two; a third gives ~40 Ω
 and loads the drivers, which cost an afternoon on 09-04.
+
+**Label printed** on Scott's say-so — job `QL810W-103`, template 12 `Shop Stock
+Item 62mm (QR + Text)`: QR to the stock item, the part name, and `2 · B3-R3C6`.
+Printed is not affixed, and nobody has said it is on the bag yet; that gap is
+normal here and is not work outstanding.
