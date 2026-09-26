@@ -898,3 +898,18 @@ high. The SSR would have been specified onto GPIO 16, the mains-drop pin.
   readable GPIO and names whichever one is being grounded. Input-only pins
   (34–39) have no internal pull-up and are invisible to it — a 3.3 V meter
   reading on a pin the chip calls LOW proves that pin is not that GPIO.
+
+## The test rig's serial banner lied about the blink rate for four weeks
+
+Asked 2026-09-26 whether the rig blinks once per 5 s or once per 10 s. The
+firmware has been **5 s per flash** since the 2026-08-31 ladder change
+(`DUR_LADDER {5,10,15,20,25,30}`, `n = runSeconds / 5`), but the boot banner
+in `testrig.cpp` still printed `ladder: 10 20 30 40 50 60 s` and `1 flash per
+10 s`, and the comment above the ladder still argued for 10 s rungs. Anyone
+reading the console instead of the code would have doubled every duration.
+Fixed the same day. The merged controller (`main.cpp`) was ported after the
+change and was never wrong.
+
+**Rule:** when a constant changes, grep for its old value in every string and
+comment in the same commit. The commit that changed the ladder touched the
+array and the divisor and nothing that a human reads.

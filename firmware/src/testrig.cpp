@@ -49,15 +49,16 @@ static Preferences prefs;
 
 // Duration ladder. The calibration protocol steps duration up between attempts,
 // so this has to be settable at the machine, not over USB.
-// 10 s rungs, so the LED read-back is one flash per 10 s: the whole ladder is
-// 1..6 flashes and countable at a glance. 5 s rungs put 60 s at twelve flashes,
-// which nobody can count. Fine time resolution is the wrong tool here anyway —
-// the machine doses on ENERGY; these timed cycles are for coil comparison.
-// Serial `d <sec>` still sets any value 1..60; the button then snaps to rung 0.
-// 5 s rungs from 2026-08-31. The 19.5 mm coil couples ~0.66 against the 60 mm
-// coil's 0.17, so 10 s there is roughly 40 s-equivalent on the old coil -- at or
-// past the 400 C ceiling on the very first run. The ladder needed a floor below
-// the smallest step the old one could take.
+// 5 s rungs, 5..30 s, so the LED read-back is one flash per 5 s: the whole
+// ladder is 1..6 flashes and countable at a glance. Fine time resolution is the
+// wrong tool here anyway — the machine doses on ENERGY; these timed cycles are
+// for coil comparison. Serial `d <sec>` still sets any value 1..60; the button
+// then snaps to rung 0.
+// History: 10 s rungs (10..60 s) until 2026-08-31. The 19.5 mm coil couples
+// ~0.66 against the 60 mm coil's 0.17, so 10 s there is roughly 40 s-equivalent
+// on the old coil -- at or past the 400 C ceiling on the very first run. The
+// ladder needed a floor below the smallest step the old one could take, and the
+// top rung was never reached with the new coil, so the count stayed at six.
 static const uint32_t DUR_LADDER[] = {5, 10, 15, 20, 25, 30};
 static const uint8_t  DUR_COUNT = sizeof(DUR_LADDER)/sizeof(DUR_LADDER[0]);
 
@@ -339,8 +340,8 @@ void setup() {
   Serial.println("First time: bus up, then 'cal <volts from PZEM>' to fix the divider.");
   Serial.printf("BUTTONS: START GPIO %d runs %lu s | STOP GPIO %d aborts | DURATION GPIO %d steps\n",
                 START_BUTTON_PIN, runSeconds, STOP_BUTTON_PIN, DURATION_BUTTON_PIN);
-  Serial.println("ladder: 10 20 30 40 50 60 s. Tap = up, hold 1 s = down.");
-  Serial.println("Blinks back at 1 flash per 10 s, so 1..6 flashes.");
+  Serial.println("ladder: 5 10 15 20 25 30 s. Tap = up, hold 1 s = down.");
+  Serial.println("Blinks back at 1 flash per 5 s, so 1..6 flashes.");
   Serial.println("STOP is a firmware abort, NOT the E-stop (SR-03).");
   Serial.println("r | r <sec> | d <sec> | w <Wh> | cal <V> | s | wifi <ssid> <pass>");
 
