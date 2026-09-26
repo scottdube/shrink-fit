@@ -913,3 +913,9 @@ change and was never wrong.
 **Rule:** when a constant changes, grep for its old value in every string and
 comment in the same commit. The commit that changed the ladder touched the
 array and the divisor and nothing that a human reads.
+
+**Not verified by a build:** `pio run -e testrig` fails at HEAD, and fails
+identically on the commit before this fix — `BUS_DIV_RATIO` and
+`CONTACTOR_PIN` left `config.h` when the merged controller was built
+(a10a488, 2026-09-07) and `testrig.cpp` was never updated. The rig firmware on
+the bench is the 2026-08-31 flash; the source has not compiled since 09-07.
